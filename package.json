@@ -4,9 +4,9 @@
   "description": "Dashboard para la gestión de ciudadanos",
   "main": "config/main.js",
   "scripts": {
-    "dev": "concurrently \"npm:react\" \"npm:electron\"",
-    "react": "cd renderer && npm run dev",
-    "electron": "wait-on http://localhost:5173 && electron ."
+    "dev": "concurrently \"pnpm --dir renderer dev\" \"pnpm electron\"",
+    "next": "cd renderer && pnpm dev",
+    "electron": "wait-on http://localhost:3000 && electron ."
   },
   "author": "Julio Pineda",
   "license": "MIT",
