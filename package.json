@@ -11,16 +11,8 @@
   "author": "Julio Pineda",
   "license": "MIT",
   "devDependencies": {
-    "@types/d3": "^7.4.3",
-    "@types/leaflet": "^1.9.21",
     "concurrently": "^9.2.1",
     "electron": "^41.2.1",
     "wait-on": "^9.0.5"
-  },
-  "dependencies": {
-    "d3": "^7.9.0",
-    "leaflet": "^1.9.4",
-    "leaflet.heat": "^0.2.0",
-    "react-leaflet": "^5.0.0"
   }
 }
