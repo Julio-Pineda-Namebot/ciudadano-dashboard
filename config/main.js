@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, nativeTheme } = require('electron')
+const { app, BrowserWindow, Menu, nativeTheme, session } = require('electron') // ← agrega session
 const path = require('path');
 
 Menu.setApplicationMenu(null);
@@ -21,5 +21,16 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+  // ← Agrega esto antes de createWindow()
+  session.defaultSession.setPermissionRequestHandler(
+    (webContents, permission, callback) => {
+      if (permission === 'geolocation') {
+        callback(true) // ← permite ubicación
+      } else {
+        callback(false)
+      }
+    }
+  )
+
   createWindow()
 })
