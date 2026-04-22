@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react"
 const DEFAULT_LAT = -14.0755
 const DEFAULT_LNG = -75.7285
 
-// Genera puntos aleatorios alrededor de un centro
 function generateCluster(
   centerLat: number,
   centerLng: number,
@@ -15,35 +14,29 @@ function generateCluster(
   return Array.from({ length: count }, () => [
     centerLat + (Math.random() - 0.5) * spread,
     centerLng + (Math.random() - 0.5) * spread,
-    Math.random() * 0.8 + 0.2, // intensidad entre 0.2 y 1.0
+    Math.random() * 0.8 + 0.2,
   ])
 }
 
-// Simula zonas de incidentes en Ica
 const HEAT_DATA: [number, number, number][] = [
-  // Zona centro - alta densidad
   ...generateCluster(-14.0755, -75.7285, 80, 0.02),
-  // Zona norte
   ...generateCluster(-14.0600, -75.7200, 50, 0.015),
-  // Zona sur
   ...generateCluster(-14.0900, -75.7350, 40, 0.018),
-  // Zona este
   ...generateCluster(-14.0700, -75.7100, 35, 0.012),
-  // Zona oeste
   ...generateCluster(-14.0800, -75.7450, 30, 0.014),
-  // Focos pequeños dispersos
   ...generateCluster(-14.0650, -75.7300, 20, 0.008),
   ...generateCluster(-14.0820, -75.7180, 25, 0.010),
   ...generateCluster(-14.0700, -75.7400, 15, 0.006),
 ]
 
 export default function HeatMap() {
-  const mapRef = useRef<HTMLDivElement>(null)
+  const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const [status, setStatus] = useState<"loading" | "ok" | "denied">("loading")
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return
+    if (!mapRef.current) return
+    if (mapInstanceRef.current) return
 
     let map: any = null
 
@@ -52,6 +45,11 @@ export default function HeatMap() {
       await import("leaflet/dist/leaflet.css")
 
       if (!mapRef.current) return
+
+      // ✅ Fix StrictMode: limpiar instancia previa si existe
+      if ((mapRef.current as any)._leaflet_id) {
+        ;(mapRef.current as any)._leaflet_id = null
+      }
 
       map = L.map(mapRef.current, {
         center: [DEFAULT_LAT, DEFAULT_LNG],
@@ -73,6 +71,11 @@ export default function HeatMap() {
 
       // Cargar leaflet.heat desde CDN
       await new Promise<void>((resolve) => {
+        // ✅ Evita cargar el script dos veces
+        if (document.querySelector('script[src*="leaflet-heat"]')) {
+          resolve()
+          return
+        }
         const script = document.createElement("script")
         script.src = "https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"
         script.onload = () => resolve()
@@ -82,34 +85,32 @@ export default function HeatMap() {
       setTimeout(() => {
         if (!mapInstanceRef.current) return
         ;(L as any).heatLayer(HEAT_DATA, {
-          radius: 25,       // radio de cada punto
-          blur: 20,         // difuminado
+          radius: 25,
+          blur: 20,
           maxZoom: 17,
           max: 1.0,
           minOpacity: 0.3,
           gradient: {
-            0.2: "#2563eb",  // azul - baja densidad
-            0.4: "#22c55e",  // verde
-            0.6: "#eab308",  // amarillo
-            0.8: "#f97316",  // naranja
-            1.0: "#ef4444",  // rojo - alta densidad
+            0.2: "#2563eb",
+            0.4: "#22c55e",
+            0.6: "#eab308",
+            0.8: "#f97316",
+            1.0: "#ef4444",
           },
         }).addTo(map)
       }, 300)
 
-      // Geolocalización
+      // Geolocalización — solo marcador, sin mover el mapa
       navigator.geolocation.getCurrentPosition(
         ({ coords }) => {
           if (!mapInstanceRef.current) return
-          const { latitude, longitude } = coords
-          map.setView([latitude, longitude], 14)
 
-          L.marker([latitude, longitude], { icon })
+          L.marker([coords.latitude, coords.longitude], { icon })
             .addTo(map)
             .bindPopup("📍 Tu ubicación actual")
             .openPopup()
 
-          L.circle([latitude, longitude], {
+          L.circle([coords.latitude, coords.longitude], {
             radius: coords.accuracy,
             color: "#3b82f6",
             fillColor: "#93c5fd",
@@ -136,6 +137,10 @@ export default function HeatMap() {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
+      }
+      // ✅ Limpia el _leaflet_id del contenedor
+      if (mapRef.current) {
+        ;(mapRef.current as any)._leaflet_id = null
       }
     }
   }, [])

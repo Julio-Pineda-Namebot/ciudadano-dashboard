@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, nativeTheme, session } = require('electron') // ← agrega session
+const { app, BrowserWindow, Menu, nativeTheme, session, dialog } = require('electron') // ← agrega dialog
 const path = require('path');
 
 Menu.setApplicationMenu(null);
@@ -12,7 +12,7 @@ const createWindow = () => {
     backgroundColor: '#0a0a0a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,  
+      contextIsolation: true,
       nodeIntegration: false,
     }
   });
@@ -21,11 +21,20 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
-  // ← Agrega esto antes de createWindow()
+  // ← Pide permiso al usuario con diálogo
   session.defaultSession.setPermissionRequestHandler(
     (webContents, permission, callback) => {
       if (permission === 'geolocation') {
-        callback(true) // ← permite ubicación
+        dialog.showMessageBox({
+          type: 'question',
+          buttons: ['Permitir', 'Denegar'],
+          defaultId: 0,
+          title: 'Permiso de ubicación',
+          message: 'Ciudadano Dashboard quiere acceder a tu ubicación',
+          detail: 'Esto permite mostrar tu posición en el mapa de incidentes.',
+        }).then(({ response }) => {
+          callback(response === 0) // 0 = Permitir, 1 = Denegar
+        })
       } else {
         callback(false)
       }
