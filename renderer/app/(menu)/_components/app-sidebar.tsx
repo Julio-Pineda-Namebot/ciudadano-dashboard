@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Image from "next/image"
-
 import { NavMain } from "@/app/(menu)/_components/nav-main"
 import { NavUser } from "@/app/(menu)/_components/nav-user"
 import { useAuth, useIsSuperAdmin } from "@/app/(menu)/_components/auth-provider"
@@ -23,8 +22,8 @@ const incidentsItem = {
   url: "#",
   icon: <TerminalSquareIcon />,
   items: [
-    { title: "Mapa de Calor", url: "/HeatMap" },
-    { title: "Registrar", url: "#" },
+    { title: "Mapa de Calor", url: "/incident/heatmap" },
+    { title: "Ver reportes", url: "#" },
   ],
 }
 
@@ -40,7 +39,7 @@ const securityItem = {
   icon: <ShieldCog />,
   items: [
     { title: "Grupos", url: "#" },
-    { title: "Administrador", url: "#" },
+    { title: "Usuarios web", url: "#" },
     { title: "Configuración", url: "#" },
   ],
 }

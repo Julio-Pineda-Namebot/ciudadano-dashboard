@@ -1,7 +1,7 @@
 "use client" 
 import dynamic from "next/dynamic"
 
-const HeatMap = dynamic(() => import("./_components/HeatMap"), { ssr: false })
+const HeatMap = dynamic(() => import("@/app/(menu)/incident/heatmap/_components/HeatMap"), { ssr: false })
 
 export default function HeatMapPage() {
   return (
