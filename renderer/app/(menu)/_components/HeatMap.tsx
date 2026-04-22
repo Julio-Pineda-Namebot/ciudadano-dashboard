@@ -57,7 +57,6 @@ export default function HeatMap() {
         attribution: "© OpenStreetMap contributors",
       }).addTo(map)
 
-      // Marcador fijo en Ica
       const icon = L.icon({
         iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
         iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -71,7 +70,6 @@ export default function HeatMap() {
         .bindPopup("📍 Ica, Perú")
         .openPopup()
 
-      // Cargar leaflet.heat
       await new Promise<void>((resolve) => {
         if (document.querySelector('script[src*="leaflet-heat"]')) {
           resolve()

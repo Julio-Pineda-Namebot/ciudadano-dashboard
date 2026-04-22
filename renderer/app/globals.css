@@ -136,9 +136,7 @@
   }
 }
 
-/* Elimina todo esto: */
 
-/* ✅ Fix z-index Leaflet vs Sidebar/Dropdown */
 .leaflet-pane {
   z-index: 200 !important;
 }
