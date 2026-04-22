@@ -100,37 +100,53 @@ export default function HeatMap() {
         }).addTo(map)
       }, 300)
 
-      // Geolocalización — solo marcador, sin mover el mapa
-      navigator.geolocation.getCurrentPosition(
-        ({ coords }) => {
-          if (!mapInstanceRef.current) return
+      // Geolocalización con reintento
+const tryGeolocation = (L: any, map: any, icon: any, attempts = 0) => {
+  navigator.geolocation.getCurrentPosition(
+    ({ coords }) => {
+      if (!mapInstanceRef.current) return
 
-          L.marker([coords.latitude, coords.longitude], { icon })
-            .addTo(map)
-            .bindPopup("📍 Tu ubicación actual")
-            .openPopup()
+      L.marker([coords.latitude, coords.longitude], { icon })
+        .addTo(map)
+        .bindPopup("📍 Tu ubicación actual")
+        .openPopup()
 
-          L.circle([coords.latitude, coords.longitude], {
-            radius: coords.accuracy,
-            color: "#3b82f6",
-            fillColor: "#93c5fd",
-            fillOpacity: 0.15,
-            weight: 1,
-          }).addTo(map)
+      L.circle([coords.latitude, coords.longitude], {
+        radius: coords.accuracy,
+        color: "#3b82f6",
+        fillColor: "#93c5fd",
+        fillOpacity: 0.15,
+        weight: 1,
+      }).addTo(map)
 
-          setStatus("ok")
-        },
-        () => {
-          setStatus("denied")
-          L.marker([DEFAULT_LAT, DEFAULT_LNG], { icon })
-            .addTo(map)
-            .bindPopup("📍 Ica, Perú")
-            .openPopup()
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      )
+      setStatus("ok")
+    },
+    (err) => {
+      console.warn(`Intento ${attempts + 1} fallido:`, err.code, err.message)
+
+      // ✅ Si el permiso aún no fue procesado, reintenta hasta 3 veces
+      if (attempts < 3 && err.code === 1) {
+        setTimeout(() => tryGeolocation(L, map, icon, attempts + 1), 1500)
+        return
+      }
+
+      setStatus("denied")
+      L.marker([DEFAULT_LAT, DEFAULT_LNG], { icon })
+        .addTo(map)
+        .bindPopup("📍 Ica, Perú")
+        .openPopup()
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,  // ← 15 segundos
+      maximumAge: 0,
     }
+  )
+}
 
+// Espera un poco antes de pedir ubicación (da tiempo a Electron)
+setTimeout(() => tryGeolocation(L, map, icon), 500)
+}
     initMap()
 
     return () => {
