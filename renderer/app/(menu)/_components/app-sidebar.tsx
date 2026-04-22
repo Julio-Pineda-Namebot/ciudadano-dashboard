@@ -16,28 +16,31 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { TerminalSquareIcon, ShieldCog } from "lucide-react"
+import { TerminalSquareIcon, ShieldCog, Newspaper } from "lucide-react"
 
-const playgroundItem = {
-  title: "Playground",
+const incidentsItem = {
+  title: "Incidencias",
   url: "#",
   icon: <TerminalSquareIcon />,
-  isActive: true,
   items: [
-    { title: "Mapa de Incidentes", url: "/HeatMap" },
-    { title: "Starred", url: "#" },
-    { title: "Settings", url: "#" },
+    { title: "Mapa de Calor", url: "/HeatMap" },
+    { title: "Registrar", url: "#" },
   ],
+}
+
+const newsItem = {
+  title: "Noticias",
+  url: "#",
+  icon: <Newspaper />,
 }
 
 const securityItem = {
   title: "Seguridad",
   url: "#",
   icon: <ShieldCog />,
-  isActive: true,
   items: [
     { title: "Grupos", url: "#" },
-    { title: "Administrar Admins", url: "#" },
+    { title: "Administrador", url: "#" },
     { title: "Configuración", url: "#" },
   ],
 }
@@ -46,7 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const profile = useAuth()
   const isSuperAdmin = useIsSuperAdmin()
 
-  const navMain = isSuperAdmin ? [playgroundItem, securityItem] : [playgroundItem]
+  const navMain = isSuperAdmin ? [incidentsItem, newsItem, securityItem] : [incidentsItem, newsItem]
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -54,7 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/menu">
                 <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Image
                     src="/favicon.ico"
@@ -64,7 +67,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     className="size-7 object-contain"
                   />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
+                <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
                   <span className="font-medium">Ciudadano</span>
                   <span className="">v1.0.0</span>
                 </div>

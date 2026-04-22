@@ -11,7 +11,8 @@ import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 
 const ROUTE_LABELS: Record<string, string> = {
-  '/menu': 'Mapa de Incidentes',
+  '/menu': 'Bienvenido al Sistema',
+  '/HeatMap': 'Mapa de Calor',
   '/account': 'Mi cuenta',
 }
 

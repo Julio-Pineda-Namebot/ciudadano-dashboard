@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, nativeTheme, session, dialog } = require('electron') // ← agrega dialog
+const { app, BrowserWindow, Menu, nativeTheme, session, dialog } = require('electron')
 const path = require('path');
 
 Menu.setApplicationMenu(null);
