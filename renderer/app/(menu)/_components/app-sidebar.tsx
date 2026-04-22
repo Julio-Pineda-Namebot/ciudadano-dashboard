@@ -24,7 +24,7 @@ const playgroundItem = {
   icon: <TerminalSquareIcon />,
   isActive: true,
   items: [
-    { title: "History", url: "#" },
+    { title: "Mapa de Incidentes", url: "/HeatMap" },
     { title: "Starred", url: "#" },
     { title: "Settings", url: "#" },
   ],

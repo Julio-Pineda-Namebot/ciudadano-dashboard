@@ -135,3 +135,22 @@
     @apply font-sans;
   }
 }
+
+
+.leaflet-pane {
+  z-index: 200 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 201 !important;
+}
+
+.leaflet-control {
+  z-index: 201 !important;
+}
+
+/* El dropdown del sidebar queda encima del mapa */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
