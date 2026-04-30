@@ -1,12 +1,13 @@
-"use client" 
-import dynamic from "next/dynamic"
+import { getIncidents } from "./actions"
+import { HeatMapClient } from "./_components/HeatMapClient"
 
-const HeatMap = dynamic(() => import("@/app/(menu)/incident/heatmap/_components/HeatMap"), { ssr: false })
+export default async function HeatMapPage() {
+  const { points, typeCounts } = await getIncidents()
 
-export default function HeatMapPage() {
   return (
     <div className="p-6 space-y-4">
-      <HeatMap />
+      <h1 className="text-2xl font-bold text-gray-800">Mapa de calor de incidencias registradas</h1>
+      <HeatMapClient initialPoints={points} typeCounts={typeCounts} />
     </div>
   )
 }

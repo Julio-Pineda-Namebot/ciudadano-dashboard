@@ -1,39 +1,40 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { io, type Socket } from "socket.io-client"
 import type { Map as LeafletMap } from "leaflet"
-import type { LeafletHeatModule, LeafletElement } from "../_types/heatmap"
+import type { HeatLayer, LeafletHeatModule, LeafletElement } from "../_types/heatmap"
 
 const DEFAULT_LAT = -14.0755
 const DEFAULT_LNG = -75.7285
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
 
-function generateCluster(
-  centerLat: number,
-  centerLng: number,
-  count: number,
-  spread: number
-): [number, number, number][] {
-  return Array.from({ length: count }, () => [
-    centerLat + (Math.random() - 0.5) * spread,
-    centerLng + (Math.random() - 0.5) * spread,
-    Math.random() * 0.8 + 0.2,
-  ])
+interface IncidentPayload {
+  incident: {
+    geolocation: { latitude: number; longitude: number }
+  }
 }
 
-const HEAT_DATA: [number, number, number][] = [
-  ...generateCluster(-14.0755, -75.7285, 80, 0.02),
-  ...generateCluster(-14.0600, -75.7200, 50, 0.015),
-  ...generateCluster(-14.0900, -75.7350, 40, 0.018),
-  ...generateCluster(-14.0700, -75.7100, 35, 0.012),
-  ...generateCluster(-14.0800, -75.7450, 30, 0.014),
-  ...generateCluster(-14.0650, -75.7300, 20, 0.008),
-  ...generateCluster(-14.0820, -75.7180, 25, 0.010),
-  ...generateCluster(-14.0700, -75.7400, 15, 0.006),
-]
+async function fetchToken(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/auth/ws-token', { cache: 'no-store' })
+    if (!res.ok) return null
+    const body = (await res.json()) as { token?: string }
+    return body.token ?? null
+  } catch {
+    return null
+  }
+}
 
-export default function HeatMap() {
+interface Props {
+  initialPoints?: [number, number, number][]
+}
+
+export default function HeatMap({ initialPoints = [] }: Props) {
   const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<LeafletMap | null>(null)
+  const heatLayerRef   = useRef<HeatLayer | null>(null)
+  const socketRef      = useRef<Socket | null>(null)
 
   useEffect(() => {
     if (!mapRef.current) return
@@ -44,10 +45,11 @@ export default function HeatMap() {
     const initMap = async () => {
       const L = (await import("leaflet")).default
       await import("leaflet/dist/leaflet.css")
+      // leaflet-heat es un script global que hace window.L.heatLayer = fn
+      // sin esto, L.heatLayer queda undefined
+      ;(window as unknown as { L: typeof L }).L = L
 
-      if (container._leaflet_id) {
-        container._leaflet_id = null
-      }
+      if (container._leaflet_id) container._leaflet_id = null
 
       const map = L.map(container, {
         center: [DEFAULT_LAT, DEFAULT_LNG],
@@ -72,39 +74,68 @@ export default function HeatMap() {
         iconAnchor: [12, 41],
       })
 
-      L.marker([DEFAULT_LAT, DEFAULT_LNG], { icon })
-        .addTo(map)
-        .bindPopup("📍 Ica, Perú")
-        .openPopup()
-
-      await new Promise<void>((resolve) => {
-        if (document.querySelector('script[src*="leaflet-heat"]')) {
-          resolve()
-          return
-        }
-        const script = document.createElement("script")
-        script.src = "https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"
-        script.onload = () => resolve()
-        document.head.appendChild(script)
+      // Marcar ubicación del usuario sin mover la vista del mapa
+      // (setView:false para no alejar de la zona de incidentes)
+      map.on("locationfound", (e) => {
+        L.marker(e.latlng, { icon })
+          .addTo(map)
+          .bindPopup("📍 Tu ubicación actual")
+        L.circle(e.latlng, { radius: e.accuracy, color: "#3b82f6", fillOpacity: 0.1 }).addTo(map)
       })
 
-      setTimeout(() => {
-        if (!mapInstanceRef.current) return
-        ;(L as LeafletHeatModule).heatLayer(HEAT_DATA, {
-          radius: 25,
-          blur: 20,
-          maxZoom: 17,
-          max: 1.0,
-          minOpacity: 0.3,
-          gradient: {
-            0.2: "#2563eb",
-            0.4: "#22c55e",
-            0.6: "#eab308",
-            0.8: "#f97316",
-            1.0: "#ef4444",
-          },
-        }).addTo(map)
-      }, 300)
+      map.locate({ setView: false, timeout: 10000 })
+
+      // En Electron, `exports`/`module`/`require` son globales reales de Node.js,
+      // no propiedades de window. leaflet-heat detecta eso y usa require('leaflet')
+      // en vez de window.L, apuntando a una instancia distinta de leaflet.
+      // Solución: fetch + new Function crea un scope propio donde pasamos
+      // exports/module/require como undefined, forzando la rama window.L.
+      if (!('heatLayer' in L)) {
+        const code = await fetch('https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js').then(r => r.text())
+        // eslint-disable-next-line no-new-func
+        new Function('exports', 'module', 'require', 'define', code)(undefined, undefined, undefined, undefined)
+      }
+
+      console.log('[heatmap] heatLayer disponible:', 'heatLayer' in L)
+      console.log('[heatmap] initialPoints:', initialPoints.length, initialPoints[0])
+
+      heatLayerRef.current = (L as LeafletHeatModule).heatLayer(initialPoints, {
+        radius: 25,
+        blur: 20,
+        maxZoom: 17,
+        max: 1.0,
+        minOpacity: 0.3,
+        gradient: {
+          0.2: "#2563eb",
+          0.4: "#22c55e",
+          0.6: "#eab308",
+          0.8: "#f97316",
+          1.0: "#ef4444",
+        },
+      }).addTo(map)
+
+      const token = await fetchToken()
+      if (!token) {
+        console.warn("[heatmap] no token — socket no conectado")
+        return
+      }
+
+      const socket = io(`${BACKEND_URL}/incidents`, {
+        auth: { token },
+        transports: ['websocket'],
+        reconnection: true,
+      })
+      socketRef.current = socket
+
+      socket.on("connect", () => console.log("[heatmap] socket conectado"))
+      socket.on("disconnect", (r) => console.log("[heatmap] socket desconectado", r))
+      socket.on("connect_error", (e) => console.error("[heatmap] connect_error", e.message))
+
+      socket.on("incident:reported", ({ incident }: IncidentPayload) => {
+        console.log("[heatmap] incident recibido", incident)
+        const { latitude, longitude } = incident.geolocation
+        heatLayerRef.current?.addLatLng([latitude, longitude, 1.0])
+      })
 
       const legend = new L.Control({ position: "topright" })
       legend.onAdd = () => {
@@ -134,6 +165,8 @@ export default function HeatMap() {
     initMap()
 
     return () => {
+      socketRef.current?.disconnect()
+      socketRef.current = null
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null

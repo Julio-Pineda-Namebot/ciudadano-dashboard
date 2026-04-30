@@ -12,7 +12,9 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 
 const ROUTE_LABELS: Record<string, string> = {
   '/menu': 'Bienvenido al Sistema',
-  '/HeatMap': 'Mapa de Calor',
+  '/incident/heatmap': 'Mapa de Calor',
+  '/incident/incident-report': 'Reportes de Incidencias',
+  '/news': 'Noticias',
   '/account': 'Mi cuenta',
 }
 

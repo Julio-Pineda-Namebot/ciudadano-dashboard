@@ -23,13 +23,13 @@ const incidentsItem = {
   icon: <TerminalSquareIcon />,
   items: [
     { title: "Mapa de Calor", url: "/incident/heatmap" },
-    { title: "Ver reportes", url: "#" },
+    { title: "Ver reportes", url: "/incident/incident-report" },
   ],
 }
 
 const newsItem = {
   title: "Noticias",
-  url: "#",
+  url: "/news",
   icon: <Newspaper />,
 }
 
