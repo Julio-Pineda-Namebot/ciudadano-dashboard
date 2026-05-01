@@ -42,7 +42,7 @@ export function SessionActiveDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent size="sm">
+      <AlertDialogContent size="default">
         <AlertDialogHeader>
           <AlertDialogTitle>Sesión activa detectada</AlertDialogTitle>
           <AlertDialogDescription asChild>

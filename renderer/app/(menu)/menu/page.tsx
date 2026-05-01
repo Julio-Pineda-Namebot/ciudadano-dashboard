@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth, useIsSuperAdmin } from '@/app/(menu)/_components/auth-provider'
+import { BreadcrumbSetter } from '@/app/(menu)/_components/breadcrumb-setter'
 import { TerminalSquareIcon, Newspaper, ShieldCog, MapPin, BarChart3, Bell, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -81,6 +82,7 @@ export default function WelcomePage() {
 
   return (
     <div className="min-h-full p-6 space-y-8">
+      <BreadcrumbSetter items={[{ label: 'Inicio' }]} />
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-8">
         <div className="absolute inset-0 bg-linear-to-br from-sidebar-primary/10 via-transparent to-transparent pointer-events-none" />

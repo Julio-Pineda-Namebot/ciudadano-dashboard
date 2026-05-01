@@ -22,6 +22,7 @@ const incidentsItem = {
   url: "#",
   icon: <TerminalSquareIcon />,
   items: [
+    { title: "Dashboard", url: "/incident/dashboard" },
     { title: "Mapa de Calor", url: "/incident/heatmap" },
     { title: "Ver reportes", url: "/incident/incident-report" },
   ],

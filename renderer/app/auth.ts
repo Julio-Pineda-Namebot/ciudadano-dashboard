@@ -60,11 +60,14 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
         const body = err.body as { activeSession?: ActiveSessionInfo } | undefined
         return { sessionActive: true, activeSession: body?.activeSession }
       }
-      if (err.status === 400) {
+      if (err.status === 400 || err.status === 401) {
         return { error: 'Usuario o contraseña inválidos' }
       }
+      if (err.status >= 500) {
+        return { error: 'Verifica tus datos e intenta nuevamente.' }
+      }
     }
-    return { error: err instanceof Error ? err.message : 'Error de conexión con el servidor' }
+    return { error: 'Error de conexión con el servidor' }
   }
 
   await createSession(token)

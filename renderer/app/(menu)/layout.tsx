@@ -6,6 +6,7 @@ import { SocketProvider } from './_components/socket-provider'
 import { AuthProvider } from './_components/auth-provider'
 import { AppSidebar } from './_components/app-sidebar'
 import { AppHeader } from './_components/app-header'
+import { BreadcrumbProvider } from './_components/breadcrumb-context'
 import { fetchProfile, revokeSession } from '@/app/auth'
 
 export default async function MenuLayout({ children }: { children: React.ReactNode }) {
@@ -19,13 +20,15 @@ export default async function MenuLayout({ children }: { children: React.ReactNo
     <AuthProvider profile={profile!}>
       <SocketProvider>
         <TooltipProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <AppHeader />
-              {children}
-            </SidebarInset>
-          </SidebarProvider>
+          <BreadcrumbProvider>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <AppHeader />
+                {children}
+              </SidebarInset>
+            </SidebarProvider>
+          </BreadcrumbProvider>
         </TooltipProvider>
       </SocketProvider>
     </AuthProvider>
