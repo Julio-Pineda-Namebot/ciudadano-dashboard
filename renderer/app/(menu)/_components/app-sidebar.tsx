@@ -39,8 +39,9 @@ const securityItem = {
   url: "#",
   icon: <ShieldCog />,
   items: [
-    { title: "Grupos", url: "#" },
-    { title: "Usuarios web", url: "#" },
+    { title: "Grupos", url: "/seguridad/grupos" },
+    { title: "Usuarios web", url: "/seguridad/usuarios-web" },
+    { title: "Cámaras", url: "/seguridad/camaras" },
     { title: "Configuración", url: "#" },
   ],
 }

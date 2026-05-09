@@ -20,7 +20,6 @@ export function NewsTable({ news, onEdit, onDelete }: Props) {
       columns={columns}
       searchPlaceholder="Buscar noticia..."
       searchColumn="title"
-      pageSize={5}
     />
   )
 }

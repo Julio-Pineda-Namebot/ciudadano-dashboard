@@ -9,6 +9,10 @@ import { io, type Socket } from "socket.io-client"
 const DEFAULT_LNG = -75.7285
 const DEFAULT_LAT = -14.0755
 const DEFAULT_ZOOM = 13
+const MIN_ZOOM = 11
+
+// Límites del distrito de Ica: [lng_oeste, lat_sur, lng_este, lat_norte]
+const ICA_BOUNDS: mapboxgl.LngLatBoundsLike = [[-75.90, -14.22], [-75.55, -13.92]]
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
 
 const STYLE_STANDARD  = 'mapbox://styles/mapbox/standard'
@@ -89,6 +93,35 @@ function addHeatmapLayer(map: mapboxgl.Map, data: GeoJSON.FeatureCollection) {
   map.setConfigProperty('basemap', 'lightPreset', getLightPreset())
 }
 
+const LEGEND_STOPS = [
+  { label: 'Crítica',   color: 'rgba(195,40,30,0.88)' },
+  { label: 'Muy alta',  color: 'rgba(240,120,40,0.84)' },
+  { label: 'Alta',      color: 'rgba(240,210,70,0.75)' },
+  { label: 'Moderada',  color: 'rgba(60,180,140,0.65)' },
+  { label: 'Baja',      color: 'rgba(100,180,220,0.50)' },
+  { label: 'Muy baja',  color: 'rgba(100,180,220,0.20)' },
+]
+
+function HeatmapLegend() {
+  const gradientColors = LEGEND_STOPS.map(s => s.color).join(', ')
+  return (
+    <div className="absolute bottom-10 left-4 z-10 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md px-3 py-2.5 flex gap-2.5 items-stretch">
+      <div
+        className="w-3 rounded-full shrink-0"
+        style={{ background: `linear-gradient(to bottom, ${gradientColors})` }}
+      />
+      <div className="flex flex-col justify-between">
+        {LEGEND_STOPS.map(({ label, color }) => (
+          <div key={label} className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
+            <span className="text-[10px] font-medium text-gray-600 leading-none">{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 interface Props {
   initialPoints?: [number, number, number][]
 }
@@ -131,6 +164,8 @@ export default function HeatMap({ initialPoints = [] }: Props) {
       style: STYLE_STANDARD,
       center: [DEFAULT_LNG, DEFAULT_LAT],
       zoom: DEFAULT_ZOOM,
+      minZoom: MIN_ZOOM,
+      maxBounds: ICA_BOUNDS,
     })
     mapRef.current = map
 
@@ -211,6 +246,8 @@ export default function HeatMap({ initialPoints = [] }: Props) {
           {isSatellite ? 'Estándar' : 'Satélite'}
         </span>
       </button>
+
+      <HeatmapLegend />
 
       {/* Botón volver a ubicación por defecto */}
       <button

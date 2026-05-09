@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, nativeTheme, session, dialog } = require('electron')
+const { app, BrowserWindow, Menu, nativeTheme, session, dialog, systemPreferences } = require('electron')
 const path = require('path');
 
 Menu.setApplicationMenu(null);
@@ -20,7 +20,12 @@ const createWindow = () => {
   win.loadURL('http://localhost:3000');
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // En macOS hay que pedirle al SO permiso de cámara antes que al usuario.
+  if (process.platform === 'darwin') {
+    try { await systemPreferences.askForMediaAccess('camera') } catch {}
+  }
+
   // ← Pide permiso al usuario con diálogo
   session.defaultSession.setPermissionRequestHandler(
     (webContents, permission, callback) => {
@@ -35,11 +40,19 @@ app.whenReady().then(() => {
         }).then(({ response }) => {
           callback(response === 0) // 0 = Permitir, 1 = Denegar
         })
+      } else if (permission === 'media') {
+        callback(true)
       } else {
         callback(false)
       }
     }
   )
+
+  // Algunas versiones de Electron consultan vía permission check (síncrono).
+  session.defaultSession.setPermissionCheckHandler((_wc, permission) => {
+    if (permission === 'media') return true
+    return false
+  })
 
   createWindow()
 })
