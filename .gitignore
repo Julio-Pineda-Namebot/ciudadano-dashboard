@@ -2,3 +2,4 @@ node_modules/
 renderer/node_modules/
 renderer/dist/
 .env
+dist

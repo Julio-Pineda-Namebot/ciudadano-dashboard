@@ -15,6 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useModuleTheme, MODULE_BUTTON_CLASS } from '@/components/common/module-theme'
+import { cn } from '@/lib/utils'
 import type { News, NewsFormData } from '../_types/news'
 
 interface Props {
@@ -45,6 +47,8 @@ const EMPTY_FORM: NewsFormValues = {
 }
 
 export function NewsFormModal({ open, news, onClose, onSubmit }: Props) {
+  const theme = useModuleTheme()
+  const btnClass = theme?.color ? MODULE_BUTTON_CLASS[theme.color] : ''
   const {
     register,
     handleSubmit,
@@ -171,7 +175,7 @@ export function NewsFormModal({ open, news, onClose, onSubmit }: Props) {
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="news-form" disabled={isSubmitting}>
+          <Button type="submit" form="news-form" disabled={isSubmitting} className={cn(btnClass)}>
             {isSubmitting ? (
               <>
                 <Spinner />

@@ -1,6 +1,6 @@
 export interface Geolocation {
-  lat: number
-  lng: number
+  latitude: number
+  longitude: number
 }
 
 export interface IncidentReport {
@@ -9,9 +9,11 @@ export interface IncidentReport {
   incidentType: string
   description: string
   multimediaUrl: string
-  multimediaKey: string
   geolocation: Geolocation
   createdAt: string
 }
 
-export type IncidentReportFormData = Omit<IncidentReport, 'id' | 'multimediaKey' | 'createdAt'>
+export interface IncidentReportUpdateData {
+  incidentType?: string
+  description?: string
+}

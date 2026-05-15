@@ -18,6 +18,7 @@ import {
 
 import FormField from '@/components/common/form/FormField'
 import type { FieldMetadata } from '@/components/common/form/types'
+import { useModuleTheme, MODULE_BUTTON_CLASS } from '@/components/common/module-theme'
 
 export type FilterBodyEntry = string | React.ReactElement
 
@@ -33,6 +34,7 @@ interface FilterConfig {
   submitIcon?: React.ReactNode
   cleanUndefined?: boolean
   hideSubmit?: boolean
+  buttonClassName?: string
 }
 
 interface FilterProps<T extends Record<string, unknown>> {
@@ -63,7 +65,11 @@ export function Filter<T extends Record<string, unknown>>({
     submitIcon = <Search />,
     cleanUndefined = true,
     hideSubmit = false,
+    buttonClassName,
   } = config
+
+  const theme = useModuleTheme()
+  const resolvedButtonClass = buttonClassName ?? (theme?.color ? MODULE_BUTTON_CLASS[theme.color] : undefined)
 
   const {
     control,
@@ -143,7 +149,7 @@ export function Filter<T extends Record<string, unknown>>({
             type="submit"
             size={submitLabel ? 'default' : 'icon'}
             disabled={isSubmitting}
-            className={cn(!submitLabel && 'h-10 w-10')}
+            className={cn(!submitLabel && 'h-10 w-10', resolvedButtonClass)}
           >
             {isSubmitting ? (
               <Spinner />
@@ -210,7 +216,7 @@ export function Filter<T extends Record<string, unknown>>({
   }
 
   return (
-    <div className="flex justify-start">
+    <div className="flex justify-center">
       <div className="rounded-lg border bg-card p-2 shadow-sm">
         <form onSubmit={handleSubmit(handleFormSubmit)}>{grid}</form>
       </div>

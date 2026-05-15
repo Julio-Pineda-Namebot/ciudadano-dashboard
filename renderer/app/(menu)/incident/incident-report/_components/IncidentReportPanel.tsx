@@ -10,11 +10,10 @@ import { IncidentReportFormModal } from './IncidentReportFormModal'
 import { IncidentReportDeleteDialog } from './IncidentReportDeleteDialog'
 import {
   getIncidentReports,
-  createIncidentReport,
   updateIncidentReport,
   deleteIncidentReport,
 } from '../actions'
-import type { IncidentReport, IncidentReportFormData } from '../_types/incident-report'
+import type { IncidentReport, IncidentReportUpdateData } from '../_types/incident-report'
 
 const filterSchema = z.object({
   range: z.object({ from: z.string(), to: z.string() }),
@@ -27,7 +26,6 @@ export function IncidentReportPanel() {
   const [loading, setLoading] = useState(true)
   const [editTarget, setEditTarget] = useState<IncidentReport | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<IncidentReport | null>(null)
-  const [formOpen, setFormOpen] = useState(false)
   const { dateRange, onApply, filteredData } = useDateRangeFilter(reports, 'createdAt')
 
   useEffect(() => {
@@ -38,31 +36,15 @@ export function IncidentReportPanel() {
       .finally(() => setLoading(false))
   }, [])
 
-  function openCreate() {
-    setEditTarget(null)
-    setFormOpen(true)
-  }
-
-  function openEdit(report: IncidentReport) {
-    setEditTarget(report)
-    setFormOpen(true)
-  }
-
   function closeForm() {
-    setFormOpen(false)
     setEditTarget(null)
   }
 
-  async function handleSubmit(data: IncidentReportFormData) {
-    if (editTarget) {
-      const updated = await updateIncidentReport(editTarget.id, data)
-      setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)))
-      toast.success('Incidencia actualizada correctamente')
-    } else {
-      const created = await createIncidentReport(data)
-      setReports((prev) => [...prev, created])
-      toast.success('Incidencia creada correctamente')
-    }
+  async function handleSubmit(data: IncidentReportUpdateData) {
+    if (!editTarget) return
+    const updated = await updateIncidentReport(editTarget.id, data)
+    setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)))
+    toast.success('Incidencia actualizada correctamente')
     closeForm()
   }
 
@@ -94,13 +76,12 @@ export function IncidentReportPanel() {
       <IncidentReportTable
         reports={filteredData}
         loading={loading}
-        onEdit={openEdit}
+        onEdit={setEditTarget}
         onDelete={setDeleteTarget}
-        onCreate={openCreate}
       />
 
       <IncidentReportFormModal
-        open={formOpen}
+        open={!!editTarget}
         report={editTarget}
         onClose={closeForm}
         onSubmit={handleSubmit}

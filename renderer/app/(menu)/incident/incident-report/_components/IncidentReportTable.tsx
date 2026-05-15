@@ -10,10 +10,9 @@ interface Props {
   loading?: boolean
   onEdit: (report: IncidentReport) => void
   onDelete: (report: IncidentReport) => void
-  onCreate?: () => void
 }
 
-export function IncidentReportTable({ reports, loading, onEdit, onDelete, onCreate }: Props) {
+export function IncidentReportTable({ reports, loading, onEdit, onDelete }: Props) {
   const columns = useMemo(() => getIncidentReportColumns({ onEdit, onDelete }), [onEdit, onDelete])
 
   return (
@@ -22,9 +21,7 @@ export function IncidentReportTable({ reports, loading, onEdit, onDelete, onCrea
       columns={columns}
       searchPlaceholder="Buscar incidencia..."
       searchColumn="description"
-      pageSize={5}
-      onCreate={onCreate}
-      createLabel="Nueva incidencia"
+      pageSize={10}
       loading={loading}
       emptyTitle="Sin incidencias"
       emptyDescription="No se encontraron incidencias con los filtros aplicados."

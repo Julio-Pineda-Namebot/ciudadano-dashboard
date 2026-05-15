@@ -10,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { useModuleTheme, MODULE_HEADER_CLASS } from '@/components/common/module-theme'
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +30,9 @@ interface Props {
 }
 
 export function AuditLogsTable({ logs, loading, onShowDetail }: Props) {
+  const theme = useModuleTheme()
+  const headerClass = theme?.color ? MODULE_HEADER_CLASS[theme.color] : 'bg-[#1a3a6b] [&_th]:text-white [&_th]:border-[#1a3a6b]/30'
+
   if (loading || logs.length === 0) {
     return (
       <DataState
@@ -41,11 +46,11 @@ export function AuditLogsTable({ logs, loading, onShowDetail }: Props) {
   return (
     <div className="overflow-hidden rounded-md border">
       <Table>
-        <TableHeader>
-          <TableRow>
+        <TableHeader className={cn(headerClass)}>
+          <TableRow className="hover:bg-transparent border-b-0">
             <TableHead style={{ width: 160 }}>Fecha y hora</TableHead>
             <TableHead style={{ width: 140 }}>Acción</TableHead>
-            <TableHead style={{ width: 140 }}>Entidad</TableHead>
+            <TableHead style={{ width: 140 }}>Módulo</TableHead>
             <TableHead>Administrador</TableHead>
             <TableHead style={{ width: 130 }}>IP</TableHead>
             <TableHead>Mensaje</TableHead>
@@ -77,7 +82,7 @@ export function AuditLogsTable({ logs, loading, onShowDetail }: Props) {
               <TableCell className="font-mono text-xs text-muted-foreground">
                 {log.ip ?? '—'}
               </TableCell>
-              <TableCell className="max-w-[420px]">
+              <TableCell className="max-w-105">
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>
                     <TooltipTrigger asChild>

@@ -59,6 +59,7 @@ export function AuditLogsFilters({ value, onApply }: Props) {
             ],
           },
         },
+
       }}
       onSubmit={(values) => {
         const range = (values.range ?? { from: '', to: '' }) as DateRangeValue

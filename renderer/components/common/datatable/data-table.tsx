@@ -13,7 +13,15 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ChevronDownIcon, PlusIcon } from 'lucide-react'
+import {
+  ChevronDownIcon,
+  PlusIcon,
+  SearchIcon,
+  ChevronsLeftIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsRightIcon,
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,15 +32,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
-import {
   Table,
   TableBody,
   TableCell,
@@ -40,22 +39,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import { DataTableViewOptions } from './data-table-view-options'
 import { DataState } from '../data-state'
+import { useModuleTheme, MODULE_HEADER_CLASS, MODULE_BUTTON_CLASS, type ModuleColor } from '../module-theme'
 
-const PAGE_SIZE_OPTIONS = [5, 10, 20, 50]
+const PAGE_SIZE_OPTIONS = [10, 20, 50]
 
-function buildPages(current: number, total: number): (number | 'ellipsis')[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
-  const pages: (number | 'ellipsis')[] = [1]
-  if (current > 3) pages.push('ellipsis')
-  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) {
-    pages.push(p)
-  }
-  if (current < total - 2) pages.push('ellipsis')
-  pages.push(total)
-  return pages
-}
+export type TableHeaderColor = ModuleColor
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -68,12 +59,14 @@ interface DataTableProps<TData, TValue> {
   loading?: boolean
   emptyTitle?: string
   emptyDescription?: string
+  headerColor?: TableHeaderColor
+  buttonClassName?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  searchPlaceholder = 'Buscar...',
+  searchPlaceholder = 'Búsqueda rápida',
   searchColumn,
   pageSize = 10,
   onCreate,
@@ -81,7 +74,14 @@ export function DataTable<TData, TValue>({
   loading = false,
   emptyTitle,
   emptyDescription,
+  headerColor,
+  buttonClassName,
 }: DataTableProps<TData, TValue>) {
+  const theme = useModuleTheme()
+  const resolvedColor = headerColor ?? theme?.color
+  const resolvedButtonClass = buttonClassName ?? (resolvedColor ? MODULE_BUTTON_CLASS[resolvedColor] : undefined)
+  const headerColorClass = resolvedColor ? MODULE_HEADER_CLASS[resolvedColor] : undefined
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -128,26 +128,29 @@ export function DataTable<TData, TValue>({
   const currentPageSize = table.getState().pagination.pageSize
   const totalPages = table.getPageCount()
   const current = pageIndex + 1
-  const selectedCount = table.getFilteredSelectedRowModel().rows.length
   const totalCount = table.getFilteredRowModel().rows.length
-  const pages = buildPages(current, totalPages)
+  const from = totalCount === 0 ? 0 : pageIndex * currentPageSize + 1
+  const to = Math.min(current * currentPageSize, totalCount)
   const showEmptyOrLoading = loading || table.getRowModel().rows.length === 0
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* toolbar */}
       <div className="flex items-center gap-2">
-        <Input
-          placeholder={searchPlaceholder}
-          value={searchValue}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="max-w-sm"
-          disabled={loading}
-        />
+        <div className="relative">
+          <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <Input
+            placeholder={searchPlaceholder}
+            value={searchValue}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-8 max-w-xs"
+            disabled={loading}
+          />
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <DataTableViewOptions table={table} />
           {onCreate && (
-            <Button onClick={onCreate} disabled={loading}>
+            <Button onClick={onCreate} disabled={loading} className={cn(resolvedButtonClass)}>
               <PlusIcon />
               {createLabel}
             </Button>
@@ -166,9 +169,14 @@ export function DataTable<TData, TValue>({
           {/* table */}
           <div className="overflow-hidden rounded-md border">
             <Table>
-              <TableHeader>
+              <TableHeader
+                className={cn(headerColorClass)}
+              >
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
+                  <TableRow
+                    key={headerGroup.id}
+                    className={cn(headerColor && 'hover:bg-transparent border-b-0')}
+                  >
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
@@ -200,72 +208,69 @@ export function DataTable<TData, TValue>({
           </div>
 
           {/* pagination */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          {selectedCount > 0 && (
-            <span>{selectedCount} de {totalCount} fila(s) seleccionada(s)</span>
-          )}
-          <div className="flex items-center gap-1.5">
-            <span>Filas por página</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 gap-1 px-2">
-                  {currentPageSize}
-                  <ChevronDownIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {PAGE_SIZE_OPTIONS.map((size) => (
-                  <DropdownMenuItem key={size} onClick={() => table.setPageSize(size)}>
-                    {size}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+          <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+            {/* left: ver por página */}
+            <div className="flex items-center gap-1.5">
+              <span>Ver:</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-7 gap-1 px-2">
+                    {currentPageSize}
+                    <ChevronDownIcon className="size-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <DropdownMenuItem key={size} onClick={() => table.setPageSize(size)}>
+                      {size}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
-        <Pagination className="mx-0 w-auto justify-end">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  text="Anterior"
-                  onClick={(e) => { e.preventDefault(); table.previousPage() }}
-                  aria-disabled={!table.getCanPreviousPage()}
-                  className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
+            {/* center: nav buttons */}
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <ChevronsLeftIcon className="size-3.5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <ChevronLeftIcon className="size-3.5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <ChevronRightIcon className="size-3.5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => table.setPageIndex(totalPages - 1)}
+                disabled={!table.getCanNextPage()}
+              >
+                <ChevronsRightIcon className="size-3.5" />
+              </Button>
+            </div>
 
-              {pages.map((p, i) =>
-                p === 'ellipsis' ? (
-                  <PaginationItem key={`e-${i}`}>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                ) : (
-                  <PaginationItem key={p}>
-                    <PaginationLink
-                      href="#"
-                      isActive={p === current}
-                      onClick={(e) => { e.preventDefault(); table.setPageIndex(p - 1) }}
-                    >
-                      {p}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  text="Siguiente"
-                  onClick={(e) => { e.preventDefault(); table.nextPage() }}
-                  aria-disabled={!table.getCanNextPage()}
-                  className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+            {/* right: counter */}
+            <span>[{from} a {to} de {totalCount}]</span>
           </div>
         </>
       )}

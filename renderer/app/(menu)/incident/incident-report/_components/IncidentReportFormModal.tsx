@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Dialog,
@@ -15,110 +16,158 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { IncidentReport, IncidentReportFormData } from '../_types/incident-report'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useModuleTheme, MODULE_BUTTON_CLASS } from '@/components/common/module-theme'
+import { cn } from '@/lib/utils'
+import type { IncidentReport, IncidentReportUpdateData } from '../_types/incident-report'
+
+const INCIDENT_TYPES = [
+  { value: 'robo', label: 'Robo' },
+  { value: 'accidente', label: 'Accidente' },
+  { value: 'vandalismo', label: 'Vandalismo' },
+] as const
+
+const DEFAULT_LNG = -75.7285
+const DEFAULT_LAT = -14.0755
+
+const updateSchema = z.object({
+  incidentType: z.string().min(1, 'El tipo de incidencia es obligatorio'),
+  description: z.string().trim().min(1, 'La descripción es obligatoria'),
+})
+
+type FormValues = z.infer<typeof updateSchema>
 
 interface Props {
   open: boolean
   report: IncidentReport | null
   onClose: () => void
-  onSubmit: (data: IncidentReportFormData) => Promise<void>
-}
-
-const incidentSchema = z.object({
-  incidentType: z.string().trim().min(1, 'El tipo de incidencia es obligatorio'),
-  userId: z.string().trim().min(1, 'El ID de usuario es obligatorio'),
-  description: z.string().trim().min(1, 'La descripción es obligatoria'),
-  multimediaUrl: z.string().trim().optional().or(z.literal('')),
-  geolocation: z.object({
-    lat: z.coerce.number(),
-    lng: z.coerce.number(),
-  }),
-})
-
-type IncidentFormValues = z.infer<typeof incidentSchema>
-
-const EMPTY_FORM: IncidentFormValues = {
-  userId: '',
-  incidentType: '',
-  description: '',
-  multimediaUrl: '',
-  geolocation: { lat: 0, lng: 0 },
+  onSubmit: (data: IncidentReportUpdateData) => Promise<void>
 }
 
 export function IncidentReportFormModal({ open, report, onClose, onSubmit }: Props) {
+  const theme = useModuleTheme()
+  const btnClass = theme?.color ? MODULE_BUTTON_CLASS[theme.color] : ''
+  const mapContainerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<mapboxgl.Map | null>(null)
+  const markerRef = useRef<mapboxgl.Marker | null>(null)
+  const [mapReady, setMapReady] = useState(false)
+
   const {
-    register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<IncidentFormValues>({
-    resolver: zodResolver(incidentSchema as never),
-    defaultValues: EMPTY_FORM,
+  } = useForm<FormValues>({
+    resolver: zodResolver(updateSchema),
+    defaultValues: { incidentType: '', description: '' },
   })
 
   useEffect(() => {
-    if (open) {
-      reset(
-        report
-          ? {
-              userId: report.userId,
-              incidentType: report.incidentType,
-              description: report.description,
-              multimediaUrl: report.multimediaUrl,
-              geolocation: report.geolocation,
-            }
-          : EMPTY_FORM
-      )
+    if (open && report) {
+      reset({ incidentType: report.incidentType, description: report.description })
     }
   }, [open, report, reset])
 
+  // Init map once container is mounted
+  useEffect(() => {
+    if (!open || !mapContainerRef.current || mapRef.current) return
+
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
+
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/standard',
+      center: [DEFAULT_LNG, DEFAULT_LAT],
+      zoom: 13,
+    })
+    mapRef.current = map
+
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+    map.on('load', () => setMapReady(true))
+
+    return () => {
+      markerRef.current?.remove()
+      markerRef.current = null
+      map.remove()
+      mapRef.current = null
+      setMapReady(false)
+    }
+  }, [open])
+
+  // Place/move marker when map is ready or report changes
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || !report) return
+
+    const { latitude, longitude } = report.geolocation
+    const lngLat: mapboxgl.LngLatLike = [longitude, latitude]
+
+    if (markerRef.current) {
+      markerRef.current.setLngLat(lngLat)
+    } else {
+      markerRef.current = new mapboxgl.Marker({ color: '#ef4444' })
+        .setLngLat(lngLat)
+        .addTo(mapRef.current)
+    }
+
+    mapRef.current.flyTo({ center: lngLat, zoom: 15, essential: true })
+  }, [mapReady, report])
+
+  // Reset map on close
+  useEffect(() => {
+    if (!open) {
+      markerRef.current?.remove()
+      markerRef.current = null
+      mapRef.current?.remove()
+      mapRef.current = null
+      setMapReady(false)
+    }
+  }, [open])
+
   const submit = handleSubmit(async (values) => {
-    await onSubmit({
-      ...values,
-      multimediaUrl: values.multimediaUrl ?? '',
-    } as IncidentReportFormData)
+    await onSubmit(values)
   })
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && !isSubmitting && onClose()}>
       <DialogContent className="sm:max-w-2xl" dismissible={false} showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>{report ? 'Editar incidencia' : 'Nueva incidencia'}</DialogTitle>
+          <DialogTitle>Editar incidencia</DialogTitle>
         </DialogHeader>
 
         <form id="incident-form" onSubmit={submit} className="grid gap-4" noValidate>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-1.5">
-              <Label htmlFor="incidentType">Tipo de incidencia</Label>
-              <Input
-                id="incidentType"
-                {...register('incidentType')}
-                placeholder="ej. accidente, robo"
-                aria-invalid={!!errors.incidentType}
-              />
-              {errors.incidentType && (
-                <p className="text-sm text-destructive">{errors.incidentType.message}</p>
-              )}
-            </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="userId">ID de usuario</Label>
-              <Input
-                id="userId"
-                {...register('userId')}
-                placeholder="ID del usuario"
-                aria-invalid={!!errors.userId}
-              />
-              {errors.userId && (
-                <p className="text-sm text-destructive">{errors.userId.message}</p>
-              )}
-            </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="incidentType">Tipo de incidencia</Label>
+            <Select
+              value={watch('incidentType')}
+              onValueChange={(v) => setValue('incidentType', v, { shouldValidate: true })}
+            >
+              <SelectTrigger id="incidentType" aria-invalid={!!errors.incidentType}>
+                <SelectValue placeholder="Seleccionar tipo..." />
+              </SelectTrigger>
+              <SelectContent>
+                {INCIDENT_TYPES.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.incidentType && (
+              <p className="text-sm text-destructive">{errors.incidentType.message}</p>
+            )}
           </div>
 
           <div className="grid gap-1.5">
             <Label htmlFor="description">Descripción</Label>
             <textarea
               id="description"
-              {...register('description')}
+              value={watch('description')}
+              onChange={(e) => setValue('description', e.target.value, { shouldValidate: true })}
               rows={3}
               placeholder="Descripción detallada de la incidencia..."
               aria-invalid={!!errors.description}
@@ -130,47 +179,36 @@ export function IncidentReportFormModal({ open, report, onClose, onSubmit }: Pro
           </div>
 
           <div className="grid gap-1.5">
-            <Label htmlFor="multimediaUrl">URL de multimedia</Label>
-            <Input
-              id="multimediaUrl"
-              {...register('multimediaUrl')}
-              placeholder="https://..."
+            <Label>Ubicación del incidente</Label>
+            <div
+              ref={mapContainerRef}
+              className="h-52 w-full rounded-lg overflow-hidden border border-input"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {report?.multimediaUrl && (
             <div className="grid gap-1.5">
-              <Label htmlFor="lat">Latitud</Label>
-              <Input
-                id="lat"
-                type="number"
-                step="any"
-                {...register('geolocation.lat')}
+              <Label>Multimedia</Label>
+              <img
+                src={report.multimediaUrl}
+                alt="multimedia de incidencia"
+                className="h-40 w-full rounded-lg object-cover border border-input"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="lng">Longitud</Label>
-              <Input
-                id="lng"
-                type="number"
-                step="any"
-                {...register('geolocation.lng')}
-              />
-            </div>
-          </div>
+          )}
         </form>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="incident-form" disabled={isSubmitting}>
+          <Button type="submit" form="incident-form" disabled={isSubmitting} className={cn(btnClass)}>
             {isSubmitting ? (
               <>
                 <Spinner />
                 <span>Guardando...</span>
               </>
-            ) : report ? 'Guardar cambios' : 'Crear incidencia'}
+            ) : 'Guardar cambios'}
           </Button>
         </DialogFooter>
       </DialogContent>

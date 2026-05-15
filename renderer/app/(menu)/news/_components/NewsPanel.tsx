@@ -90,6 +90,7 @@ export function NewsPanel() {
           fields: {
             range: { type: 'date-range-picker', label: 'Rango de fechas' },
           },
+
         }}
         onSubmit={(values) => onApply(values.range as DateRangeValue)}
       />

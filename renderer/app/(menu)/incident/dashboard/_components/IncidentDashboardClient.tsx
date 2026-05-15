@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { ActivitySquare, CalendarDays, TrendingUp, Layers } from "lucide-react"
+import { StatCard } from '@/components/common/dashboard-cards'
 import { formatDate } from "@/lib/utils"
 import type { DashboardData } from "../actions"
 
@@ -110,7 +111,7 @@ export function IncidentDashboardClient({ data }: Props) {
         <div className="relative w-full overflow-x-auto">
           <svg
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-            className="w-full min-w-[560px]"
+            className="w-full min-w-140"
             role="img"
             aria-label="Gráfico de crecimiento acumulado de incidencias"
           >
@@ -223,22 +224,3 @@ export function IncidentDashboardClient({ data }: Props) {
   )
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-}) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-1 text-xl font-semibold text-gray-800">{value}</div>
-    </div>
-  )
-}

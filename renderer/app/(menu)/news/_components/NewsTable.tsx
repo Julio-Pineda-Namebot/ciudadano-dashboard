@@ -22,14 +22,11 @@ export function NewsTable({ news, loading, onEdit, onDelete, onCreate }: Props) 
       columns={columns}
       searchPlaceholder="Buscar noticia..."
       searchColumn="title"
-<<<<<<< Updated upstream
-=======
       onCreate={onCreate}
       createLabel="Nueva noticia"
       loading={loading}
       emptyTitle="Sin noticias"
       emptyDescription="No se encontraron noticias con los filtros aplicados."
->>>>>>> Stashed changes
     />
   )
 }

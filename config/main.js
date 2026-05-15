@@ -1,14 +1,27 @@
-const { app, BrowserWindow, Menu, nativeTheme, session, dialog, systemPreferences } = require('electron')
+const { app, BrowserWindow, Menu, MenuItem, nativeTheme, session, dialog, systemPreferences } = require('electron')
 const path = require('path');
 
-Menu.setApplicationMenu(null);
+// Registrar menú vacío pero con roles de edición para que Ctrl+C/V/X/Z funcionen
+const editMenu = Menu.buildFromTemplate([{
+  label: 'Edit',
+  submenu: [
+    { role: 'undo' },
+    { role: 'redo' },
+    { role: 'cut' },
+    { role: 'copy' },
+    { role: 'paste' },
+    { role: 'selectAll' },
+  ],
+}])
+
+Menu.setApplicationMenu(editMenu);
 nativeTheme.themeSource = 'dark';
 
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
-    icon: 'icon.png',
+    icon: path.join(__dirname, '..', 'assets', 'icon.png'),
     backgroundColor: '#0a0a0a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -18,6 +31,51 @@ const createWindow = () => {
   });
 
   win.loadURL('http://localhost:3000');
+
+  // Context menu nativo en click derecho con opciones de edición
+  win.webContents.on('context-menu', (_event, params) => {
+    const { isEditable, selectionText, editFlags } = params
+    const hasSelection = selectionText && selectionText.trim().length > 0
+
+    // Solo mostrar si hay texto seleccionado o el elemento es editable
+    if (!isEditable && !hasSelection) return
+
+    const menu = new Menu()
+
+    if (isEditable) {
+      menu.append(new MenuItem({
+        label: 'Cortar',
+        role: 'cut',
+        enabled: editFlags.canCut && hasSelection,
+      }))
+    }
+
+    if (hasSelection || isEditable) {
+      menu.append(new MenuItem({
+        label: 'Copiar',
+        role: 'copy',
+        enabled: editFlags.canCopy && hasSelection,
+      }))
+    }
+
+    if (isEditable) {
+      menu.append(new MenuItem({
+        label: 'Pegar',
+        role: 'paste',
+        enabled: editFlags.canPaste,
+      }))
+      menu.append(new MenuItem({ type: 'separator' }))
+      menu.append(new MenuItem({
+        label: 'Seleccionar todo',
+        role: 'selectAll',
+        enabled: editFlags.canSelectAll,
+      }))
+    }
+
+    if (menu.items.length > 0) {
+      menu.popup({ window: win })
+    }
+  })
 }
 
 app.whenReady().then(async () => {
