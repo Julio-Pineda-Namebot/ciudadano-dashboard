@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
@@ -46,7 +47,12 @@ export function LoginFormFields({ pending }: LoginFormFieldsProps) {
       </Field>
       <Field>
         <Button type="submit" disabled={pending} className="w-full">
-          {pending ? 'Ingresando...' : 'Ingresar'}
+          {pending ? (
+            <>
+              <Spinner />
+              <span>Ingresando...</span>
+            </>
+          ) : 'Ingresar'}
         </Button>
       </Field>
     </>

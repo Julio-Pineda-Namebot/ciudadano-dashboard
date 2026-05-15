@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
+import { formatDateTime } from '@/lib/utils'
 import type { IncidentReport } from '../_types/incident-report'
 
 const TYPE_COLORS: Record<string, string> = {
@@ -80,14 +81,11 @@ export function getIncidentReportColumns({ onEdit, onDelete }: Actions): ColumnD
       accessorKey: 'createdAt',
       size: 160,
       header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha" />,
-      cell: ({ row }) => {
-        const date = new Date(row.getValue<string>('createdAt'))
-        return (
-          <span className="text-sm text-muted-foreground">
-            {date.toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })}
-          </span>
-        )
-      },
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {formatDateTime(row.getValue<string>('createdAt'))}
+        </span>
+      ),
     },
   ]
 }

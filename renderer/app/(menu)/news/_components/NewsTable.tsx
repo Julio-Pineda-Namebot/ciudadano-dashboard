@@ -7,11 +7,13 @@ import type { News } from '../_types/news'
 
 interface Props {
   news: News[]
+  loading?: boolean
   onEdit: (news: News) => void
   onDelete: (news: News) => void
+  onCreate?: () => void
 }
 
-export function NewsTable({ news, onEdit, onDelete }: Props) {
+export function NewsTable({ news, loading, onEdit, onDelete, onCreate }: Props) {
   const columns = useMemo(() => getNewsColumns({ onEdit, onDelete }), [onEdit, onDelete])
 
   return (
@@ -20,6 +22,14 @@ export function NewsTable({ news, onEdit, onDelete }: Props) {
       columns={columns}
       searchPlaceholder="Buscar noticia..."
       searchColumn="title"
+<<<<<<< Updated upstream
+=======
+      onCreate={onCreate}
+      createLabel="Nueva noticia"
+      loading={loading}
+      emptyTitle="Sin noticias"
+      emptyDescription="No se encontraron noticias con los filtros aplicados."
+>>>>>>> Stashed changes
     />
   )
 }

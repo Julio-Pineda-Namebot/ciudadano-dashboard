@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ChevronDownIcon } from 'lucide-react'
+import { ChevronDownIcon, PlusIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,6 +41,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTableViewOptions } from './data-table-view-options'
+import { DataState } from '../data-state'
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50]
 
@@ -62,6 +63,11 @@ interface DataTableProps<TData, TValue> {
   searchPlaceholder?: string
   searchColumn?: string
   pageSize?: number
+  onCreate?: () => void
+  createLabel?: string
+  loading?: boolean
+  emptyTitle?: string
+  emptyDescription?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -70,6 +76,11 @@ export function DataTable<TData, TValue>({
   searchPlaceholder = 'Buscar...',
   searchColumn,
   pageSize = 10,
+  onCreate,
+  createLabel = 'Nuevo',
+  loading = false,
+  emptyTitle,
+  emptyDescription,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -120,6 +131,7 @@ export function DataTable<TData, TValue>({
   const selectedCount = table.getFilteredSelectedRowModel().rows.length
   const totalCount = table.getFilteredRowModel().rows.length
   const pages = buildPages(current, totalPages)
+  const showEmptyOrLoading = loading || table.getRowModel().rows.length === 0
 
   return (
     <div className="space-y-4">
@@ -130,57 +142,64 @@ export function DataTable<TData, TValue>({
           value={searchValue}
           onChange={(e) => handleSearch(e.target.value)}
           className="max-w-sm"
+          disabled={loading}
         />
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <DataTableViewOptions table={table} />
+          {onCreate && (
+            <Button onClick={onCreate} disabled={loading}>
+              <PlusIcon />
+              {createLabel}
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* table */}
-      <div className="overflow-hidden rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    style={{ width: header.column.columnDef.size ? `${header.column.columnDef.size}px` : undefined }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
+      {showEmptyOrLoading ? (
+        <DataState
+          loading={loading}
+          title={emptyTitle}
+          description={emptyDescription}
+        />
+      ) : (
+        <>
+          {/* table */}
+          <div className="overflow-hidden rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        style={{ width: header.column.columnDef.size ? `${header.column.columnDef.size}px` : undefined }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() ? 'selected' : undefined}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                  Sin resultados.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() ? 'selected' : undefined}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-      {/* pagination */}
+          {/* pagination */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           {selectedCount > 0 && (
@@ -247,7 +266,9 @@ export function DataTable<TData, TValue>({
               </PaginationItem>
             </PaginationContent>
           </Pagination>
-      </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

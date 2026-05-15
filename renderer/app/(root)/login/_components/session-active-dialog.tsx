@@ -8,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { formatDateTime } from "@/lib/utils"
 
 interface ActiveSessionInfo {
   ip?: string
@@ -23,22 +24,13 @@ interface SessionActiveDialogProps {
   activeSession?: ActiveSessionInfo
 }
 
-function formatDate(iso?: string) {
-  if (!iso) return null
-  try {
-    return new Date(iso).toLocaleString()
-  } catch {
-    return iso
-  }
-}
-
 export function SessionActiveDialog({
   open,
   onOpenChange,
   onConfirm,
   activeSession,
 }: SessionActiveDialogProps) {
-  const createdAt = formatDate(activeSession?.createdAt)
+  const createdAt = activeSession?.createdAt ? formatDateTime(activeSession.createdAt) : null
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

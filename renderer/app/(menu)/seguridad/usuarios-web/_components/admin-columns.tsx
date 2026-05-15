@@ -4,6 +4,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
+<<<<<<< Updated upstream
+=======
+import { formatDate } from '@/lib/utils'
+>>>>>>> Stashed changes
 import type { Admin } from '../_types/admin'
 
 interface Actions {
@@ -77,7 +81,11 @@ export function getAdminColumns({ onEdit, onDelete }: Actions): ColumnDef<Admin>
         const value = row.getValue<string>('createdAt')
         return (
           <span className="text-sm text-muted-foreground">
+<<<<<<< Updated upstream
             {value ? new Date(value).toLocaleDateString() : '—'}
+=======
+            {formatDate(value)}
+>>>>>>> Stashed changes
           </span>
         )
       },

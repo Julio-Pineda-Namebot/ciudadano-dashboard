@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
+import { formatDate } from '@/lib/utils'
 import type { News } from '../_types/news'
 
 const TAG_COLORS: Record<string, string> = {
@@ -78,7 +79,7 @@ export function getNewsColumns({ onEdit, onDelete }: Actions): ColumnDef<News>[]
       size: 130,
       header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha" />,
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{row.getValue('date')}</span>
+        <span className="text-sm text-muted-foreground">{formatDate(row.getValue<string>('date'))}</span>
       ),
     },
     {

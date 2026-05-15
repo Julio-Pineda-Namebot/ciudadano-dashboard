@@ -4,19 +4,20 @@ import { useState } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import type { News } from '../_types/news'
 
 interface Props {
   news: News | null
   onClose: () => void
-  onConfirm: (id: number) => Promise<void>
+  onConfirm: (id: string) => Promise<void>
 }
 
 export function NewsDeleteDialog({ news, onClose, onConfirm }: Props) {
@@ -33,8 +34,8 @@ export function NewsDeleteDialog({ news, onClose, onConfirm }: Props) {
   }
 
   return (
-    <AlertDialog open={news !== null} onOpenChange={(v) => !v && onClose()}>
-      <AlertDialogContent size="sm">
+    <AlertDialog open={news !== null} onOpenChange={(v) => !v && !loading && onClose()}>
+      <AlertDialogContent size="sm" dismissible={false}>
         <AlertDialogHeader>
           <AlertDialogTitle>Eliminar noticia</AlertDialogTitle>
           <AlertDialogDescription>
@@ -42,9 +43,16 @@ export function NewsDeleteDialog({ news, onClose, onConfirm }: Props) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancelar</AlertDialogCancel>
+          <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+            Cancelar
+          </Button>
           <AlertDialogAction variant="destructive" onClick={handleConfirm} disabled={loading}>
-            {loading ? 'Eliminando...' : 'Eliminar'}
+            {loading ? (
+              <>
+                <Spinner />
+                <span>Eliminando...</span>
+              </>
+            ) : 'Eliminar'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

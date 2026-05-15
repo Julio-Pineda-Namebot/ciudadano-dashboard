@@ -3,6 +3,7 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/app/(menu)/_components/auth-provider'
+import { formatDateTime } from '@/lib/utils'
 
 export function AccountPanel() {
   const profile = useAuth()
@@ -16,10 +17,7 @@ export function AccountPanel() {
       .join('')
       .toUpperCase() || '??'
 
-  const createdAt = new Date(profile.createdAt).toLocaleString('es-PE', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-  })
+  const createdAt = formatDateTime(profile.createdAt)
 
   return (
     <div className="mx-auto w-full max-w-2xl p-6">

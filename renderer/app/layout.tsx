@@ -22,7 +22,7 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", "font-sans", inter.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <Toaster position="top-right" richColors />
+        <Toaster position="top-center" richColors />
         {children}
       </body>
     </html>

@@ -42,6 +42,10 @@ const securityItem = {
     { title: "Grupos", url: "/seguridad/grupos" },
     { title: "Usuarios web", url: "/seguridad/usuarios-web" },
     { title: "Cámaras", url: "/seguridad/camaras" },
+<<<<<<< Updated upstream
+=======
+    { title: "Logs de auditoría", url: "/seguridad/audit-logs" },
+>>>>>>> Stashed changes
     { title: "Configuración", url: "#" },
   ],
 }

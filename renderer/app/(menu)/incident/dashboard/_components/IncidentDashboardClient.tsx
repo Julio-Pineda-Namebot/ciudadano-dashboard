@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { ActivitySquare, CalendarDays, TrendingUp, Layers } from "lucide-react"
+import { formatDate } from "@/lib/utils"
 import type { DashboardData } from "../actions"
 
 const TYPE_COLORS: Record<string, string> = {
@@ -16,11 +17,6 @@ const DEFAULT_COLOR = "bg-gray-100 text-gray-700 border-gray-200"
 const WIDTH = 760
 const HEIGHT = 280
 const PADDING = { top: 20, right: 20, bottom: 36, left: 44 }
-
-function formatShortDate(iso: string) {
-  const d = new Date(iso + 'T00:00:00')
-  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
-}
 
 interface Props {
   data: DashboardData
@@ -53,7 +49,7 @@ export function IncidentDashboardClient({ data }: Props) {
 
     const stride = Math.max(1, Math.ceil(daily.length / 8))
     const xLabels = daily
-      .map((d, i) => ({ label: formatShortDate(d.date), x: xFor(i), i }))
+      .map((d, i) => ({ label: formatDate(d.date), x: xFor(i), i }))
       .filter((_, i) => i % stride === 0 || i === daily.length - 1)
 
     return { points, linePath, areaPath, yLabels, xLabels, innerH }
@@ -93,7 +89,7 @@ export function IncidentDashboardClient({ data }: Props) {
           label="Día con más reportes"
           value={
             data.peak
-              ? `${formatShortDate(data.peak.date)} · ${data.peak.count}`
+              ? `${formatDate(data.peak.date)} · ${data.peak.count}`
               : '—'
           }
         />
@@ -190,7 +186,7 @@ export function IncidentDashboardClient({ data }: Props) {
               }}
             >
               <div className="font-medium text-gray-800">
-                {formatShortDate(hoveredPoint.point.date)}
+                {formatDate(hoveredPoint.point.date)}
               </div>
               <div className="text-gray-600">
                 Acumulado: <span className="font-semibold">{hoveredPoint.point.cumulative}</span>
