@@ -40,18 +40,21 @@ function counters(stage: number) {
 }
 
 const MapBackground = memo(function MapBackground() {
+  // 8×12 = 96 parcels (antes 12×18 = 216). Mantiene la sensación de ciudad
+  // pero corta a la mitad el costo de raster + memoria GPU. Tamaños un poco
+  // más grandes para llenar el viewBox 1920×1080 con menos cajas.
   const parcels = useMemo(
     () =>
-      Array.from({ length: 12 }).flatMap((_, row) =>
-        Array.from({ length: 18 }).map((__, col) => {
-          const x = col * 110 + 30 + (row % 2 ? 20 : 0);
-          const y = row * 90 + 30;
+      Array.from({ length: 8 }).flatMap((_, row) =>
+        Array.from({ length: 12 }).map((__, col) => {
+          const x = col * 165 + 30 + (row % 2 ? 30 : 0);
+          const y = row * 135 + 30;
           return {
             key: `${row}-${col}`,
             x,
             y,
-            w: 80 + (col % 3) * 10,
-            h: 70 + (row % 2) * 8,
+            w: 120 + (col % 3) * 15,
+            h: 105 + (row % 2) * 12,
           };
         }),
       ),

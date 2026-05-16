@@ -56,8 +56,11 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Track active section so the sheet highlights the current one.
+  // Track active section so the sheet highlights the current one. The IO only
+  // runs while the sheet is open — it's the only consumer of activeId, so we
+  // skip the per-section bookkeeping when the menu is dismissed.
   useEffect(() => {
+    if (!open) return;
     const ids = LINKS.map(({ href }) => href.slice(1));
     const nodes = ids
       .map((id) => document.getElementById(id))
@@ -80,7 +83,7 @@ export function Navbar() {
     );
     nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();
-  }, []);
+  }, [open]);
 
   // Lock body scroll while the sheet is open. The menu can only be dismissed
   // through the X button — no Escape, no outside-click — per product spec.

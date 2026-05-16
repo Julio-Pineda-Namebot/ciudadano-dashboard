@@ -17,11 +17,15 @@ const SECTIONS: Section[] = [
 
 export function LenisProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
-    // Skip smooth-scrolling on users that asked for reduced motion: the JS
-    // overhead is unnecessary and the easing itself is what they want avoided.
-    // Scroll-driven effects still work via native scroll events (see use-element-progress).
+    // Skip smooth-scrolling on:
+    // - users that asked for reduced motion (accessibility),
+    // - touch primary devices (mobile/tablet): iOS/Android already provide
+    //   GPU-driven momentum scroll; Lenis on top is pure JS overhead per frame.
+    // Scroll-driven effects keep working via native scroll events.
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const lenis = reducedMotion
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const skipLenis = reducedMotion || coarsePointer;
+    const lenis = skipLenis
       ? null
       : new Lenis({
           autoRaf: true,
@@ -34,9 +38,7 @@ export function LenisProvider({ children }: { children: ReactNode }) {
         });
     if (lenis) window.__lenis = lenis;
 
-    const revealEls = document.querySelectorAll(
-      '.reveal, .reveal-x, .reveal-scale, .reveal-blur, .word-reveal',
-    );
+    const revealEls = document.querySelectorAll('.reveal');
     const revealIo = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

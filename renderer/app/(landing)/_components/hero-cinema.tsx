@@ -5,7 +5,9 @@ import { LogoMark } from './icons';
 import { SplitWords } from './scroll/split-words';
 import { useScrollProgress } from './scroll/use-element-progress';
 
-const PARTICLES = Array.from({ length: 22 }).map((_, i) => {
+// 12 partículas en lugar de 22 — 22 era visualmente parejo pero crea
+// 22 capas GPU + 22 animaciones infinitas. 12 ya da la misma sensación.
+const PARTICLES = Array.from({ length: 12 }).map((_, i) => {
   const x = (i * 47) % 100;
   const y = (i * 31) % 100;
   const s = 1 + (i % 4);

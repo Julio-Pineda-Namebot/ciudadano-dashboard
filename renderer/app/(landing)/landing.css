@@ -68,14 +68,6 @@
   -webkit-backdrop-filter: blur(20px) saturate(160%);
 }
 
-.landing-root .hairline {
-  border: 1px solid var(--line);
-}
-
-.landing-root .text-muted-landing {
-  color: var(--muted);
-}
-
 /* ---------- Buttons / chips ---------- */
 .landing-root .landing-btn {
   display: inline-flex;
@@ -137,20 +129,6 @@
   border-radius: 999px;
   background: var(--landing-accent);
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-}
-
-.landing-root .dot-pulse {
-  position: relative;
-}
-
-.landing-root .dot-pulse::before {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  border-radius: 999px;
-  border: 1px solid currentColor;
-  opacity: 0.5;
-  animation: landing-pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 /* ---------- Eyebrow / scroll indicator ---------- */
@@ -456,11 +434,20 @@
   inset: 0;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  visibility: hidden;
+  /* visibility flips AFTER the fade-out completes so the transition stays smooth;
+     when inactive the screen skips compositing entirely. */
+  transition:
+    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    visibility 0s linear 0.7s;
 }
 
 .landing-root .phone-screen.is-active {
   opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    visibility 0s linear 0s;
 }
 
 /* ---------- Floats / parallax ---------- */
@@ -469,8 +456,6 @@
 }
 
 .landing-root .float-slow { animation: landing-float 6s ease-in-out infinite; }
-.landing-root .float-med  { animation: landing-float 4.5s ease-in-out infinite; }
-.landing-root .float-fast { animation: landing-float 3.5s ease-in-out infinite; }
 
 /* ---------- Reveal animations ---------- */
 .landing-root .reveal {
@@ -480,56 +465,12 @@
 }
 .landing-root .reveal.in { opacity: 1; transform: translateY(0); }
 
-.landing-root .reveal-x {
-  opacity: 0;
-  transform: translateX(60px);
-  transition: opacity 1.1s cubic-bezier(0.2, 0.7, 0.2, 1), transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-.landing-root .reveal-x.in { opacity: 1; transform: translateX(0); }
-
-.landing-root .reveal-scale {
-  opacity: 0;
-  transform: scale(0.94);
-  transition: opacity 1.2s cubic-bezier(0.2, 0.7, 0.2, 1), transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-.landing-root .reveal-scale.in { opacity: 1; transform: scale(1); }
-
-.landing-root .reveal-blur {
-  opacity: 0;
-  filter: blur(14px);
-  transform: translateY(24px);
-  transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-.landing-root .reveal-blur.in { opacity: 1; filter: blur(0); transform: translateY(0); }
-
 .landing-root .reveal-delay-1 { transition-delay: 0.08s; }
 .landing-root .reveal-delay-2 { transition-delay: 0.16s; }
 .landing-root .reveal-delay-3 { transition-delay: 0.24s; }
 .landing-root .reveal-delay-4 { transition-delay: 0.32s; }
 
-/* ---------- Split text ---------- */
-.landing-root .split-chars { line-height: 1.0; }
-
-.landing-root .split-line { display: inline; }
-
-.landing-root .split-char {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
-  line-height: 1.05;
-}
-
-.landing-root .split-char-inner {
-  display: inline-block;
-  transform: translateY(110%);
-  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
-  will-change: transform;
-}
-
-.landing-root .split-chars.in .split-char-inner { transform: translateY(0); }
-
-.landing-root .split-space { display: inline-block; width: 0.25em; }
-
+/* ---------- Split words (used by SplitWords component) ---------- */
 .landing-root .split-words { display: inline; }
 
 .landing-root .split-word-mask {
@@ -842,9 +783,7 @@
   /* Heavy decorative animations: off on mobile */
   .landing-root .hero-grid-drift,
   .landing-root .scan,
-  .landing-root .float-slow,
-  .landing-root .float-med,
-  .landing-root .float-fast {
+  .landing-root .float-slow {
     animation: none;
   }
   /* Drop the radial drift backdrop on body for mobile */
@@ -868,11 +807,7 @@
     scroll-behavior: auto !important;
   }
   .landing-root .reveal,
-  .landing-root .reveal-x,
-  .landing-root .reveal-scale,
-  .landing-root .reveal-blur,
-  .landing-root .split-word,
-  .landing-root .split-char-inner {
+  .landing-root .split-word {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
