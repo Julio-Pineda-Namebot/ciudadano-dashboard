@@ -1,0 +1,620 @@
+/* Landing styles — scoped to .landing-root to keep them isolated from the rest of the app. */
+
+@import "lenis/dist/lenis.css";
+
+.landing-root {
+  --bg: #050505;
+  --surface: #0E0E0E;
+  --surface-2: #161616;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.12);
+  --text: #F2F2F2;
+  --muted: #888888;
+  --landing-accent: #FFFFFF;
+  --landing-warn: #D9A55E;
+  --landing-danger: #E04B5E;
+  --landing-good: #6BAE7A;
+
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255, 255, 255, 0.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(255, 255, 255, 0.04), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.landing-root .font-display {
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+.landing-root .font-mono {
+  font-family: var(--font-landing-mono), "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ---------- Backgrounds ---------- */
+.landing-root .grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: -1px -1px;
+}
+
+.landing-root .grid-bg-fade {
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+}
+
+/* ---------- Glass surfaces ---------- */
+.landing-root .glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.landing-root .glass-strong {
+  background: linear-gradient(180deg, rgba(20, 26, 46, 0.85), rgba(11, 15, 28, 0.75));
+  border: 1px solid var(--line-2);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+}
+
+.landing-root .hairline {
+  border: 1px solid var(--line);
+}
+
+.landing-root .text-muted-landing {
+  color: var(--muted);
+}
+
+/* ---------- Buttons / chips ---------- */
+.landing-root .landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.landing-root .landing-btn-primary {
+  background: #FFFFFF;
+  color: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 24px -8px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.landing-root .landing-btn-primary:hover {
+  transform: translateY(-1px);
+  background: #F2F2F2;
+  box-shadow: 0 12px 32px -10px rgba(255, 255, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.landing-root .landing-btn-ghost {
+  background: rgba(255, 255, 255, 0.03);
+  color: #E8ECF4;
+  border: 1px solid var(--line-2);
+}
+
+.landing-root .landing-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.landing-root .landing-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #DDDDDD;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: var(--font-landing-mono), "JetBrains Mono", monospace;
+}
+
+.landing-root .landing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--landing-accent);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.landing-root .dot-pulse {
+  position: relative;
+}
+
+.landing-root .dot-pulse::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  opacity: 0.5;
+  animation: landing-pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ---------- Eyebrow / scroll indicator ---------- */
+.landing-root .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-landing-mono), "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.landing-root .eyebrow::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.landing-root .scrolldown {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  font-family: var(--font-landing-mono), "JetBrains Mono", monospace;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.landing-root .scrolldown .mouse {
+  width: 22px;
+  height: 36px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-root .scrolldown .mouse::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 2px;
+  height: 6px;
+  border-radius: 2px;
+  background: #FFFFFF;
+  transform: translateX(-50%);
+  animation: landing-scroll-wheel 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+}
+
+/* ---------- Gradient text ---------- */
+.landing-root .gradient-text {
+  background: linear-gradient(180deg, #FFFFFF 0%, #B8B8B8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-root .gradient-text-accent {
+  background: linear-gradient(120deg, #FFFFFF 0%, #777777 45%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Prevent italic overhang/descenders from being clipped by background-clip:text. */
+  padding-right: 0.08em;
+  padding-bottom: 0.08em;
+}
+
+/* ---------- Cinematic hero ---------- */
+.landing-root .hero-cinema {
+  position: relative;
+  height: 100vh;
+  min-height: 720px;
+  overflow: hidden;
+}
+
+.landing-root .hero-cinema-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.05), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(255, 255, 255, 0.04), transparent 55%),
+    linear-gradient(180deg, #050505 0%, #000000 100%);
+}
+
+.landing-root .hero-cinema-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+.landing-root .hero-cinema-mask-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 20%;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(5, 5, 5, 0.7) 0%, transparent 100%);
+}
+
+.landing-root .hero-cinema-mask-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, #050505 90%);
+}
+
+.landing-root .hero-grid-drift {
+  position: absolute;
+  inset: -20px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 80px 80px;
+  animation: landing-hero-drift 12s linear infinite;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+/* ---------- Scroll progress + section marker ---------- */
+.landing-root .scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 100;
+  background: linear-gradient(90deg, #FFFFFF, #9CA3B0);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+.landing-root .section-marker {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  pointer-events: none;
+  font-family: var(--font-landing-mono), "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.landing-root .section-marker .bar {
+  width: 32px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-root .section-marker .bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #FFFFFF, #9CA3B0);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+  transition: transform 0.3s ease;
+}
+
+/* ---------- Scenes (sticky scrollytelling) ----------
+   Pattern: parent .scene of height = pin duration. Inside, .scene-pin is a
+   zero-height sticky element pinned at top: 0; its absolute child .scene-stage
+   covers the viewport (100vh). With pin height = 0 there is no "leave" tail
+   after the section ends, so the next section starts immediately. */
+.landing-root .scene {
+  position: relative;
+}
+
+.landing-root .scene-pin {
+  position: sticky;
+  top: 0;
+  height: 0;
+  z-index: 1;
+}
+
+.landing-root .scene-stage {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Off-screen sections skip layout+paint entirely (modern browsers). */
+.landing-root #features,
+.landing-root #pricing,
+.landing-root #voices,
+.landing-root #contact {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1200px;
+}
+
+/* Legacy alias for any callsite still using the old class name. */
+.landing-root .scene-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ---------- Map / scan ---------- */
+.landing-root .map-canvas {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.05), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(255, 255, 255, 0.04), transparent 60%),
+    linear-gradient(180deg, #0A0A0A 0%, #050505 100%);
+}
+
+.landing-root .scan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0, rgba(255, 255, 255, 0.04) 50%, transparent 100%);
+  animation: landing-scan 6s linear infinite;
+}
+
+.landing-root .marker-pulse {
+  position: relative;
+}
+
+.landing-root .marker-pulse::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  animation: landing-marker-pulse 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* ---------- Feature card hover ---------- */
+.landing-root .feature {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), border-color 0.35s;
+}
+
+.landing-root .feature::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.18), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+
+.landing-root .feature:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.landing-root .feature:hover::before {
+  opacity: 1;
+}
+
+/* ---------- Marquee ---------- */
+.landing-root .marquee {
+  display: flex;
+  gap: 60px;
+  width: max-content;
+  animation: landing-marquee 32s linear infinite;
+}
+
+/* ---------- Phone mock ---------- */
+.landing-root .phone {
+  border-radius: 44px;
+  background: linear-gradient(180deg, #11162A, #07091A);
+  box-shadow:
+    0 60px 120px -30px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.05);
+}
+
+.landing-root .phone-screen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.landing-root .phone-screen.is-active {
+  opacity: 1;
+}
+
+/* ---------- Floats / parallax ---------- */
+.landing-root .parallax {
+  will-change: transform;
+}
+
+.landing-root .float-slow { animation: landing-float 6s ease-in-out infinite; }
+.landing-root .float-med  { animation: landing-float 4.5s ease-in-out infinite; }
+.landing-root .float-fast { animation: landing-float 3.5s ease-in-out infinite; }
+
+/* ---------- Reveal animations ---------- */
+.landing-root .reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 1.1s cubic-bezier(0.2, 0.7, 0.2, 1), transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.landing-root .reveal.in { opacity: 1; transform: translateY(0); }
+
+.landing-root .reveal-x {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 1.1s cubic-bezier(0.2, 0.7, 0.2, 1), transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.landing-root .reveal-x.in { opacity: 1; transform: translateX(0); }
+
+.landing-root .reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 1.2s cubic-bezier(0.2, 0.7, 0.2, 1), transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.landing-root .reveal-scale.in { opacity: 1; transform: scale(1); }
+
+.landing-root .reveal-blur {
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(24px);
+  transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.landing-root .reveal-blur.in { opacity: 1; filter: blur(0); transform: translateY(0); }
+
+.landing-root .reveal-delay-1 { transition-delay: 0.08s; }
+.landing-root .reveal-delay-2 { transition-delay: 0.16s; }
+.landing-root .reveal-delay-3 { transition-delay: 0.24s; }
+.landing-root .reveal-delay-4 { transition-delay: 0.32s; }
+
+/* ---------- Split text ---------- */
+.landing-root .split-chars { line-height: 1.0; }
+
+.landing-root .split-line { display: inline; }
+
+.landing-root .split-char {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: 1.05;
+}
+
+.landing-root .split-char-inner {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+
+.landing-root .split-chars.in .split-char-inner { transform: translateY(0); }
+
+.landing-root .split-space { display: inline-block; width: 0.25em; }
+
+.landing-root .split-words { display: inline; }
+
+.landing-root .split-word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: 1.1;
+}
+
+.landing-root .split-word {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+
+.landing-root .split-words.in .split-word { transform: translateY(0); }
+
+/* ---------- Pricing glow card ---------- */
+.landing-root .glow-card { position: relative; }
+
+.landing-root .glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.6), rgba(180, 184, 194, 0.2) 40%, transparent 70%);
+  z-index: -1;
+  filter: blur(0.5px);
+}
+
+.landing-root .glow-card::after {
+  content: "";
+  position: absolute;
+  inset: -30px;
+  border-radius: 40px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.25), transparent 60%);
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* ---------- Keyframes (prefijadas para no chocar con Tailwind) ---------- */
+@keyframes landing-pulse {
+  0%       { transform: scale(0.6); opacity: 0.6; }
+  80%, 100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes landing-marker-pulse {
+  0%       { transform: translate(-50%, -50%) scale(0.6); opacity: 0.6; }
+  80%, 100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+}
+
+@keyframes landing-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@keyframes landing-scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes landing-hero-drift {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-80px); }
+}
+
+@keyframes landing-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes landing-scroll-wheel {
+  0%   { transform: translate(-50%, 0); opacity: 1; }
+  60%  { transform: translate(-50%, 12px); opacity: 0; }
+  100% { transform: translate(-50%, 0); opacity: 0; }
+}
+
+@keyframes landing-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes landing-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landing-reveal-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landing-radar-pulse {
+  0%   { transform: scale(0.6); opacity: 0; }
+  20%  { opacity: 0.6; }
+  100% { transform: scale(1.4); opacity: 0; }
+}

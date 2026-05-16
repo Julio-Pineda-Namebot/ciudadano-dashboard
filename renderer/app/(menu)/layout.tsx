@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { SimpleLenisProvider } from '@/components/common/simple-lenis-provider'
 import { SocketProvider } from './_components/socket-provider'
 import { AuthProvider } from './_components/auth-provider'
 import { AppSidebar } from './_components/app-sidebar'
@@ -25,7 +26,7 @@ export default async function MenuLayout({ children }: { children: React.ReactNo
               <AppSidebar />
               <SidebarInset>
                 <AppHeader />
-                {children}
+                <SimpleLenisProvider>{children}</SimpleLenisProvider>
               </SidebarInset>
             </SidebarProvider>
           </BreadcrumbProvider>

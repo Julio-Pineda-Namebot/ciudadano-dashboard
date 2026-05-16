@@ -111,7 +111,7 @@ export async function getGeneralDashboardData(): Promise<GeneralDashboardData> {
   const highRiskZones = incidentList
     .filter((r) => ['robo', 'violencia', 'incendio'].includes(r.incidentType))
     .reduce((acc, r) => {
-      const key = `${r.geolocation.lat.toFixed(2)}_${r.geolocation.lng.toFixed(2)}`
+      const key = `${r.geolocation.latitude.toFixed(2)}_${r.geolocation.longitude.toFixed(2)}`
       acc.add(key)
       return acc
     }, new Set<string>()).size
