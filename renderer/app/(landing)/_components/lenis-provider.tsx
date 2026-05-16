@@ -17,16 +17,22 @@ const SECTIONS: Section[] = [
 
 export function LenisProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
-    const lenis = new Lenis({
-      autoRaf: true,
-      duration: 1.4,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      anchors: { offset: -60, duration: 1.6 },
-      lerp: 0.085,
-      autoToggle: true,
-    });
-    window.__lenis = lenis;
+    // Skip smooth-scrolling on users that asked for reduced motion: the JS
+    // overhead is unnecessary and the easing itself is what they want avoided.
+    // Scroll-driven effects still work via native scroll events (see use-element-progress).
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const lenis = reducedMotion
+      ? null
+      : new Lenis({
+          autoRaf: true,
+          duration: 1.4,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+          anchors: { offset: -60, duration: 1.6 },
+          lerp: 0.085,
+          autoToggle: true,
+        });
+    if (lenis) window.__lenis = lenis;
 
     const revealEls = document.querySelectorAll(
       '.reveal, .reveal-x, .reveal-scale, .reveal-blur, .word-reveal',
@@ -149,11 +155,18 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    lenis.on('scroll', onScroll);
-    onScroll({
-      scroll: window.scrollY,
-      limit: document.documentElement.scrollHeight - window.innerHeight,
-    });
+    const nativeOnScroll = () =>
+      onScroll({
+        scroll: window.scrollY,
+        limit: document.documentElement.scrollHeight - window.innerHeight,
+      });
+
+    if (lenis) {
+      lenis.on('scroll', onScroll);
+    } else {
+      window.addEventListener('scroll', nativeOnScroll, { passive: true });
+    }
+    nativeOnScroll();
 
     window.addEventListener('resize', remeasureLayers);
 
@@ -162,8 +175,12 @@ export function LenisProvider({ children }: { children: ReactNode }) {
       sectionIo.disconnect();
       parallaxIo.disconnect();
       window.removeEventListener('resize', remeasureLayers);
-      lenis.destroy();
-      delete window.__lenis;
+      if (lenis) {
+        lenis.destroy();
+        delete window.__lenis;
+      } else {
+        window.removeEventListener('scroll', nativeOnScroll);
+      }
     };
   }, []);
 

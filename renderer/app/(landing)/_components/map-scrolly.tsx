@@ -225,12 +225,12 @@ export function MapScrolly() {
             />
           </div>
 
-          <div className="relative mx-auto grid h-full max-w-[1320px] grid-cols-1 items-end gap-8 px-6 pb-20 lg:grid-cols-[1fr_1fr]">
+          <div className="relative mx-auto grid h-full max-w-[1320px] grid-cols-1 items-end gap-6 px-4 pb-10 sm:gap-8 sm:px-6 sm:pb-20 lg:grid-cols-[1fr_1fr]">
             <div>
               <div className="eyebrow mb-4">El mapa, en tiempo real</div>
               <div
                 key={stage}
-                className="font-display text-[40px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[56px]"
+                className="font-display text-[28px] font-semibold leading-[1.15] tracking-[-0.03em] sm:text-[40px] lg:text-[56px]"
                 style={{ animation: 'landing-fade-up .8s cubic-bezier(.2,.7,.2,1)' }}
               >
                 <span className="gradient-text">{firstPart}</span>
@@ -244,15 +244,15 @@ export function MapScrolly() {
                 <span className="gradient-text">.</span>
               </div>
               <p
-                className="mt-5 max-w-[420px] text-[15.5px] leading-relaxed text-white/65"
+                className="mt-4 max-w-[420px] text-[13.5px] leading-relaxed text-white/65 sm:mt-5 sm:text-[15.5px]"
                 style={{ animation: 'landing-fade-up .8s cubic-bezier(.2,.7,.2,1) .15s both' }}
               >
                 {STAGES[stage].body}
               </p>
             </div>
 
-            <div className="flex justify-end">
-              <div className="glass-strong w-[300px] rounded-2xl p-4">
+            <div className="flex lg:justify-end">
+              <div className="glass-strong w-full max-w-[300px] rounded-2xl p-4">
                 <div className="mb-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-white/45">
                   <span className="flex items-center gap-1.5">
                     <span className="landing-dot" style={{ background: '#E04B5E', boxShadow: '0 0 10px #E04B5E' }} />
@@ -278,7 +278,7 @@ export function MapScrolly() {
             </div>
           </div>
 
-          <div className="absolute right-8 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-3">
+          <div className="absolute right-8 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-3 md:flex">
             {STAGES.map((_, i) => (
               <div
                 key={i}

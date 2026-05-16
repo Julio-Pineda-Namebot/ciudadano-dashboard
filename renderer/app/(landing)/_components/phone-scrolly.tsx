@@ -221,7 +221,7 @@ export function PhoneScrolly() {
                 style={{ background: 'radial-gradient(closest-side, rgba(255,255,255,0.20), transparent 70%)' }}
               />
 
-              <div className="phone relative" style={{ width: 340, height: 700 }}>
+              <div className="phone-outer phone relative" style={{ width: 340, height: 700 }}>
                 <div className="absolute left-[-3px] top-[120px] h-[60px] w-[3px] rounded-l bg-white/10" />
                 <div className="absolute left-[-3px] top-[200px] h-[90px] w-[3px] rounded-l bg-white/10" />
                 <div className="absolute right-[-3px] top-[160px] h-[110px] w-[3px] rounded-l bg-white/10" />

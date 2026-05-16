@@ -89,13 +89,13 @@ function PriceFeature({ enabled, children }: { enabled: boolean; children: React
 
 export function Pricing() {
   return (
-    <section id="pricing" className="relative py-28">
-      <div className="mx-auto max-w-[1240px] px-6">
-        <div className="mb-16 text-center">
+    <section id="pricing" className="relative py-16 sm:py-20 lg:py-28">
+      <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+        <div className="mb-10 text-center sm:mb-16">
           <div className="reveal landing-chip mx-auto">
             <span className="landing-dot" /> PLANES
           </div>
-          <h2 className="reveal reveal-delay-1 mx-auto mt-5 max-w-[820px] font-display text-[44px] font-semibold leading-[1.02] tracking-[-0.02em] sm:text-[58px]">
+          <h2 className="reveal reveal-delay-1 mx-auto mt-5 max-w-[820px] font-display text-[32px] font-semibold leading-[1.05] tracking-[-0.02em] sm:text-[44px] lg:text-[58px]">
             <span className="gradient-text">Empieza gratis. </span>
             <span className="gradient-text-accent italic">Crece cuando quieras</span>
             <span className="gradient-text">.</span>

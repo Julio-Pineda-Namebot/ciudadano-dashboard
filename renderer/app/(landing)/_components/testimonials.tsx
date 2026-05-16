@@ -42,13 +42,13 @@ const ITEMS = [
 
 export function Testimonials() {
   return (
-    <section id="voices" className="relative py-28">
-      <div className="mx-auto max-w-[1240px] px-6">
-        <div className="mb-14 max-w-[760px]">
+    <section id="voices" className="relative py-16 sm:py-20 lg:py-28">
+      <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+        <div className="mb-10 max-w-[760px] sm:mb-14">
           <div className="reveal landing-chip">
             <span className="landing-dot" /> COMUNIDAD
           </div>
-          <h2 className="reveal reveal-delay-1 mt-5 font-display text-[44px] font-semibold leading-[1.02] tracking-[-0.02em] sm:text-[58px]">
+          <h2 className="reveal reveal-delay-1 mt-5 font-display text-[32px] font-semibold leading-[1.05] tracking-[-0.02em] sm:text-[44px] lg:text-[58px]">
             <span className="gradient-text">Lo que dicen </span>
             <span className="gradient-text-accent italic">los vecinos</span>
             <span className="gradient-text">.</span>

@@ -50,14 +50,14 @@ function FeatureCard({ icon, title, body, accent = '#FFFFFF', big = false, child
 
 export function Features() {
   return (
-    <section id="features" className="relative mt-[100vh] py-28">
-      <div className="mx-auto max-w-[1240px] px-6">
-        <div className="mb-14 flex flex-col items-start gap-5 lg:flex-row lg:items-end lg:justify-between">
+    <section id="features" className="relative mt-[20vh] py-16 sm:py-20 md:mt-[60vh] lg:mt-[100vh] lg:py-28">
+      <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+        <div className="mb-10 flex flex-col items-start gap-5 sm:mb-14 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="reveal landing-chip">
               <span className="landing-dot" /> FUNCIONES
             </div>
-            <h2 className="reveal reveal-delay-1 mt-5 max-w-[720px] font-display text-[44px] font-semibold leading-[1.02] tracking-[-0.02em] sm:text-[56px]">
+            <h2 className="reveal reveal-delay-1 mt-5 max-w-[720px] font-display text-[32px] font-semibold leading-[1.05] tracking-[-0.02em] sm:text-[44px] lg:text-[56px]">
               <span className="gradient-text">Una sola app para </span>
               <span className="gradient-text-accent">protegerlo todo</span>
               <span className="gradient-text">.</span>

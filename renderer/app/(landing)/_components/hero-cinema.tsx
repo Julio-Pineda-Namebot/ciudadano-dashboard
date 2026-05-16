@@ -176,7 +176,7 @@ export function HeroCinema() {
             <div className="eyebrow whitespace-nowrap">Seguridad vecinal · Perú</div>
           </div>
 
-          <div className="relative grid place-items-center" style={{ width: 280, height: 280 }}>
+          <div className="hero-logo-outer relative grid place-items-center" style={{ width: 280, height: 280 }}>
             <div
               ref={radarRef}
               className="pointer-events-none absolute inset-0 grid place-items-center"
@@ -210,11 +210,17 @@ export function HeroCinema() {
 
         <div
           ref={textRef}
-          className="absolute inset-x-0 bottom-32 z-10 mx-auto max-w-[760px] px-6 text-center"
+          className="absolute inset-x-0 bottom-16 z-10 mx-auto max-w-[760px] px-6 text-center sm:bottom-24 lg:bottom-32"
           style={{ willChange: 'transform, opacity' }}
         >
-          <h1 className="font-display text-[36px] font-semibold leading-[1.05] tracking-tight sm:text-[52px]">
-            <SplitWords text="El barrio cuida al barrio." className="gradient-text" wordDelay={0.06} />
+          <h1 className="font-display text-[28px] font-semibold leading-[1.05] tracking-tight sm:text-[36px] lg:text-[52px]">
+            {/* Mobile: plain text — the SplitWords + gradient-text combo doesn't
+                paint through nested masked spans on iOS/Chrome mobile. */}
+            <span className="gradient-text sm:hidden">El barrio cuida al barrio.</span>
+            {/* sm+: keep the original staggered word-reveal animation. */}
+            <span className="hidden sm:inline">
+              <SplitWords text="El barrio cuida al barrio." className="gradient-text" wordDelay={0.06} />
+            </span>
           </h1>
           <p className="reveal reveal-delay-3 mx-auto mt-5 max-w-[480px] text-[14.5px] leading-relaxed text-white/60 sm:text-[16px]">
             Reporta, alerta y movilízate con tu cuadra. Una app de seguridad construida por vecinos, para vecinos.

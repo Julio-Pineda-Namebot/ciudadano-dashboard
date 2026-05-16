@@ -34,12 +34,12 @@ export function StatMoment() {
 
           <div className="relative mx-auto flex h-full max-w-[1440px] flex-col items-center justify-center px-6 text-center">
             <div className="eyebrow mb-6">El impacto, en cifras</div>
-            <div className="text-[14px] text-white/60">
+            <div className="text-[13px] text-white/60 sm:text-[14px]">
               <SplitWords text="Ciudadano ha verificado" wordDelay={0.04} />
             </div>
             <div
               ref={numberRef}
-              className="my-6 font-display text-[100px] font-semibold leading-none tracking-tighter sm:text-[160px] lg:text-[220px]"
+              className="my-5 font-display text-[44px] font-semibold leading-none tracking-tighter sm:my-6 sm:text-[80px] md:text-[110px] lg:text-[160px] xl:text-[220px]"
               style={{
                 background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 100%)',
                 WebkitBackgroundClip: 'text',
@@ -50,10 +50,10 @@ export function StatMoment() {
             >
               0
             </div>
-            <div className="font-display text-[20px] font-medium text-white/80 sm:text-[28px]">
+            <div className="font-display text-[16px] font-medium text-white/80 sm:text-[20px] md:text-[28px]">
               <SplitWords text="alertas reales en barrios reales" wordDelay={0.05} />
             </div>
-            <p className="mt-5 max-w-[520px] text-[14.5px] text-white/55">
+            <p className="mt-4 max-w-[520px] text-[13px] text-white/55 sm:mt-5 sm:text-[14.5px]">
               Cada alerta es una respuesta más rápida, una ruta más segura, un vecino que llega a casa tranquilo.
             </p>
           </div>

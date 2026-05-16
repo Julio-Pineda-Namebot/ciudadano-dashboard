@@ -2,9 +2,9 @@ import { Icon } from './icons';
 
 export function FinalCTA() {
   return (
-    <section id="contact" className="relative py-28">
-      <div className="mx-auto max-w-[1240px] px-6">
-        <div className="reveal relative overflow-hidden rounded-[32px] border border-white/8 px-8 py-20 text-center sm:px-16">
+    <section id="contact" className="relative py-16 sm:py-20 lg:py-28">
+      <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+        <div className="reveal relative overflow-hidden rounded-[24px] border border-white/8 px-5 py-12 text-center sm:rounded-[32px] sm:px-8 sm:py-16 lg:px-16 lg:py-20">
           <div
             className="absolute inset-0 -z-10"
             style={{
@@ -37,15 +37,15 @@ export function FinalCTA() {
           <div className="landing-chip mx-auto">
             <span className="landing-dot" /> CIUDADANO · DISPONIBLE EN PERÚ
           </div>
-          <h2 className="mx-auto mt-6 max-w-[860px] font-display text-[44px] font-semibold leading-none tracking-[-0.03em] sm:text-[72px]">
+          <h2 className="mx-auto mt-6 max-w-[860px] font-display text-[32px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[48px] lg:text-[72px]">
             <span className="gradient-text">Empieza a proteger </span>
             <span className="gradient-text-accent italic">tu comunidad</span>{' '}
             <span className="gradient-text">hoy.</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-[520px] text-[16px] text-white/65">
+          <p className="mx-auto mt-5 max-w-[520px] text-[14px] text-white/65 sm:mt-6 sm:text-[16px]">
             Únete a más de 142,000 vecinos que ya viven en una ciudad más conectada y vigilante.
           </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:mt-9">
             <a href="/login" className="landing-btn landing-btn-primary h-12 px-6 text-[14.5px]">
               Iniciar sesión <Icon name="arrow" size={14} />
             </a>

@@ -15,6 +15,10 @@
   --landing-danger: #E04B5E;
   --landing-good: #6BAE7A;
 
+  /* Responsive base scales (overridden per breakpoint below) */
+  --hero-logo-base: 1;
+  --phone-base: 1;
+
   background:
     radial-gradient(1200px 600px at 80% -10%, rgba(255, 255, 255, 0.05), transparent 60%),
     radial-gradient(900px 500px at -10% 30%, rgba(255, 255, 255, 0.04), transparent 60%),
@@ -304,6 +308,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .landing-root .section-marker {
+    display: none;
+  }
 }
 
 .landing-root .section-marker .bar {
@@ -617,4 +627,254 @@
   0%   { transform: scale(0.6); opacity: 0; }
   20%  { opacity: 0.6; }
   100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* ============================================================
+   Menu sheet (drawer-style overlay triggered from Navbar)
+   ============================================================ */
+.landing-root .landing-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  /* Solid brand surface instead of a translucent dimmer. A subtle radial
+     glow keeps it from feeling flat against the dark sheet on the right. */
+  background:
+    radial-gradient(
+      circle at 30% 35%,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(0, 0, 0, 0) 55%
+    ),
+    #050505;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.landing-root .landing-sheet-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.landing-root .landing-sheet-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  padding: 48px;
+  /* The sheet covers the right side, so center within the visible left area. */
+  margin-right: 520px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+}
+@media (max-width: 880px) {
+  .landing-root .landing-sheet-preview {
+    margin-right: 0;
+    padding: 32px;
+    gap: 32px;
+    /* Sheet slides in over this on small screens; hide preview to avoid overlap. */
+    opacity: 0.25;
+  }
+}
+
+.landing-root .landing-sheet-preview-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.landing-root .landing-sheet-preview-name {
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.landing-root .landing-sheet-preview-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 360px;
+  animation: landing-sheet-preview-fade 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.landing-root .landing-sheet-preview-desc {
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes landing-sheet-preview-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.landing-root .landing-sheet {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  width: 100%;
+  max-width: 520px;
+  background: #0A0A0A;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -30px 0 80px -20px rgba(0, 0, 0, 0.8);
+  transform: translateX(100%);
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.landing-root .landing-sheet.is-open {
+  transform: translateX(0);
+}
+
+@media (max-width: 640px) {
+  .landing-root .landing-sheet {
+    max-width: 100%;
+  }
+}
+
+.landing-root .landing-sheet-link {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 6px 0;
+  color: rgba(255, 255, 255, 0.55);
+  transform: translateY(20px);
+  opacity: 0;
+  transition:
+    opacity 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+    color 0.25s ease;
+}
+.landing-root .landing-sheet.is-open .landing-sheet-link {
+  opacity: 1;
+  transform: translateY(0);
+}
+.landing-root .landing-sheet-link:hover,
+.landing-root .landing-sheet-link:focus-visible {
+  color: #ffffff;
+  outline: none;
+}
+.landing-root .landing-sheet-link.is-active {
+  color: #ffffff;
+}
+.landing-root .landing-sheet-link.is-active::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+  align-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-root .landing-sheet-link {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: color 0.15s ease !important;
+  }
+  .landing-root .landing-sheet,
+  .landing-root .landing-sheet-backdrop {
+    transition: none !important;
+  }
+}
+
+/* ============================================================
+   Responsive scaling helpers
+   - Hero logo and phone mock use base scales driven by viewport
+   - JS animation still composes on inner element (different node)
+   ============================================================ */
+.landing-root .hero-logo-outer {
+  transform: scale(var(--hero-logo-base));
+  transform-origin: center center;
+}
+
+.landing-root .phone-outer {
+  transform: scale(var(--phone-base));
+  transform-origin: center center;
+}
+
+@media (max-width: 480px) {
+  .landing-root {
+    --hero-logo-base: 0.5;
+    --phone-base: 0.74;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .landing-root {
+    --hero-logo-base: 0.62;
+    --phone-base: 0.85;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .landing-root {
+    --hero-logo-base: 0.82;
+    --phone-base: 0.95;
+  }
+}
+
+/* ============================================================
+   Mobile perf: reduce blur, kill non-essential animations
+   ============================================================ */
+@media (max-width: 768px) {
+  .landing-root .glass {
+    backdrop-filter: blur(6px) saturate(120%);
+    -webkit-backdrop-filter: blur(6px) saturate(120%);
+  }
+  /* On mobile the map / dark backgrounds eat the translucent panel —
+     pump opacity + border so the content is legible. */
+  .landing-root .glass-strong {
+    background: linear-gradient(180deg, rgba(28, 34, 58, 0.96), rgba(14, 18, 32, 0.94));
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px) saturate(130%);
+    -webkit-backdrop-filter: blur(8px) saturate(130%);
+  }
+  /* Heavy decorative animations: off on mobile */
+  .landing-root .hero-grid-drift,
+  .landing-root .scan,
+  .landing-root .float-slow,
+  .landing-root .float-med,
+  .landing-root .float-fast {
+    animation: none;
+  }
+  /* Drop the radial drift backdrop on body for mobile */
+  .landing-root {
+    background:
+      radial-gradient(800px 400px at 80% -10%, rgba(255, 255, 255, 0.04), transparent 60%),
+      var(--bg);
+  }
+}
+
+/* ============================================================
+   Accessibility: respect prefers-reduced-motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .landing-root *,
+  .landing-root *::before,
+  .landing-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .landing-root .reveal,
+  .landing-root .reveal-x,
+  .landing-root .reveal-scale,
+  .landing-root .reveal-blur,
+  .landing-root .split-word,
+  .landing-root .split-char-inner {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }
