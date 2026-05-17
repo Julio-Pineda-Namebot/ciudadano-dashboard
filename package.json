@@ -1,6 +1,6 @@
 {
   "name": "ciudadano-dashboard",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Dashboard para la gestión de ciudadanos",
   "main": "config/main.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish"
   },
+  "repository": "https://github.com/Julio-Pineda-Namebot/ciudadano-dashboard",
   "author": "Julio Pineda",
   "license": "MIT",
   "devDependencies": {
