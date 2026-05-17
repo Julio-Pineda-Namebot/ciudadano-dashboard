@@ -1,71 +1,83 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import * as React from "react"
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { ActivitySquare, CalendarDays, TrendingUp, Layers } from "lucide-react"
-import { StatCard } from '@/components/common/dashboard-cards'
-import { formatDate } from "@/lib/utils"
-import type { DashboardData } from "../actions"
 
-const TYPE_COLORS: Record<string, string> = {
+import { StatCard } from "@/components/common/dashboard-cards"
+import { formatDate } from "@/lib/utils"
+import type { IncidentDashboardProps, TimeRange } from "@/app/(menu)/incident/dashboard/_types/types"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart"
+
+const TYPE_FILL: Record<string, string> = {
+  robo: "#ef4444",
+  accidente: "#f97316",
+  vandalismo: "#eab308",
+  violencia: "#a855f7",
+  incendio: "#f43f5e",
+}
+const DEFAULT_FILL = "#6b7280"
+
+const TYPE_BADGE_COLORS: Record<string, string> = {
   robo: "bg-red-100 text-red-700 border-red-200",
   accidente: "bg-orange-100 text-orange-700 border-orange-200",
   vandalismo: "bg-yellow-100 text-yellow-700 border-yellow-200",
   violencia: "bg-purple-100 text-purple-700 border-purple-200",
   incendio: "bg-rose-100 text-rose-700 border-rose-200",
 }
-const DEFAULT_COLOR = "bg-gray-100 text-gray-700 border-gray-200"
+const DEFAULT_BADGE_COLOR = "bg-gray-100 text-gray-700 border-gray-200"
 
-const WIDTH = 760
-const HEIGHT = 280
-const PADDING = { top: 20, right: 20, bottom: 36, left: 44 }
+const areaChartConfig = {
+  cumulative: {
+    label: "Acumulado",
+    color: "var(--chart-1)",
+  },
+  count: {
+    label: "Nuevas",
+    color: "var(--chart-2)",
+  },
+} satisfies ChartConfig
 
-interface Props {
-  data: DashboardData
-}
+export function IncidentDashboardClient({ data }: IncidentDashboardProps) {
+  const [timeRange, setTimeRange] = React.useState<TimeRange>("all")
 
-export function IncidentDashboardClient({ data }: Props) {
-  const [hovered, setHovered] = useState<number | null>(null)
+  const filteredDaily = React.useMemo(() => {
+    if (timeRange === "all") return data.daily
+    const days = timeRange === "30d" ? 30 : 7
+    return data.daily.slice(-days)
+  }, [data.daily, timeRange])
 
-  const chart = useMemo(() => {
-    const { daily } = data
-    if (daily.length === 0) return null
+  const barChartConfig = React.useMemo(() => {
+    return data.byType.reduce<ChartConfig>((acc, { type }) => {
+      acc[type] = {
+        label: type.charAt(0).toUpperCase() + type.slice(1),
+        color: TYPE_FILL[type] ?? DEFAULT_FILL,
+      }
+      return acc
+    }, {})
+  }, [data.byType])
 
-    const maxCum = Math.max(...daily.map((d) => d.cumulative), 1)
-    const innerW = WIDTH - PADDING.left - PADDING.right
-    const innerH = HEIGHT - PADDING.top - PADDING.bottom
-
-    const xFor = (i: number) =>
-      PADDING.left + (daily.length === 1 ? innerW / 2 : (i * innerW) / (daily.length - 1))
-    const yFor = (v: number) => PADDING.top + innerH - (v / maxCum) * innerH
-
-    const points = daily.map((d, i) => ({ x: xFor(i), y: yFor(d.cumulative), point: d }))
-    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-    const areaPath = `${linePath} L ${points[points.length - 1].x} ${PADDING.top + innerH} L ${points[0].x} ${PADDING.top + innerH} Z`
-
-    const yTicks = 4
-    const yLabels = Array.from({ length: yTicks + 1 }, (_, i) => {
-      const v = Math.round((maxCum * i) / yTicks)
-      return { value: v, y: yFor(v) }
-    })
-
-    const stride = Math.max(1, Math.ceil(daily.length / 8))
-    const xLabels = daily
-      .map((d, i) => ({ label: formatDate(d.date), x: xFor(i), i }))
-      .filter((_, i) => i % stride === 0 || i === daily.length - 1)
-
-    return { points, linePath, areaPath, yLabels, xLabels, innerH }
-  }, [data])
-
-  if (!chart) {
+  if (data.daily.length === 0) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-10 text-center text-sm text-muted-foreground shadow-sm">
+      <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground shadow-sm">
         No hay incidencias registradas todavía.
       </div>
     )
   }
-
-  const { points, linePath, areaPath, yLabels, xLabels, innerH } = chart
-  const hoveredPoint = hovered !== null ? points[hovered] : null
 
   return (
     <div className="space-y-4">
@@ -91,136 +103,201 @@ export function IncidentDashboardClient({ data }: Props) {
           value={
             data.peak
               ? `${formatDate(data.peak.date)} · ${data.peak.count}`
-              : '—'
+              : "—"
           }
         />
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-gray-800">
-              Crecimiento acumulado de incidencias
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Total acumulado por fecha de reporte
-            </p>
+      <Card className="pt-0">
+        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+          <div className="grid flex-1 gap-1">
+            <CardTitle>Crecimiento acumulado de incidencias</CardTitle>
+            <CardDescription>
+              Total acumulado y nuevas incidencias por fecha de reporte
+            </CardDescription>
           </div>
-        </div>
-
-        <div className="relative w-full overflow-x-auto">
-          <svg
-            viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-            className="w-full min-w-140"
-            role="img"
-            aria-label="Gráfico de crecimiento acumulado de incidencias"
-          >
-            <defs>
-              <linearGradient id="incident-area" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-
-            {yLabels.map((t) => (
-              <g key={t.value}>
-                <line
-                  x1={PADDING.left}
-                  x2={WIDTH - PADDING.right}
-                  y1={t.y}
-                  y2={t.y}
-                  stroke="#e5e7eb"
-                  strokeDasharray="3 3"
-                />
-                <text
-                  x={PADDING.left - 8}
-                  y={t.y + 4}
-                  textAnchor="end"
-                  className="fill-gray-500"
-                  fontSize="10"
-                >
-                  {t.value}
-                </text>
-              </g>
-            ))}
-
-            <path d={areaPath} fill="url(#incident-area)" />
-            <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinejoin="round" />
-
-            {points.map((p, i) => (
-              <g key={i}>
-                <circle cx={p.x} cy={p.y} r={hovered === i ? 5 : 3} fill="#3b82f6" />
-                <rect
-                  x={p.x - 14}
-                  y={PADDING.top}
-                  width={28}
-                  height={innerH}
-                  fill="transparent"
-                  onMouseEnter={() => setHovered(i)}
-                  onMouseLeave={() => setHovered(null)}
-                  style={{ cursor: 'pointer' }}
-                />
-              </g>
-            ))}
-
-            {xLabels.map((l) => (
-              <text
-                key={l.i}
-                x={l.x}
-                y={HEIGHT - PADDING.bottom + 18}
-                textAnchor="middle"
-                className="fill-gray-500"
-                fontSize="10"
-              >
-                {l.label}
-              </text>
-            ))}
-          </svg>
-
-          {hoveredPoint && (
-            <div
-              className="pointer-events-none absolute rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs shadow-sm"
-              style={{
-                left: `${(hoveredPoint.x / WIDTH) * 100}%`,
-                top: `${(hoveredPoint.y / HEIGHT) * 100}%`,
-                transform: 'translate(-50%, -110%)',
-              }}
-            >
-              <div className="font-medium text-gray-800">
-                {formatDate(hoveredPoint.point.date)}
-              </div>
-              <div className="text-gray-600">
-                Acumulado: <span className="font-semibold">{hoveredPoint.point.cumulative}</span>
-              </div>
-              <div className="text-gray-600">
-                Nuevas: <span className="font-semibold">{hoveredPoint.point.count}</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {data.byType.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-sm">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Distribución por tipo
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {data.byType.map(({ type, count }) => (
-              <span
-                key={type}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium ${
-                  TYPE_COLORS[type] ?? DEFAULT_COLOR
+          <div className="flex gap-1 rounded-lg border border-border p-1 text-xs">
+            {(["all", "30d", "7d"] satisfies TimeRange[]).map((r) => (
+              <button
+                key={r}
+                onClick={() => setTimeRange(r)}
+                className={`rounded-md px-3 py-1 font-medium transition-colors ${
+                  timeRange === r
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {type}
-                <span className="font-normal opacity-70">({count})</span>
-              </span>
+                {r === "all" ? "Todo" : r === "30d" ? "30 días" : "7 días"}
+              </button>
             ))}
           </div>
-        </div>
+        </CardHeader>
+        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+          <ChartContainer
+            config={areaChartConfig}
+            className="aspect-auto h-65 w-full"
+          >
+            <AreaChart data={filteredDaily}>
+              <defs>
+                <linearGradient id="fillCumulative" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-cumulative)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--color-cumulative)" stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="fillCount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-count)" stopOpacity={0.6} />
+                  <stop offset="95%" stopColor="var(--color-count)" stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) => {
+                  const date = new Date(value)
+                  return date.toLocaleDateString("es-PE", {
+                    month: "short",
+                    day: "numeric",
+                  })
+                }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                width={36}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value) =>
+                      new Date(value).toLocaleDateString("es-PE", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      })
+                    }
+                    indicator="dot"
+                  />
+                }
+              />
+              <Area
+                dataKey="count"
+                type="natural"
+                fill="url(#fillCount)"
+                stroke="var(--color-count)"
+              />
+              <Area
+                dataKey="cumulative"
+                type="natural"
+                fill="url(#fillCumulative)"
+                stroke="var(--color-cumulative)"
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </AreaChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {data.byType.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribución por tipo</CardTitle>
+            <CardDescription>
+              Total de incidencias agrupadas por categoría
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-2 sm:px-6">
+            <ChartContainer
+              config={barChartConfig}
+              className="aspect-auto h-50 w-full"
+            >
+              <BarChart
+                data={data.byType}
+                margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="type"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={(v) => v.charAt(0).toUpperCase() + v.slice(1)}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  width={28}
+                  allowDecimals={false}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      hideLabel
+                      formatter={(value, _name, item) => {
+                        const type = item.payload?.type as string
+                        const color = TYPE_FILL[type] ?? DEFAULT_FILL
+                        const label = type
+                          ? type.charAt(0).toUpperCase() + type.slice(1)
+                          : "—"
+                        return (
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="h-2.5 w-2.5 shrink-0 rounded-xs"
+                              style={{ backgroundColor: color }}
+                            />
+                            <span className="text-muted-foreground">{label}</span>
+                            <span className="ml-auto font-mono font-medium tabular-nums text-foreground">
+                              {Number(value).toLocaleString()}
+                            </span>
+                          </div>
+                        )
+                      }}
+                    />
+                  }
+                />
+                <Bar
+                  dataKey="count"
+                  radius={[6, 6, 0, 0]}
+                  fill="var(--chart-1)"
+                  label={false}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  shape={(props: any) => {
+                    const { x, y, width, height, type } = props
+                    const fill = TYPE_FILL[type] ?? DEFAULT_FILL
+                    const r = 6
+                    return (
+                      <path
+                        d={`M${x},${y + r} Q${x},${y} ${x + r},${y} L${x + width - r},${y} Q${x + width},${y} ${x + width},${y + r} L${x + width},${y + height} L${x},${y + height} Z`}
+                        fill={fill}
+                      />
+                    )
+                  }}
+                />
+              </BarChart>
+            </ChartContainer>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {data.byType.map(({ type, count }) => (
+                <span
+                  key={type}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium ${
+                    TYPE_BADGE_COLORS[type] ?? DEFAULT_BADGE_COLOR
+                  }`}
+                >
+                  {type}
+                  <span className="font-normal opacity-70">({count})</span>
+                </span>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   )
 }
-

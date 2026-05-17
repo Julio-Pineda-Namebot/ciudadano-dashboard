@@ -5,17 +5,15 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { Filter } from '@/components/common/form/filter'
 import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
-import { NewsTable } from './NewsTable'
-import { NewsFormModal } from './NewsFormModal'
-import { NewsDeleteDialog } from './NewsDeleteDialog'
-import { getNews, createNews, updateNews, deleteNews } from '../actions'
-import type { News, NewsFormData } from '../_types/news'
+import { NewsTable } from '@/app/(menu)/news/_components/NewsTable'
+import { NewsFormModal } from '@/app/(menu)/news/_components/NewsFormModal'
+import { NewsDeleteDialog } from '@/app/(menu)/news/_components/NewsDeleteDialog'
+import { getNews, createNews, updateNews, deleteNews } from '@/app/(menu)/news/actions'
+import type { News, NewsFormData, NewsFilterValues } from '@/app/(menu)/news/_types/types'
 
 const filterSchema = z.object({
   range: z.object({ from: z.string(), to: z.string() }),
 })
-
-type FilterValues = z.infer<typeof filterSchema>
 
 export function NewsPanel() {
   const [news, setNews] = useState<News[]>([])
@@ -26,7 +24,6 @@ export function NewsPanel() {
   const { dateRange, onApply, filteredData } = useDateRangeFilter(news, 'date')
 
   useEffect(() => {
-    setLoading(true)
     getNews()
       .then(setNews)
       .catch(() => toast.error('No se pudieron cargar las noticias'))
@@ -78,11 +75,7 @@ export function NewsPanel() {
 
   return (
     <div className="p-6 space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold">Noticias</h1>
-      </div>
-
-      <Filter<FilterValues>
+      <Filter<NewsFilterValues>
         schema={filterSchema}
         defaultValues={{ range: dateRange }}
         body={['range']}

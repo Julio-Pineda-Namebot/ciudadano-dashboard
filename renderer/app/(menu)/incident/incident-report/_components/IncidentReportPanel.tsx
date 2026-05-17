@@ -1,40 +1,26 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { Filter } from '@/components/common/form/filter'
 import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
-import { IncidentReportTable } from './IncidentReportTable'
-import { IncidentReportFormModal } from './IncidentReportFormModal'
-import { IncidentReportDeleteDialog } from './IncidentReportDeleteDialog'
+import { IncidentReportTable } from '@/app/(menu)/incident/incident-report/_components/IncidentReportTable'
+import { IncidentReportFormModal } from '@/app/(menu)/incident/incident-report/_components/IncidentReportFormModal'
+import { IncidentReportDeleteDialog } from '@/app/(menu)/incident/incident-report/_components/IncidentReportDeleteDialog'
+import { IncidentReportViewModal } from '@/app/(menu)/incident/incident-report/_components/IncidentReportViewModal'
 import {
-  getIncidentReports,
   updateIncidentReport,
   deleteIncidentReport,
-} from '../actions'
-import type { IncidentReport, IncidentReportUpdateData } from '../_types/incident-report'
+} from '@/app/(menu)/incident/incident-report/actions'
+import { filterSchema } from '@/app/(menu)/incident/incident-report/_types/types'
+import type { IncidentReport, IncidentReportUpdateData, IncidentReportPanelProps, FilterValues } from '@/app/(menu)/incident/incident-report/_types/types'
 
-const filterSchema = z.object({
-  range: z.object({ from: z.string(), to: z.string() }),
-})
-
-type FilterValues = z.infer<typeof filterSchema>
-
-export function IncidentReportPanel() {
-  const [reports, setReports] = useState<IncidentReport[]>([])
-  const [loading, setLoading] = useState(true)
+export function IncidentReportPanel({ initialReports }: IncidentReportPanelProps) {
+  const [reports, setReports] = useState<IncidentReport[]>(initialReports)
+  const [viewTarget, setViewTarget] = useState<IncidentReport | null>(null)
   const [editTarget, setEditTarget] = useState<IncidentReport | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<IncidentReport | null>(null)
   const { dateRange, onApply, filteredData } = useDateRangeFilter(reports, 'createdAt')
-
-  useEffect(() => {
-    setLoading(true)
-    getIncidentReports()
-      .then(setReports)
-      .catch(() => toast.error('No se pudieron cargar las incidencias'))
-      .finally(() => setLoading(false))
-  }, [])
 
   function closeForm() {
     setEditTarget(null)
@@ -57,10 +43,6 @@ export function IncidentReportPanel() {
 
   return (
     <div className="p-6 space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold">Reportes de incidencias</h1>
-      </div>
-
       <Filter<FilterValues>
         schema={filterSchema}
         defaultValues={{ range: dateRange }}
@@ -75,9 +57,15 @@ export function IncidentReportPanel() {
 
       <IncidentReportTable
         reports={filteredData}
-        loading={loading}
+        onView={setViewTarget}
         onEdit={setEditTarget}
         onDelete={setDeleteTarget}
+      />
+
+      <IncidentReportViewModal
+        open={!!viewTarget}
+        report={viewTarget}
+        onClose={() => setViewTarget(null)}
       />
 
       <IncidentReportFormModal

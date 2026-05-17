@@ -2,7 +2,7 @@
 
 import { get } from '@/lib/backendService'
 import { getSession } from '@/lib/session'
-import type { Citizen } from './_types/citizen'
+import type { Citizen } from '@/app/(menu)/ciudadanos/_types/types'
 
 async function authHeaders() {
   const token = await getSession()

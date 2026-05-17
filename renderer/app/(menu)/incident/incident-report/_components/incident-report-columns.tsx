@@ -1,11 +1,11 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { PencilIcon, TrashIcon } from 'lucide-react'
+import { EyeIcon, PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
 import { formatDateTime } from '@/lib/utils'
-import type { IncidentReport } from '../_types/incident-report'
+import type { IncidentReport, IncidentReportColumnActions } from '@/app/(menu)/incident/incident-report/_types/types'
 
 const TYPE_COLORS: Record<string, string> = {
   accidente: 'bg-orange-100 text-orange-700',
@@ -14,19 +14,17 @@ const TYPE_COLORS: Record<string, string> = {
   vandalismo: 'bg-yellow-100 text-yellow-700',
 }
 
-interface Actions {
-  onEdit: (report: IncidentReport) => void
-  onDelete: (report: IncidentReport) => void
-}
-
-export function getIncidentReportColumns({ onEdit, onDelete }: Actions): ColumnDef<IncidentReport>[] {
+export function getIncidentReportColumns({ onEdit, onDelete, onView }: IncidentReportColumnActions): ColumnDef<IncidentReport>[] {
   return [
     {
       id: 'actions',
-      size: 80,
+      size: 100,
       enableHiding: false,
       cell: ({ row }) => (
         <div className="flex justify-end gap-1">
+          <Button variant="ghost" size="icon-sm" onClick={() => onView(row.original)} title="Ver">
+            <EyeIcon />
+          </Button>
           <Button variant="ghost" size="icon-sm" onClick={() => onEdit(row.original)} title="Editar">
             <PencilIcon />
           </Button>

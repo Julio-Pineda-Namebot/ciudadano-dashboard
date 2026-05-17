@@ -1,12 +1,13 @@
-import { IncidentReportPanel } from './_components/IncidentReportPanel'
-import { BreadcrumbSetter } from '@/app/(menu)/_components/breadcrumb-setter'
 import { ModuleTheme } from '@/components/common/module-theme'
+import { IncidentReportPanel } from '@/app/(menu)/incident/incident-report/_components/IncidentReportPanel'
+import { getIncidentReports } from '@/app/(menu)/incident/incident-report/actions'
 
-export default function IncidentReportPage() {
+export default async function IncidentReportPage() {
+  const reports = await getIncidentReports()
+
   return (
-    <ModuleTheme color="green">
-      <BreadcrumbSetter items={[{ label: 'Incidencias' }, { label: 'Ver reportes' }]} />
-      <IncidentReportPanel />
+    <ModuleTheme color="yellow">
+      <IncidentReportPanel initialReports={reports} />
     </ModuleTheme>
   )
 }

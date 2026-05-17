@@ -5,33 +5,41 @@ import { LocateFixed, Maximize2, Minimize2, Map, Satellite } from "lucide-react"
 import mapboxgl from "mapbox-gl"
 import "mapbox-gl/dist/mapbox-gl.css"
 import { io, type Socket } from "socket.io-client"
+import { getWsToken } from "@/app/(menu)/incident/heatmap/actions"
+import { MapButton } from "@/components/common/map-button"
+import type { LightPreset, IncidentPayload, HeatMapProps } from "@/app/(menu)/incident/heatmap/_types/types"
 
 const DEFAULT_LNG = -75.7285
 const DEFAULT_LAT = -14.0755
 const DEFAULT_ZOOM = 13
 const MIN_ZOOM = 11
-
-// Límites del distrito de Ica: [lng_oeste, lat_sur, lng_este, lat_norte]
 const ICA_BOUNDS: mapboxgl.LngLatBoundsLike = [[-75.90, -14.22], [-75.55, -13.92]]
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
-
 const STYLE_STANDARD  = 'mapbox://styles/mapbox/standard'
 const STYLE_SATELLITE = 'mapbox://styles/mapbox/standard-satellite'
 
-type LightPreset = 'dawn' | 'day' | 'dusk' | 'night'
+const TYPE_STYLES: Record<string, { label: string; color: string }> = {
+  robo:       { label: 'Robo',       color: 'bg-red-100 text-red-700 border-red-200' },
+  accidente:  { label: 'Accidente',  color: 'bg-orange-100 text-orange-700 border-orange-200' },
+  vandalismo: { label: 'Vandalismo', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+  violencia:  { label: 'Violencia',  color: 'bg-purple-100 text-purple-700 border-purple-200' },
+}
+
+const LEGEND_STOPS = [
+  { label: 'Crítica',  color: 'rgba(195,40,30,0.88)' },
+  { label: 'Muy alta', color: 'rgba(240,120,40,0.84)' },
+  { label: 'Alta',     color: 'rgba(240,210,70,0.75)' },
+  { label: 'Moderada', color: 'rgba(60,180,140,0.65)' },
+  { label: 'Baja',     color: 'rgba(100,180,220,0.50)' },
+  { label: 'Muy baja', color: 'rgba(100,180,220,0.20)' },
+]
 
 function getLightPreset(): LightPreset {
   const h = new Date().getHours()
-  if (h >= 5 && h < 7)  return 'dawn'
-  if (h >= 7 && h < 16) return 'day'
+  if (h >= 5  && h < 7)  return 'dawn'
+  if (h >= 7  && h < 16) return 'day'
   if (h >= 16 && h < 18) return 'dusk'
   return 'night'
-}
-
-interface IncidentPayload {
-  incident: {
-    geolocation: { latitude: number; longitude: number }
-  }
 }
 
 function toGeoJSON(points: [number, number, number][]): GeoJSON.FeatureCollection {
@@ -42,17 +50,6 @@ function toGeoJSON(points: [number, number, number][]): GeoJSON.FeatureCollectio
       properties: { intensity },
       geometry: { type: 'Point', coordinates: [lng, lat] },
     })),
-  }
-}
-
-async function fetchToken(): Promise<string | null> {
-  try {
-    const res = await fetch('/api/auth/ws-token', { cache: 'no-store' })
-    if (!res.ok) return null
-    const body = (await res.json()) as { token?: string }
-    return body.token ?? null
-  } catch {
-    return null
   }
 }
 
@@ -69,12 +66,10 @@ function addHeatmapLayer(map: mapboxgl.Map, data: GeoJSON.FeatureCollection) {
       type: 'heatmap',
       source: 'incidents',
       paint: {
-        'heatmap-weight': ['interpolate', ['linear'], ['get', 'intensity'], 0, 0, 1, 0.7],
-        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 8, 2, 14, 3, 18, 4],
+        'heatmap-weight':     ['interpolate', ['linear'], ['get', 'intensity'], 0, 0, 1, 0.7],
+        'heatmap-intensity':  ['interpolate', ['linear'], ['zoom'], 0, 1, 8, 2, 14, 3, 18, 4],
         'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
+          'interpolate', ['linear'], ['heatmap-density'],
           0,    'rgba(0,0,0,0)',
           0.05, 'rgba(100,180,220,0.20)',
           0.2,  'rgba(100,180,220,0.50)',
@@ -83,8 +78,8 @@ function addHeatmapLayer(map: mapboxgl.Map, data: GeoJSON.FeatureCollection) {
           0.8,  'rgba(240,120,40,0.84)',
           1,    'rgba(195,40,30,0.88)',
         ],
-        'heatmap-radius': ['interpolate', ['exponential', 2], ['zoom'], 0, 1, 8, 10, 12, 40, 16, 160, 20, 640],
-        'heatmap-opacity': 0.85,
+        'heatmap-radius':   ['interpolate', ['exponential', 2], ['zoom'], 0, 1, 8, 10, 12, 40, 16, 160, 20, 640],
+        'heatmap-opacity':  0.85,
       },
       slot: 'top',
     })
@@ -93,46 +88,70 @@ function addHeatmapLayer(map: mapboxgl.Map, data: GeoJSON.FeatureCollection) {
   map.setConfigProperty('basemap', 'lightPreset', getLightPreset())
 }
 
-const LEGEND_STOPS = [
-  { label: 'Crítica',   color: 'rgba(195,40,30,0.88)' },
-  { label: 'Muy alta',  color: 'rgba(240,120,40,0.84)' },
-  { label: 'Alta',      color: 'rgba(240,210,70,0.75)' },
-  { label: 'Moderada',  color: 'rgba(60,180,140,0.65)' },
-  { label: 'Baja',      color: 'rgba(100,180,220,0.50)' },
-  { label: 'Muy baja',  color: 'rgba(100,180,220,0.20)' },
-]
-
-function HeatmapLegend() {
+function HeatmapLegend({ typeCounts }: { typeCounts: Record<string, number> }) {
   const gradientColors = LEGEND_STOPS.map(s => s.color).join(', ')
+  const entries = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])
+
   return (
-    <div className="absolute bottom-10 left-4 z-10 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md px-3 py-2.5 flex gap-2.5 items-stretch">
-      <div
-        className="w-3 rounded-full shrink-0"
-        style={{ background: `linear-gradient(to bottom, ${gradientColors})` }}
-      />
-      <div className="flex flex-col justify-between">
-        {LEGEND_STOPS.map(({ label, color }) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
-            <span className="text-[10px] font-medium text-gray-600 leading-none">{label}</span>
-          </div>
-        ))}
+    <div className="absolute bottom-10 left-4 z-10 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg overflow-hidden w-44">
+      {/* Encabezado */}
+      <div className="px-3 py-2 border-b border-gray-100">
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-gray-400">
+          Densidad
+        </p>
       </div>
+
+      {/* Gradiente + etiquetas */}
+      <div className="px-3 py-2.5 flex gap-2.5 items-stretch">
+        <div
+          className="w-2.5 rounded-full shrink-0 self-stretch"
+          style={{ background: `linear-gradient(to bottom, ${gradientColors})` }}
+        />
+        <div className="flex flex-col justify-between flex-1">
+          {LEGEND_STOPS.map(({ label, color }) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color }} />
+              <span className="text-[10px] font-medium text-gray-600 leading-none">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tipos */}
+      {entries.length > 0 && (
+        <>
+          <div className="px-3 py-2 border-t border-gray-100">
+            <p className="text-[9px] font-semibold uppercase tracking-widest text-gray-400">
+              Tipos
+            </p>
+          </div>
+          <div className="px-3 pb-2.5 flex flex-col gap-1">
+            {entries.map(([type, count]) => {
+              const style = TYPE_STYLES[type] ?? { label: type, color: 'bg-gray-100 text-gray-700 border-gray-200' }
+              return (
+                <span
+                  key={type}
+                  className={`inline-flex items-center justify-between rounded-full border px-2 py-0.5 text-[10px] font-medium ${style.color}`}
+                >
+                  {style.label}
+                  <span className="font-normal opacity-60 ml-1">({count})</span>
+                </span>
+              )
+            })}
+          </div>
+        </>
+      )}
     </div>
   )
 }
 
-interface Props {
-  initialPoints?: [number, number, number][]
-}
-
-export default function HeatMap({ initialPoints = [] }: Props) {
+export default function HeatMap({ initialPoints = [], typeCounts = {} }: HeatMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<mapboxgl.Map | null>(null)
-  const pointsRef = useRef<[number, number, number][]>(initialPoints)
-  const socketRef = useRef<Socket | null>(null)
+  const mapRef          = useRef<mapboxgl.Map | null>(null)
+  const pointsRef       = useRef<[number, number, number][]>(initialPoints)
+  const socketRef       = useRef<Socket | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isSatellite, setIsSatellite] = useState(false)
+  const [isSatellite,  setIsSatellite]  = useState(false)
 
   function flyToDefault() {
     mapRef.current?.flyTo({ center: [DEFAULT_LNG, DEFAULT_LAT], zoom: DEFAULT_ZOOM, essential: true })
@@ -180,7 +199,7 @@ export default function HeatMap({ initialPoints = [] }: Props) {
       }, 60_000)
       map.once('remove', () => clearInterval(lightInterval))
 
-      const token = await fetchToken()
+      const token = await getWsToken()
       if (!token) return
 
       const socket = io(`${BACKEND_URL}/incidents`, {
@@ -213,50 +232,37 @@ export default function HeatMap({ initialPoints = [] }: Props) {
     >
       <div
         ref={mapContainerRef}
-        className={
-          isFullscreen
-            ? 'h-full w-full'
-            : 'h-full w-full rounded-xl overflow-hidden border border-gray-200 shadow-sm'
-        }
+        className={isFullscreen ? 'h-full w-full' : 'h-full w-full rounded-xl overflow-hidden border border-gray-200 shadow-sm'}
       />
 
-      {/* Botón pantalla completa */}
-      <button
+      <MapButton
         onClick={toggleFullscreen}
         title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
-        className="absolute top-4 left-4 z-10 flex items-center justify-center rounded-lg bg-white p-2 shadow-md border border-gray-200 hover:bg-gray-50 active:scale-95 transition-transform"
+        className="top-4 left-4"
       >
-        {isFullscreen
-          ? <Minimize2 className="h-4 w-4 text-gray-700" />
-          : <Maximize2 className="h-4 w-4 text-gray-700" />
-        }
-      </button>
+        {isFullscreen ? <Minimize2 className="h-4 w-4 text-gray-700" /> : <Maximize2 className="h-4 w-4 text-gray-700" />}
+      </MapButton>
 
-      {/* Botón cambiar estilo */}
-      <button
+      <MapButton
         onClick={toggleStyle}
         title={isSatellite ? 'Ver mapa estándar' : 'Ver satélite'}
-        className="absolute top-4 left-14 z-10 flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 shadow-md border border-gray-200 hover:bg-gray-50 active:scale-95 transition-transform"
+        className="top-4 left-14 gap-1.5 px-3 py-2"
       >
-        {isSatellite
-          ? <Map className="h-4 w-4 text-gray-700" />
-          : <Satellite className="h-4 w-4 text-gray-700" />
-        }
+        {isSatellite ? <Map className="h-4 w-4 text-gray-700" /> : <Satellite className="h-4 w-4 text-gray-700" />}
         <span className="text-xs font-medium text-gray-700">
           {isSatellite ? 'Estándar' : 'Satélite'}
         </span>
-      </button>
+      </MapButton>
 
-      <HeatmapLegend />
+      <HeatmapLegend typeCounts={typeCounts} />
 
-      {/* Botón volver a ubicación por defecto */}
-      <button
+      <MapButton
         onClick={flyToDefault}
         title="Volver a ubicación por defecto"
-        className="absolute bottom-4 right-4 z-10 flex items-center justify-center rounded-lg bg-white p-2 shadow-md border border-gray-200 hover:bg-gray-50 active:scale-95 transition-transform"
+        className="bottom-4 right-4"
       >
         <LocateFixed className="h-4 w-4 text-blue-600" />
-      </button>
+      </MapButton>
     </div>
   )
 }

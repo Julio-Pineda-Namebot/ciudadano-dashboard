@@ -1,32 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { z } from 'zod'
 import { Filter } from '@/components/common/form/filter'
 import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
-import { CitizensTable } from './CitizensTable'
-import { getCitizens } from '../actions'
-import type { Citizen } from '../_types/citizen'
+import { CitizensTable } from '@/app/(menu)/ciudadanos/_components/CitizensTable'
+import { citizenFilterSchema, type CitizenFilterValues, type CitizensPanelProps } from '@/app/(menu)/ciudadanos/_types/types'
 
-const filterSchema = z.object({
-  range: z.object({ from: z.string(), to: z.string() }),
-})
-
-type FilterValues = z.infer<typeof filterSchema>
-
-export function CitizensPanel() {
-  const [citizens, setCitizens] = useState<Citizen[]>([])
-  const [loading, setLoading] = useState(true)
+export function CitizensPanel({ citizens }: CitizensPanelProps) {
   const { dateRange, onApply, filteredData } = useDateRangeFilter(citizens, 'createdAt')
-
-  useEffect(() => {
-    setLoading(true)
-    getCitizens()
-      .then(setCitizens)
-      .catch(() => toast.error('No se pudieron cargar los ciudadanos'))
-      .finally(() => setLoading(false))
-  }, [])
 
   return (
     <div className="p-6 space-y-4">
@@ -34,8 +14,8 @@ export function CitizensPanel() {
         <h1 className="text-xl font-semibold">Ciudadanos</h1>
       </div>
 
-      <Filter<FilterValues>
-        schema={filterSchema}
+      <Filter<CitizenFilterValues>
+        schema={citizenFilterSchema}
         defaultValues={{ range: dateRange }}
         body={['range']}
         config={{
@@ -46,7 +26,7 @@ export function CitizensPanel() {
         onSubmit={(values) => onApply(values.range as DateRangeValue)}
       />
 
-      <CitizensTable citizens={filteredData} loading={loading} />
+      <CitizensTable citizens={filteredData} />
     </div>
   )
 }

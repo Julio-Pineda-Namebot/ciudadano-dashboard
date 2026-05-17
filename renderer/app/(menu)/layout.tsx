@@ -2,12 +2,11 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { SimpleLenisProvider } from '@/components/common/simple-lenis-provider'
-import { SocketProvider } from './_components/socket-provider'
-import { AuthProvider } from './_components/auth-provider'
-import { AppSidebar } from './_components/app-sidebar'
-import { AppHeader } from './_components/app-header'
-import { BreadcrumbProvider } from './_components/breadcrumb-context'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { SocketProvider } from '@/app/(menu)/_components/SocketProvider'
+import { AuthProvider } from '@/app/(menu)/_components/AuthProvider'
+import { AppSidebar } from '@/app/(menu)/_components/AppSidebar'
+import { AppTitlebar } from '@/app/(menu)/_components/AppTitlebar'
 import { fetchProfile, revokeSession } from '@/app/auth'
 
 export default async function MenuLayout({ children }: { children: React.ReactNode }) {
@@ -21,15 +20,15 @@ export default async function MenuLayout({ children }: { children: React.ReactNo
     <AuthProvider profile={profile!}>
       <SocketProvider>
         <TooltipProvider>
-          <BreadcrumbProvider>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <AppHeader />
-                <SimpleLenisProvider>{children}</SimpleLenisProvider>
-              </SidebarInset>
-            </SidebarProvider>
-          </BreadcrumbProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <AppTitlebar />
+              <ScrollArea className="h-[calc(100svh-2.5rem)]">
+                {children}
+              </ScrollArea>
+            </SidebarInset>
+          </SidebarProvider>
         </TooltipProvider>
       </SocketProvider>
     </AuthProvider>

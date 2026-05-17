@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sk \"https://ciudadano-rest-api.onrender.com\" -w \"\\\\nHTTP_STATUS:%{http_code}\")",
+      "Bash(npm uninstall *)",
+      "Bash(npx prisma *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npm install *)",
+      "Bash(pnpm add *)",
+      "Bash(npx tsc *)",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/dashboard/types'\\\\''|from '\\\\''@/app/\\(menu\\)/dashboard/_types/dashboard'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/dashboard/actions.ts' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/dashboard/_components/GeneralDashboardClient.tsx')",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/incident/dashboard/types'\\\\''|from '\\\\''@/app/\\(menu\\)/incident/dashboard/_types/dashboard'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/dashboard/actions.ts' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/dashboard/_components/IncidentDashboardClient.tsx')",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/incident/incident-report/types'\\\\''|from '\\\\''@/app/\\(menu\\)/incident/incident-report/_types/incident-report'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/actions.ts' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportPanel.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportTable.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/incident-report-columns.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportFormModal.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportDeleteDialog.tsx')",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/incident/heatmap/types'\\\\''|from '\\\\''@/app/\\(menu\\)/incident/heatmap/_types/heatmap-map'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/heatmap/_components/HeatMap.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/heatmap/_components/HeatMapClient.tsx')",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/dashboard/_types/dashboard'\\\\''|from '\\\\''@/app/\\(menu\\)/dashboard/_types/types'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/dashboard/actions.ts' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/dashboard/_components/GeneralDashboardClient.tsx')",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/incident/dashboard/_types/dashboard'\\\\''|from '\\\\''@/app/\\(menu\\)/incident/dashboard/_types/types'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/dashboard/actions.ts' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/dashboard/_components/IncidentDashboardClient.tsx')",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/incident/incident-report/_types/incident-report'\\\\''|from '\\\\''@/app/\\(menu\\)/incident/incident-report/_types/types'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/actions.ts' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportPanel.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportTable.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/incident-report-columns.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportFormModal.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/incident-report/_components/IncidentReportDeleteDialog.tsx')",
+      "Bash(sed -i 's|from '\\\\''@/app/\\(menu\\)/incident/heatmap/_types/heatmap-map'\\\\''|from '\\\\''@/app/\\(menu\\)/incident/heatmap/_types/types'\\\\''|g' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/heatmap/_components/HeatMap.tsx' 'e:/Proyectos/ciudadano-dashboard/renderer/app/\\(menu\\)/incident/heatmap/_components/HeatMapClient.tsx')",
+      "Bash(mv \"renderer/app/_components/offline-overlay.tsx\" \"renderer/app/_components/OfflineOverlay.tsx\")",
+      "Bash(mv \"renderer/app/_components/title-bar.tsx\" \"renderer/app/_components/TitleBar.tsx\")",
+      "Bash(mv \"renderer/app/_components/title-bar-wrapper.tsx\" \"renderer/app/_components/TitleBarWrapper.tsx\")"
+    ]
+  }
+}

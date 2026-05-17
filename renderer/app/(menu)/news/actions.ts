@@ -2,7 +2,7 @@
 
 import { get, post, patch, del } from '@/lib/backendService'
 import { getSession } from '@/lib/session'
-import type { News, NewsFormData } from './_types/news'
+import type { News, NewsFormData } from '@/app/(menu)/news/_types/types'
 
 async function authHeaders() {
   const token = await getSession()

@@ -1,21 +1,7 @@
 'use server'
 
-import { getIncidentReports } from '../incident-report/actions'
-
-export interface DailyPoint {
-  date: string
-  count: number
-  cumulative: number
-}
-
-export interface DashboardData {
-  daily: DailyPoint[]
-  total: number
-  totalDays: number
-  averagePerDay: number
-  peak: { date: string; count: number } | null
-  byType: { type: string; count: number }[]
-}
+import { getIncidentReports } from '@/app/(menu)/incident/incident-report/actions'
+import type { DailyPoint, DashboardData } from '@/app/(menu)/incident/dashboard/_types/types'
 
 function toDateKey(iso: string): string {
   return iso.slice(0, 10)

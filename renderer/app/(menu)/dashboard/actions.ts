@@ -1,33 +1,9 @@
 'use server'
 
-import { getIncidentReports } from '../incident/incident-report/actions'
-import { getAdmins } from '../seguridad/personal-web/actions'
-import { getNews } from '../news/actions'
-
-export interface RecentActivity {
-  id: string
-  title: string
-  subtitle: string
-  badge: string
-  badgeVariant: 'critical' | 'alert' | 'info' | 'resolved'
-  timeAgo: string
-}
-
-export interface GeneralDashboardData {
-  totalIncidents: number
-  incidentsDelta: number
-  activeUsers: number
-  usersDelta: number
-  criticalAlerts: number
-  criticalDelta: number
-  resolvedIncidents: number
-  resolvedDelta: number
-  resolutionRate: number
-  recentActivity: RecentActivity[]
-  onlineUsers: number
-  highRiskZones: number
-  totalNews: number
-}
+import { getIncidentReports } from '@/app/(menu)/incident/incident-report/actions'
+import { getAdmins } from '@/app/(menu)/security/web-staff/actions'
+import { getNews } from '@/app/(menu)/news/actions'
+import type { RecentActivity, GeneralDashboardData } from '@/app/(menu)/dashboard/_types/types'
 
 function getTimeAgo(isoDate: string): string {
   const diffMs = Date.now() - new Date(isoDate).getTime()

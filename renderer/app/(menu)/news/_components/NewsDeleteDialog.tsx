@@ -12,15 +12,9 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import type { News } from '../_types/news'
+import type { NewsDeleteDialogProps } from '@/app/(menu)/news/_types/types'
 
-interface Props {
-  news: News | null
-  onClose: () => void
-  onConfirm: (id: string) => Promise<void>
-}
-
-export function NewsDeleteDialog({ news, onClose, onConfirm }: Props) {
+export function NewsDeleteDialog({ news, onClose, onConfirm }: NewsDeleteDialogProps) {
   const [loading, setLoading] = useState(false)
 
   async function handleConfirm() {

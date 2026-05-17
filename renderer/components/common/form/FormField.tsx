@@ -23,6 +23,13 @@ import {
   ComboboxList,
 } from '@/components/ui/combobox'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   dateRangeToDateRangeValue,
   dateRangeValueToDateRange,
   EMPTY_DATE_RANGE,
@@ -33,6 +40,7 @@ import type {
   ComboboxOption,
   DateRangePickerFieldConfig,
   FieldMetadata,
+  SelectFieldConfig,
   SwitchFieldConfig,
 } from './types'
 
@@ -90,6 +98,8 @@ function FieldControl({ fieldConfig, field, id, invalid }: FieldControlProps) {
       return <SwitchControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
     case 'date-range-picker':
       return <DateRangeControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
+    case 'select':
+      return <SelectControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
   }
 }
 
@@ -181,5 +191,31 @@ function DateRangeControl({
       disabled={fieldConfig.disabled}
       placeholder={fieldConfig.placeholder}
     />
+  )
+}
+
+function SelectControl({
+  fieldConfig,
+  field,
+  id,
+  invalid,
+}: ControlProps<SelectFieldConfig>) {
+  return (
+    <Select
+      value={field.value ?? ''}
+      onValueChange={(v) => field.onChange(v)}
+      disabled={fieldConfig.disabled}
+    >
+      <SelectTrigger id={id} className="w-full" aria-invalid={invalid || undefined} onBlur={field.onBlur}>
+        <SelectValue placeholder={fieldConfig.placeholder ?? 'Seleccionar...'} />
+      </SelectTrigger>
+      <SelectContent>
+        {fieldConfig.options.map(({ value, label }) => (
+          <SelectItem key={String(value)} value={String(value)}>
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }

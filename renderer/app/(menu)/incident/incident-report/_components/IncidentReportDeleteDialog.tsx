@@ -12,15 +12,9 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import type { IncidentReport } from '../_types/incident-report'
+import type { IncidentReportDeleteDialogProps } from '@/app/(menu)/incident/incident-report/_types/types'
 
-interface Props {
-  report: IncidentReport | null
-  onClose: () => void
-  onConfirm: (id: string) => Promise<void>
-}
-
-export function IncidentReportDeleteDialog({ report, onClose, onConfirm }: Props) {
+export function IncidentReportDeleteDialog({ report, onClose, onConfirm }: IncidentReportDeleteDialogProps) {
   const [loading, setLoading] = useState(false)
 
   async function handleConfirm() {

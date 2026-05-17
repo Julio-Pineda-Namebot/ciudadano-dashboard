@@ -1,8 +1,8 @@
 'use server'
 
-import { get, patch, del } from '@/lib/backendService'
+import { get, post, del } from '@/lib/backendService'
 import { getSession } from '@/lib/session'
-import type { IncidentReport, IncidentReportUpdateData } from './_types/incident-report'
+import type { IncidentReport, IncidentReportUpdateData } from '@/app/(menu)/incident/incident-report/_types/types'
 
 async function authHeaders() {
   const token = await getSession()
@@ -15,7 +15,7 @@ export async function getIncidentReports(): Promise<IncidentReport[]> {
 }
 
 export async function updateIncidentReport(id: string, data: IncidentReportUpdateData): Promise<IncidentReport> {
-  const res = await patch<{ data: IncidentReport }>(`/admin/incidents/${id}`, data, { headers: await authHeaders() })
+  const res = await post<{ data: IncidentReport }>(`/admin/incidents/${id}`, data, { headers: await authHeaders() })
   return res.data
 }
 

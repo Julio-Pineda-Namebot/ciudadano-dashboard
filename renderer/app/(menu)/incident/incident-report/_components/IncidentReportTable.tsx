@@ -2,18 +2,11 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getIncidentReportColumns } from './incident-report-columns'
-import type { IncidentReport } from '../_types/incident-report'
+import { getIncidentReportColumns } from '@/app/(menu)/incident/incident-report/_components/incident-report-columns'
+import type { IncidentReportTableProps } from '@/app/(menu)/incident/incident-report/_types/types'
 
-interface Props {
-  reports: IncidentReport[]
-  loading?: boolean
-  onEdit: (report: IncidentReport) => void
-  onDelete: (report: IncidentReport) => void
-}
-
-export function IncidentReportTable({ reports, loading, onEdit, onDelete }: Props) {
-  const columns = useMemo(() => getIncidentReportColumns({ onEdit, onDelete }), [onEdit, onDelete])
+export function IncidentReportTable({ reports, onEdit, onDelete, onView }: IncidentReportTableProps) {
+  const columns = useMemo(() => getIncidentReportColumns({ onEdit, onDelete, onView }), [onEdit, onDelete, onView])
 
   return (
     <DataTable
@@ -21,8 +14,6 @@ export function IncidentReportTable({ reports, loading, onEdit, onDelete }: Prop
       columns={columns}
       searchPlaceholder="Buscar incidencia..."
       searchColumn="description"
-      pageSize={10}
-      loading={loading}
       emptyTitle="Sin incidencias"
       emptyDescription="No se encontraron incidencias con los filtros aplicados."
     />

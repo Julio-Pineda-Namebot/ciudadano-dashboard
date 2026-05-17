@@ -1,11 +1,5 @@
-import { AccountPanel } from './_components/account-panel'
-import { BreadcrumbSetter } from '@/app/(menu)/_components/breadcrumb-setter'
+import { AccountPanel } from '@/app/(menu)/account/_components/AccountPanel'
 
 export default function AccountPage() {
-  return (
-    <>
-      <BreadcrumbSetter items={[{ label: 'Mi cuenta' }]} />
-      <AccountPanel />
-    </>
-  )
+  return <AccountPanel />
 }

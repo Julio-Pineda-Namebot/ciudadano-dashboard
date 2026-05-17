@@ -2,15 +2,10 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getCitizenColumns } from './citizen-columns'
-import type { Citizen } from '../_types/citizen'
+import { getCitizenColumns } from '@/app/(menu)/ciudadanos/_components/citizenColumns'
+import type { CitizensTableProps } from '@/app/(menu)/ciudadanos/_types/types'
 
-interface Props {
-  citizens: Citizen[]
-  loading?: boolean
-}
-
-export function CitizensTable({ citizens, loading }: Props) {
+export function CitizensTable({ citizens }: CitizensTableProps) {
   const columns = useMemo(() => getCitizenColumns(), [])
 
   return (
@@ -19,7 +14,6 @@ export function CitizensTable({ citizens, loading }: Props) {
       columns={columns}
       searchPlaceholder="Buscar ciudadano..."
       searchColumn="fullName"
-      loading={loading}
       emptyTitle="Sin ciudadanos"
       emptyDescription="No se encontraron ciudadanos con los filtros aplicados."
     />

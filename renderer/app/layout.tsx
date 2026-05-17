@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner"
+import { OfflineOverlay } from "@/app/_components/OfflineOverlay";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Toaster position="top-center" richColors />
+        <OfflineOverlay />
         {children}
       </body>
     </html>

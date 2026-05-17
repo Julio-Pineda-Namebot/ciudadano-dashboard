@@ -3,6 +3,10 @@
 import { get } from '@/lib/backendService'
 import { getSession } from '@/lib/session'
 
+export async function getWsToken(): Promise<string | null> {
+  return getSession()
+}
+
 // Centro por defecto (Ica) — ajustar si la ciudad cambia
 const DEFAULT_LAT = -14.0755
 const DEFAULT_LNG = -75.7285

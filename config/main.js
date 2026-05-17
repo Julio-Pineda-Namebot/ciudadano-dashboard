@@ -1,10 +1,36 @@
-const { app, BrowserWindow, Menu, MenuItem, nativeTheme, session, dialog, systemPreferences } = require('electron')
+const { app, BrowserWindow, Menu, MenuItem, nativeTheme, session, dialog, systemPreferences, ipcMain } = require('electron')
 const path = require('path');
+const os = require('os');
 
 const { updateElectronApp } = require('update-electron-app');
 updateElectronApp();
 
 nativeTheme.themeSource = 'dark';
+
+ipcMain.on('get-device-name', (event) => {
+  const hostname = os.hostname()
+  const platform = os.platform()
+  const release = os.release()
+  const platformLabel =
+    platform === 'win32' ? `Windows ${release.split('.')[0] === '10' ? '10/11' : release}` :
+    platform === 'darwin' ? `macOS ${release}` :
+    platform === 'linux' ? `Linux ${release}` :
+    `${platform} ${release}`
+  event.returnValue = `${hostname} (${platformLabel})`
+})
+
+ipcMain.on('window:minimize', () => {
+  BrowserWindow.getFocusedWindow()?.minimize()
+})
+
+ipcMain.on('window:maximize', () => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (win) win.isMaximized() ? win.unmaximize() : win.maximize()
+})
+
+ipcMain.on('window:close', () => {
+  BrowserWindow.getFocusedWindow()?.close()
+})
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -12,6 +38,9 @@ const createWindow = () => {
     height: 700,
     icon: path.join(__dirname, '..', 'assets', 'icon.png'),
     backgroundColor: '#0a0a0a',
+    autoHideMenuBar: true,
+    frame: false,
+    fullscreen: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -22,12 +51,10 @@ const createWindow = () => {
   const PROD_URL = 'https://ciudadano-dashboard.vercel.app';
   win.loadURL(app.isPackaged ? PROD_URL : 'http://localhost:3000');
 
-  // Context menu nativo en click derecho con opciones de edición
   win.webContents.on('context-menu', (_event, params) => {
     const { isEditable, selectionText, editFlags } = params
     const hasSelection = selectionText && selectionText.trim().length > 0
 
-    // Solo mostrar si hay texto seleccionado o el elemento es editable
     if (!isEditable && !hasSelection) return
 
     const menu = new Menu()
@@ -69,14 +96,12 @@ const createWindow = () => {
 }
 
 app.whenReady().then(async () => {
-  // En macOS hay que pedirle al SO permiso de cámara antes que al usuario.
   if (process.platform === 'darwin') {
     try { await systemPreferences.askForMediaAccess('camera') } catch {}
   }
 
-  // ← Pide permiso al usuario con diálogo
   session.defaultSession.setPermissionRequestHandler(
-    (webContents, permission, callback) => {
+    (_webContents, permission, callback) => {
       if (permission === 'geolocation') {
         dialog.showMessageBox({
           type: 'question',
@@ -86,7 +111,7 @@ app.whenReady().then(async () => {
           message: 'Ciudadano Dashboard quiere acceder a tu ubicación',
           detail: 'Esto permite mostrar tu posición en el mapa de incidentes.',
         }).then(({ response }) => {
-          callback(response === 0) // 0 = Permitir, 1 = Denegar
+          callback(response === 0)
         })
       } else if (permission === 'media') {
         callback(true)
@@ -96,7 +121,6 @@ app.whenReady().then(async () => {
     }
   )
 
-  // Algunas versiones de Electron consultan vía permission check (síncrono).
   session.defaultSession.setPermissionCheckHandler((_wc, permission) => {
     if (permission === 'media') return true
     return false

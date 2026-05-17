@@ -32,9 +32,15 @@ export interface DateRangePickerFieldConfig extends BaseFieldConfig {
   align?: 'start' | 'center' | 'end'
 }
 
+export interface SelectFieldConfig extends BaseFieldConfig {
+  type: 'select'
+  options: ComboboxOption[]
+}
+
 export type FieldMetadata =
   | ComboboxFieldConfig
   | SwitchFieldConfig
   | DateRangePickerFieldConfig
+  | SelectFieldConfig
 
 export type FieldConfig = FieldMetadata | string | ReactElement

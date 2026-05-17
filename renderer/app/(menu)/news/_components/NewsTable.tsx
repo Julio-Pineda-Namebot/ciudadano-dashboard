@@ -2,18 +2,10 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getNewsColumns } from './news-columns'
-import type { News } from '../_types/news'
+import { getNewsColumns } from '@/app/(menu)/news/_components/newsColumns'
+import type { NewsTableProps } from '@/app/(menu)/news/_types/types'
 
-interface Props {
-  news: News[]
-  loading?: boolean
-  onEdit: (news: News) => void
-  onDelete: (news: News) => void
-  onCreate?: () => void
-}
-
-export function NewsTable({ news, loading, onEdit, onDelete, onCreate }: Props) {
+export function NewsTable({ news, loading, onEdit, onDelete, onCreate }: NewsTableProps) {
   const columns = useMemo(() => getNewsColumns({ onEdit, onDelete }), [onEdit, onDelete])
 
   return (

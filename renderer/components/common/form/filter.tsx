@@ -195,7 +195,7 @@ export function Filter<T extends Record<string, unknown>>({
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="mt-2.5 h-9"
+                    className={cn('mt-2.5 h-9', resolvedButtonClass)}
                   >
                     {isSubmitting ? (
                       <Spinner />
