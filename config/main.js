@@ -1,20 +1,9 @@
 const { app, BrowserWindow, Menu, MenuItem, nativeTheme, session, dialog, systemPreferences } = require('electron')
 const path = require('path');
 
-// Registrar menú vacío pero con roles de edición para que Ctrl+C/V/X/Z funcionen
-const editMenu = Menu.buildFromTemplate([{
-  label: 'Edit',
-  submenu: [
-    { role: 'undo' },
-    { role: 'redo' },
-    { role: 'cut' },
-    { role: 'copy' },
-    { role: 'paste' },
-    { role: 'selectAll' },
-  ],
-}])
+const { updateElectronApp } = require('update-electron-app');
+updateElectronApp();
 
-Menu.setApplicationMenu(editMenu);
 nativeTheme.themeSource = 'dark';
 
 const createWindow = () => {
@@ -30,7 +19,8 @@ const createWindow = () => {
     }
   });
 
-  win.loadURL('http://localhost:3000');
+  const PROD_URL = 'https://ciudadano-dashboard.vercel.app';
+  win.loadURL(app.isPackaged ? PROD_URL : 'http://localhost:3000');
 
   // Context menu nativo en click derecho con opciones de edición
   win.webContents.on('context-menu', (_event, params) => {

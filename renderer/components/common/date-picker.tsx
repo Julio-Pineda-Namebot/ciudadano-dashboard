@@ -50,7 +50,7 @@ export function DatePicker({
           disabled={disabled}
           data-empty={!value}
           className={cn(
-            'h-10 w-[200px] justify-start text-left font-normal data-[empty=true]:text-muted-foreground',
+            'h-10 w-50 justify-start text-left font-normal data-[empty=true]:text-muted-foreground',
             className,
           )}
         >
@@ -109,7 +109,7 @@ export function DateRangePicker({
           disabled={disabled}
           data-empty={!label}
           className={cn(
-            'h-10 w-[260px] justify-start text-left font-normal data-[empty=true]:text-muted-foreground',
+            'h-10 w-65 justify-start text-left font-normal data-[empty=true]:text-muted-foreground',
             className,
           )}
         >
