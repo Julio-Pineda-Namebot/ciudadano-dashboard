@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getCitizenColumns } from '@/app/(menu)/ciudadanos/_components/citizenColumns'
-import type { CitizensTableProps } from '@/app/(menu)/ciudadanos/_types/types'
+import { getCitizenColumns } from '@/app/(menu)/citizens/_components/CitizenColumns'
+import type { CitizensTableProps } from '@/app/(menu)/citizens/_types/types'
 
 export function CitizensTable({ citizens }: CitizensTableProps) {
   const columns = useMemo(() => getCitizenColumns(), [])

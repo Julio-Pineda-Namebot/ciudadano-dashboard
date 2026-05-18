@@ -5,14 +5,9 @@ import { PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
 import { formatDate } from '@/lib/utils'
-import type { Admin } from '../_types/admin'
+import type { Admin, AdminColumnsActions } from '@/app/(menu)/security/web-staff/_types/types'
 
-interface Actions {
-  onEdit: (admin: Admin) => void
-  onDelete: (admin: Admin) => void
-}
-
-export function getAdminColumns({ onEdit, onDelete }: Actions): ColumnDef<Admin>[] {
+export function getAdminColumns({ onEdit, onDelete }: AdminColumnsActions): ColumnDef<Admin>[] {
   return [
     {
       id: 'actions',

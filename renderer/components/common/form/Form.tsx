@@ -23,7 +23,7 @@ interface FormProps<T extends FieldValues> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: z.ZodObject<any>
   onSubmit: (data: T) => void | Promise<void>
-  body: FormBodyEntry[]
+  body?: FormBodyEntry[]
   fields?: Record<string, FieldMetadata>
   defaultValues?: DefaultValues<T>
   submitLabel?: React.ReactNode
@@ -31,15 +31,17 @@ interface FormProps<T extends FieldValues> {
   onCancel?: () => void
   hideSubmit?: boolean
   className?: string
+  bodyClassName?: string
   layout?: 'stacked' | 'grid'
   formId?: string
+  renderFooter?: (state: { isSubmitting: boolean; form: UseFormReturn<T> }) => React.ReactNode
   children?: (form: UseFormReturn<T>) => React.ReactNode
 }
 
 export function Form<T extends FieldValues>({
   schema,
   onSubmit,
-  body,
+  body = [],
   fields: fieldsMetadata = {},
   defaultValues,
   submitLabel = 'Guardar',
@@ -47,8 +49,10 @@ export function Form<T extends FieldValues>({
   onCancel,
   hideSubmit = false,
   className,
+  bodyClassName,
   layout = 'stacked',
   formId,
+  renderFooter,
   children,
 }: FormProps<T>) {
   const form = useForm<T>({
@@ -112,19 +116,24 @@ export function Form<T extends FieldValues>({
       className={cn('flex flex-col gap-4', className)}
       noValidate
     >
-      <div
-        className={cn(
-          layout === 'grid'
-            ? 'grid grid-cols-1 gap-4 sm:grid-cols-2'
-            : 'flex flex-col gap-4',
-        )}
-      >
-        {renderedFields}
-      </div>
+      {body.length > 0 && (
+        <div
+          className={cn(
+            layout === 'grid'
+              ? 'grid grid-cols-1 gap-4 sm:grid-cols-2'
+              : 'flex flex-col gap-4',
+            bodyClassName,
+          )}
+        >
+          {renderedFields}
+        </div>
+      )}
 
       {children?.(form)}
 
-      {!hideSubmit && (
+      {renderFooter?.({ isSubmitting, form })}
+
+      {!hideSubmit && !renderFooter && (
         <div className="flex items-center justify-end gap-2 pt-2">
           {cancelLabel && (
             <Button

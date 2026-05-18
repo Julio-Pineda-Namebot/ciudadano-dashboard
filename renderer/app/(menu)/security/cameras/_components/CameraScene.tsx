@@ -1,6 +1,6 @@
 'use client'
 
-import type { SceneId } from '../_data'
+import type { CameraSceneProps, SceneId } from '@/app/(menu)/security/cameras/_types/types'
 
 const PALETTES: Record<SceneId, { from: string; via: string; to: string; accent: string }> = {
   avenue:       { from: '#0b1530', via: '#152347', to: '#1f2f5e', accent: '#fde68a' },
@@ -13,7 +13,7 @@ const PALETTES: Record<SceneId, { from: string; via: string; to: string; accent:
   storefront:   { from: '#170c1d', via: '#2a1638', to: '#3d2150', accent: '#f472b6' },
 }
 
-export function CameraScene({ scene, seed = 0 }: { scene: SceneId; seed?: number }) {
+export function CameraScene({ scene, seed = 0 }: CameraSceneProps) {
   const p = PALETTES[scene]
   // deterministic per-camera variation
   const driftDur = 18 + (seed % 7)
@@ -211,7 +211,7 @@ function ParkingLayers({ accent }: { accent: string }) {
   return (
     <>
       {/* asphalt */}
-      <div className="absolute inset-x-0 bottom-0 top-[35%] bg-gradient-to-b from-[#1a1f2e] to-[#05070b]" />
+      <div className="absolute inset-x-0 bottom-0 top-[35%] bg-linear-to-b from-[#1a1f2e] to-[#05070b]" />
       {/* parking lines */}
       <div className="absolute inset-x-0 top-[42%] bottom-[8%] flex items-end justify-around opacity-50">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -223,7 +223,7 @@ function ParkingLayers({ accent }: { accent: string }) {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-6 rounded-sm bg-gradient-to-b from-white/15 to-white/5 ring-1 ring-white/10"
+            className="h-6 rounded-sm bg-linear-to-b from-white/15 to-white/5 ring-1 ring-white/10"
           />
         ))}
       </div>
@@ -346,7 +346,7 @@ function TunnelLayers({ accent }: { accent: string }) {
         />
       ))}
       {/* road */}
-      <div className="absolute inset-x-0 bottom-0 top-[70%] bg-gradient-to-b from-[#0d0d10] to-black" />
+      <div className="absolute inset-x-0 bottom-0 top-[70%] bg-linear-to-b from-[#0d0d10] to-black" />
     </>
   )
 }

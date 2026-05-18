@@ -5,14 +5,9 @@ import { PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
 import { formatDate } from '@/lib/utils'
-import type { Group } from '../_types/group'
+import type { Group, GroupColumnsActions } from '@/app/(menu)/security/groups/_types/types'
 
-interface Actions {
-  onEdit: (group: Group) => void
-  onDelete: (group: Group) => void
-}
-
-export function getGroupColumns({ onEdit, onDelete }: Actions): ColumnDef<Group>[] {
+export function getGroupColumns({ onEdit, onDelete }: GroupColumnsActions): ColumnDef<Group>[] {
   return [
     {
       id: 'actions',
@@ -61,7 +56,7 @@ export function getGroupColumns({ onEdit, onDelete }: Actions): ColumnDef<Group>
     {
       accessorKey: 'adminCount',
       size: 120,
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Admins" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title="N° de administradores" />,
       cell: ({ row }) => (
         <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
           {row.getValue('adminCount')}

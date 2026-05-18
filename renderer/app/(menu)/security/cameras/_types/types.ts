@@ -1,6 +1,16 @@
 export type CameraStatus = 'online' | 'offline' | 'recording'
 
-export type Camera = {
+export type SceneId =
+  | 'avenue'
+  | 'plaza'
+  | 'market'
+  | 'parking'
+  | 'park'
+  | 'intersection'
+  | 'tunnel'
+  | 'storefront'
+
+export interface Camera {
   id: string
   code: string
   name: string
@@ -11,15 +21,34 @@ export type Camera = {
   fps: number
 }
 
-export type SceneId =
-  | 'avenue'
-  | 'plaza'
-  | 'market'
-  | 'parking'
-  | 'park'
-  | 'intersection'
-  | 'tunnel'
-  | 'storefront'
+export type CameraViewMode = 'single' | 'grid'
+
+export type CameraFeedVariant = 'main' | 'thumb'
+
+export interface CameraFeedProps {
+  camera: Camera
+  variant?: CameraFeedVariant
+}
+
+export interface CameraSceneProps {
+  scene: SceneId
+  seed?: number
+}
+
+export interface CameraGridViewProps {
+  selectedId: string
+  onSelect: (id: string) => void
+}
+
+export interface CameraStatProps {
+  label: string
+  value: string
+  dot?: string
+}
+
+export interface WebcamErrorProps {
+  message: string
+}
 
 export const CAMERAS: Camera[] = [
   { id: 'cam-001', code: 'CAM-01', name: 'Av. Grau – Cdra. 5',           zone: 'Centro',     status: 'recording', scene: 'avenue',       resolution: '1080p', fps: 30 },

@@ -5,10 +5,14 @@ import { Search, LayoutGrid, Square, Maximize2, Camera as CameraIcon, Volume2, V
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { CAMERAS, type Camera } from '../_data'
-import { CameraFeed } from './CameraFeed'
-
-type ViewMode = 'single' | 'grid'
+import { CameraFeed } from '@/app/(menu)/security/cameras/_components/CameraFeed'
+import {
+  CAMERAS,
+  type Camera,
+  type CameraGridViewProps,
+  type CameraStatProps,
+  type CameraViewMode,
+} from '@/app/(menu)/security/cameras/_types/types'
 
 const STATUS_DOT: Record<Camera['status'], string> = {
   recording: 'bg-red-500',
@@ -22,9 +26,9 @@ const STATUS_LABEL: Record<Camera['status'], string> = {
   offline:   'Sin señal',
 }
 
-export function CamerasClient() {
+export function CamerasPanel() {
   const [selectedId, setSelectedId] = useState<string>(CAMERAS[0].id)
-  const [view, setView] = useState<ViewMode>('single')
+  const [view, setView] = useState<CameraViewMode>('single')
   const [query, setQuery] = useState('')
   const [muted, setMuted] = useState(true)
 
@@ -203,7 +207,7 @@ export function CamerasClient() {
   )
 }
 
-function GridView({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
+function GridView({ selectedId, onSelect }: CameraGridViewProps) {
   const idx = CAMERAS.findIndex((c) => c.id === selectedId)
   const start = Math.max(0, Math.min(idx, CAMERAS.length - 4))
   const four = CAMERAS.slice(start, start + 4)
@@ -228,7 +232,7 @@ function GridView({ selectedId, onSelect }: { selectedId: string; onSelect: (id:
   )
 }
 
-function Stat({ label, value, dot }: { label: string; value: string; dot?: string }) {
+function Stat({ label, value, dot }: CameraStatProps) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm">
       <p className="text-[10px] font-medium uppercase tracking-wider text-gray-500">{label}</p>

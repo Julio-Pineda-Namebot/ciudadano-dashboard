@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { AuditLogsFilters, getDefaultAuditFilters, type AuditLogsFilterValue } from './AuditLogsFilters'
-import { AuditLogsTable } from './AuditLogsTable'
-import { AuditLogsPagination } from './AuditLogsPagination'
-import { AuditLogDetailModal } from './AuditLogDetailModal'
-import { getAuditLogs } from '../actions'
-import type { AuditLog, AuditLogsMeta } from '../_types/audit-log'
+import { AuditLogsFilters, getDefaultAuditFilters } from '@/app/(menu)/security/audit-logs/_components/AuditLogsFilters'
+import { AuditLogsTable } from '@/app/(menu)/security/audit-logs/_components/AuditLogsTable'
+import { AuditLogsPagination } from '@/app/(menu)/security/audit-logs/_components/AuditLogsPagination'
+import { AuditLogDetailModal } from '@/app/(menu)/security/audit-logs/_components/AuditLogDetailModal'
+import { getAuditLogs } from '@/app/(menu)/security/audit-logs/actions'
+import type { AuditLog, AuditLogsFilterValue, AuditLogsMeta } from '@/app/(menu)/security/audit-logs/_types/types'
 
 const DEFAULT_PER_PAGE = 20
 
@@ -57,10 +57,6 @@ export function AuditLogsPanel() {
 
   return (
     <div className="p-6 space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold">Logs de auditoría</h1>
-      </div>
-
       <AuditLogsFilters value={filters} onApply={handleApplyFilters} />
 
       <AuditLogsTable logs={logs} loading={loading} onShowDetail={setDetail} />

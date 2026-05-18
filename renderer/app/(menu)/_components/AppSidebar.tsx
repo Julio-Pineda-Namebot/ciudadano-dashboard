@@ -49,7 +49,7 @@ const newsItem = {
 
 const citizensItem = {
   title: "Ciudadanos",
-  url: "/ciudadanos",
+  url: "/citizens",
   icon: <UserRound />,
   tourId: "nav-ciudadanos",
 }
@@ -75,7 +75,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [tourActive, setTourActive] = React.useState(
     () => typeof window !== 'undefined' && !localStorage.getItem(TOUR_SEEN_KEY)
   )
-
   const navMain = isSuperAdmin
     ? [dashboardItem, incidentsItem, newsItem, citizensItem, securityItem]
     : [dashboardItem, incidentsItem, newsItem, citizensItem]

@@ -2,18 +2,10 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getAdminColumns } from './admin-columns'
-import type { Admin } from '../_types/admin'
+import type { AdminsTableProps } from '@/app/(menu)/security/web-staff/_types/types'
+import { getAdminColumns } from '@/app/(menu)/security/web-staff/_components/AdminColumns'
 
-interface Props {
-  admins: Admin[]
-  loading?: boolean
-  onEdit: (admin: Admin) => void
-  onDelete: (admin: Admin) => void
-  onCreate?: () => void
-}
-
-export function AdminsTable({ admins, loading, onEdit, onDelete, onCreate }: Props) {
+export function AdminsTable({ admins, loading, onEdit, onDelete, onCreate }: AdminsTableProps) {
   const columns = useMemo(() => getAdminColumns({ onEdit, onDelete }), [onEdit, onDelete])
 
   return (

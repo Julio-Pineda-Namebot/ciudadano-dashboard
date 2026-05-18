@@ -1,4 +1,4 @@
-import type { AuditAction } from '../_types/audit-log'
+import type { AuditAction, AuditLogBadgeProps } from '@/app/(menu)/security/audit-logs/_types/types'
 
 const STYLES: Record<AuditAction, string> = {
   INSERT:
@@ -15,7 +15,7 @@ const LABELS: Record<AuditAction, string> = {
   DELETE: 'Eliminación',
 }
 
-export function AuditLogBadge({ action }: { action: AuditAction }) {
+export function AuditLogBadge({ action }: AuditLogBadgeProps) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STYLES[action]}`}

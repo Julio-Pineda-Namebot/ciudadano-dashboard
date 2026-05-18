@@ -2,15 +2,13 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { Radio, WifiOff } from 'lucide-react'
-import type { Camera } from '../_data'
-import { CameraScene } from './CameraScene'
-import { useWebcamStream } from './useWebcamStream'
-
-type Variant = 'main' | 'thumb'
+import { CameraScene } from '@/app/(menu)/security/cameras/_components/CameraScene'
+import { useWebcamStream } from '@/app/(menu)/security/cameras/_components/useWebcamStream'
+import type { CameraFeedProps, WebcamErrorProps } from '@/app/(menu)/security/cameras/_types/types'
 
 const WEBCAM_ID = 'cam-001'
 
-export function CameraFeed({ camera, variant = 'main' }: { camera: Camera; variant?: Variant }) {
+export function CameraFeed({ camera, variant = 'main' }: CameraFeedProps) {
   const [now, setNow] = useState<string>('')
 
   useEffect(() => {
@@ -142,7 +140,7 @@ function WebcamConnecting() {
   )
 }
 
-function WebcamError({ message }: { message: string }) {
+function WebcamError({ message }: WebcamErrorProps) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 px-6 text-center text-zinc-300">
       <div className="absolute inset-0 cam-noise opacity-25" />

@@ -10,14 +10,9 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { AuditLogBadge } from './AuditLogBadge'
-import type { AuditLog } from '../_types/audit-log'
+import { AuditLogBadge } from '@/app/(menu)/security/audit-logs/_components/AuditLogBadge'
+import type { AuditLog, AuditLogDetailModalProps } from '@/app/(menu)/security/audit-logs/_types/types'
 import { formatDateTime } from '@/lib/utils'
-
-interface Props {
-  log: AuditLog | null
-  onClose: () => void
-}
 
 function formatValue(value: unknown): string {
   if (value === null || value === undefined) return '—'
@@ -118,7 +113,7 @@ function ChangesView({ log }: { log: AuditLog }) {
   )
 }
 
-export function AuditLogDetailModal({ log, onClose }: Props) {
+export function AuditLogDetailModal({ log, onClose }: AuditLogDetailModalProps) {
   const open = log !== null
 
   return (

@@ -2,20 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { Filter } from '@/components/common/form/filter'
 import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
-import { AdminsTable } from './AdminsTable'
-import { AdminFormModal } from './AdminFormModal'
-import { AdminDeleteDialog } from './AdminDeleteDialog'
-import { getAdmins, createAdmin, updateAdmin, deleteAdmin } from '../actions'
-import type { Admin, CreateAdminFormData, UpdateAdminFormData } from '../_types/admin'
-
-const filterSchema = z.object({
-  range: z.object({ from: z.string(), to: z.string() }),
-})
-
-type FilterValues = z.infer<typeof filterSchema>
+import { AdminsTable } from '@/app/(menu)/security/web-staff/_components/AdminsTable'
+import { AdminFormModal } from '@/app/(menu)/security/web-staff/_components/AdminFormModal'
+import { AdminDeleteDialog } from '@/app/(menu)/security/web-staff/_components/AdminDeleteDialog'
+import { getAdmins, createAdmin, updateAdmin, deleteAdmin } from '@/app/(menu)/security/web-staff/actions'
+import { adminFilterSchema } from '@/app/(menu)/security/web-staff/_types/types'
+import type {
+  Admin,
+  AdminFilterValues,
+  CreateAdminFormData,
+  UpdateAdminFormData,
+} from '@/app/(menu)/security/web-staff/_types/types'
 
 export function AdminsPanel() {
   const [admins, setAdmins] = useState<Admin[]>([])
@@ -57,17 +56,25 @@ export function AdminsPanel() {
   }
 
   async function handleCreate(data: CreateAdminFormData) {
-    const created = await createAdmin(data)
-    setAdmins((prev) => [...prev, created])
-    toast.success('Usuario creado correctamente')
-    closeForm()
+    try {
+      const created = await createAdmin(data)
+      setAdmins((prev) => [...prev, created])
+      toast.success('Usuario creado correctamente')
+      closeForm()
+    } catch {
+      toast.error('No se pudo crear el usuario')
+    }
   }
 
   async function handleUpdate(id: string, data: UpdateAdminFormData) {
-    const updated = await updateAdmin(id, data)
-    setAdmins((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
-    toast.success('Usuario actualizado correctamente')
-    closeForm()
+    try {
+      const updated = await updateAdmin(id, data)
+      setAdmins((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
+      toast.success('Usuario actualizado correctamente')
+      closeForm()
+    } catch {
+      toast.error('No se pudo actualizar el usuario')
+    }
   }
 
   async function handleDelete(id: string) {
@@ -84,19 +91,14 @@ export function AdminsPanel() {
 
   return (
     <div className="p-6 space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold">Personal web</h1>
-      </div>
-
-      <Filter<FilterValues>
-        schema={filterSchema}
+      <Filter<AdminFilterValues>
+        schema={adminFilterSchema}
         defaultValues={{ range: dateRange }}
         body={['range']}
         config={{
           fields: {
             range: { type: 'date-range-picker', label: 'Rango de fechas' },
           },
-
         }}
         onSubmit={(values) => onApply(values.range as DateRangeValue)}
       />

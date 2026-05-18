@@ -2,7 +2,7 @@
 
 import { get, post, patch, del } from '@/lib/backendService'
 import { getSession } from '@/lib/session'
-import type { Group, GroupFormData } from './_types/group'
+import type { Group, GroupFormData } from '@/app/(menu)/security/groups/_types/types'
 
 async function authHeaders() {
   const token = await getSession()

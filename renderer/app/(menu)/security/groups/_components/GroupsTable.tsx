@@ -2,18 +2,10 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getGroupColumns } from './group-columns'
-import type { Group } from '../_types/group'
+import { getGroupColumns } from '@/app/(menu)/security/groups/_components/GroupColumns'
+import type { GroupsTableProps } from '@/app/(menu)/security/groups/_types/types'
 
-interface Props {
-  groups: Group[]
-  loading?: boolean
-  onEdit: (group: Group) => void
-  onDelete: (group: Group) => void
-  onCreate?: () => void
-}
-
-export function GroupsTable({ groups, loading, onEdit, onDelete, onCreate }: Props) {
+export function GroupsTable({ groups, loading, onEdit, onDelete, onCreate }: GroupsTableProps) {
   const columns = useMemo(() => getGroupColumns({ onEdit, onDelete }), [onEdit, onDelete])
 
   return (

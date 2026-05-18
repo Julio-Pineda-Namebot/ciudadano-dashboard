@@ -32,15 +32,45 @@ export interface DateRangePickerFieldConfig extends BaseFieldConfig {
   align?: 'start' | 'center' | 'end'
 }
 
+export interface DatePickerFieldConfig extends BaseFieldConfig {
+  type: 'date-picker'
+  align?: 'start' | 'center' | 'end'
+}
+
 export interface SelectFieldConfig extends BaseFieldConfig {
   type: 'select'
   options: ComboboxOption[]
+}
+
+export interface TextFieldConfig extends BaseFieldConfig {
+  type: 'text'
+  inputType?: 'text' | 'email' | 'url' | 'tel' | 'number' | 'password'
+}
+
+export interface TextareaFieldConfig extends BaseFieldConfig {
+  type: 'textarea'
+  rows?: number
+  maxLength?: number
+  maxHeight?: string
+}
+
+export interface ImageUploadFieldConfig extends BaseFieldConfig {
+  type: 'image-upload'
+  maxSize?: number
+  accept?: Record<string, string[]>
+  previewUrl?: string
+  textoArrastrar?: string
+  textoSubtexto?: string
 }
 
 export type FieldMetadata =
   | ComboboxFieldConfig
   | SwitchFieldConfig
   | DateRangePickerFieldConfig
+  | DatePickerFieldConfig
   | SelectFieldConfig
+  | TextFieldConfig
+  | TextareaFieldConfig
+  | ImageUploadFieldConfig
 
 export type FieldConfig = FieldMetadata | string | ReactElement

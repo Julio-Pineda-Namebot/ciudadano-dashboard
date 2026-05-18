@@ -1,12 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
+import type { UseFormReturn, FieldErrors } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -14,152 +11,229 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useModuleTheme, MODULE_BUTTON_CLASS } from '@/components/common/module-theme'
+import { Form } from '@/components/common/form/Form'
+import FormField from '@/components/common/form/FormField'
 import { cn } from '@/lib/utils'
-import { newsSchema, EMPTY_NEWS_FORM } from '@/app/(menu)/news/_types/types'
-import type { NewsFormData, NewsFormModalProps, NewsFormValues } from '@/app/(menu)/news/_types/types'
+import {
+  EMPTY_NEWS_FORM,
+  newsCreateSchema,
+  newsUpdateSchema,
+} from '@/app/(menu)/news/_types/types'
+import type {
+  NewsFormData,
+  NewsFormModalProps,
+  NewsFormValues,
+} from '@/app/(menu)/news/_types/types'
+
+const TABS: { value: string; label: string; fields: (keyof NewsFormValues)[] }[] = [
+  { value: 'info', label: 'Información', fields: ['title', 'date', 'tag'] },
+  { value: 'content', label: 'Contenido', fields: ['summary', 'content'] },
+  { value: 'image', label: 'Imagen', fields: ['image'] },
+]
+
+function parseDateOnly(value: string): Date | undefined {
+  if (!value) return undefined
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return undefined
+  return new Date(year, month - 1, day)
+}
+
+function formatDateOnly(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+function tabHasErrors(
+  fields: (keyof NewsFormValues)[],
+  errors: FieldErrors<NewsFormValues>
+): boolean {
+  return fields.some((f) => errors[f] !== undefined)
+}
 
 export function NewsFormModal({ open, news, onClose, onSubmit }: NewsFormModalProps) {
   const theme = useModuleTheme()
   const btnClass = theme?.color ? MODULE_BUTTON_CLASS[theme.color] : ''
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<NewsFormValues>({
-    resolver: zodResolver(newsSchema as never),
-    defaultValues: EMPTY_NEWS_FORM,
-  })
-
-  useEffect(() => {
-    if (open) {
-      reset(
-        news
-          ? {
-              title: news.title,
-              summary: news.summary,
-              content: news.content,
-              image: news.image,
-              date: news.date,
-              tag: news.tag,
-            }
-          : EMPTY_NEWS_FORM
-      )
-    }
-  }, [open, news, reset])
-
-  const submit = handleSubmit(async (values) => {
-    await onSubmit({ ...values, image: values.image ?? '' } as NewsFormData)
-  })
-
   const isEdit = news !== null
 
+  const defaultValues: NewsFormValues = isEdit
+    ? {
+        title: news.title,
+        summary: news.summary,
+        content: news.content,
+        image: undefined,
+        date: parseDateOnly(news.date),
+        tag: news.tag,
+      }
+    : EMPTY_NEWS_FORM
+
+  const handleSubmit = async (values: NewsFormValues) => {
+    if (!values.date) return
+    const payload: NewsFormData = {
+      title: values.title,
+      summary: values.summary,
+      content: values.content,
+      date: formatDateOnly(values.date),
+      tag: values.tag,
+      image: values.image,
+    }
+    await onSubmit(payload)
+  }
+
+  const schema = isEdit ? newsUpdateSchema : newsCreateSchema
+
+  const fieldConfigs: Record<keyof NewsFormValues, React.ComponentProps<typeof FormField>['fieldConfig']> = {
+    title: { name: 'title', type: 'text', label: 'Título', placeholder: 'Título de la noticia' },
+    date: { name: 'date', type: 'date-picker', label: 'Fecha', placeholder: 'Selecciona una fecha' },
+    tag: { name: 'tag', type: 'text', label: 'Etiqueta', placeholder: 'ej. seguridad, clima' },
+    summary: {
+      name: 'summary',
+      type: 'textarea',
+      label: 'Resumen',
+      placeholder: 'Breve resumen visible en la lista...',
+      rows: 2,
+      maxLength: 250,
+      maxHeight: 'max-h-32',
+    },
+    content: {
+      name: 'content',
+      type: 'textarea',
+      label: 'Contenido completo',
+      placeholder: 'Texto completo de la noticia...',
+      rows: 6,
+      maxLength: 5000,
+      maxHeight: 'max-h-64',
+    },
+    image: {
+      name: 'image',
+      type: 'image-upload',
+      label: 'Imagen',
+      previewUrl: isEdit ? news.image : undefined,
+      textoSubtexto: 'PNG, JPG o WebP · Máx. 5 MB',
+    },
+  }
+
+  const [tab, setTab] = React.useState(TABS[0].value)
+
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && !isSubmitting && onClose()}>
-      <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl p-0" showCloseButton={false}>
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent
+        className="w-[calc(100vw-2rem)] max-w-lg p-0"
+        showCloseButton={false}
+      >
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>{isEdit ? 'Editar noticia' : 'Nueva noticia'}</DialogTitle>
         </DialogHeader>
 
-        <div className="px-6 py-2">
-          <form id="news-form" onSubmit={submit} className="grid gap-4" noValidate>
-            <div className="grid gap-1.5">
-              <Label htmlFor="title">Título</Label>
-              <Input
-                id="title"
-                {...register('title')}
-                placeholder="Título de la noticia"
-                aria-invalid={!!errors.title}
-              />
-              {errors.title && (
-                <p className="text-sm text-destructive">{errors.title.message}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-1.5">
-                <Label htmlFor="date">Fecha</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  {...register('date')}
-                  aria-invalid={!!errors.date}
-                />
-                {errors.date && (
-                  <p className="text-sm text-destructive">{errors.date.message}</p>
+        <Form<NewsFormValues>
+          key={news?.id ?? 'new'}
+          schema={schema}
+          defaultValues={defaultValues}
+          formId="news-form"
+          hideSubmit
+          className="gap-0"
+          onSubmit={handleSubmit}
+          renderFooter={({ isSubmitting }) => (
+            <DialogFooter className="px-6 pb-6 pt-2 border-t border-border flex-row! justify-between!">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className={cn(btnClass)}>
+                {isSubmitting ? (
+                  <>
+                    <Spinner />
+                    <span>Guardando...</span>
+                  </>
+                ) : isEdit ? (
+                  'Guardar cambios'
+                ) : (
+                  'Crear noticia'
                 )}
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="tag">Etiqueta</Label>
-                <Input
-                  id="tag"
-                  {...register('tag')}
-                  placeholder="ej. seguridad, clima"
-                  aria-invalid={!!errors.tag}
-                />
-                {errors.tag && (
-                  <p className="text-sm text-destructive">{errors.tag.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="image">URL de imagen</Label>
-              <Input
-                id="image"
-                {...register('image')}
-                placeholder="https://..."
-                aria-invalid={!!errors.image}
-              />
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="summary">Resumen</Label>
-              <textarea
-                id="summary"
-                {...register('summary')}
-                rows={2}
-                placeholder="Breve resumen visible en la lista..."
-                aria-invalid={!!errors.summary}
-                className="h-auto w-full min-w-0 rounded-md border border-input bg-transparent px-2.5 py-2 text-sm shadow-xs outline-none resize-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
-              />
-              {errors.summary && (
-                <p className="text-sm text-destructive">{errors.summary.message}</p>
-              )}
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="content">Contenido completo</Label>
-              <textarea
-                id="content"
-                {...register('content')}
-                rows={5}
-                placeholder="Texto completo de la noticia..."
-                aria-invalid={!!errors.content}
-                className="h-auto w-full min-w-0 rounded-md border border-input bg-transparent px-2.5 py-2 text-sm shadow-xs outline-none resize-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
-              />
-              {errors.content && (
-                <p className="text-sm text-destructive">{errors.content.message}</p>
-              )}
-            </div>
-          </form>
-        </div>
-
-        <DialogFooter className="px-6 pb-6 pt-2 border-t border-border flex-row! justify-between!">
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancelar
-          </Button>
-          <Button type="submit" form="news-form" disabled={isSubmitting} className={cn(btnClass)}>
-            {isSubmitting ? (
-              <>
-                <Spinner />
-                <span>Guardando...</span>
-              </>
-            ) : isEdit ? 'Guardar cambios' : 'Crear noticia'}
-          </Button>
-        </DialogFooter>
+              </Button>
+            </DialogFooter>
+          )}
+        >
+          {(form: UseFormReturn<NewsFormValues>) => (
+            <NewsFormTabs
+              form={form}
+              schema={schema}
+              fieldConfigs={fieldConfigs}
+              tab={tab}
+              onTabChange={setTab}
+            />
+          )}
+        </Form>
       </DialogContent>
     </Dialog>
+  )
+}
+
+interface NewsFormTabsProps {
+  form: UseFormReturn<NewsFormValues>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schema: any
+  fieldConfigs: Record<
+    keyof NewsFormValues,
+    React.ComponentProps<typeof FormField>['fieldConfig']
+  >
+  tab: string
+  onTabChange: (value: string) => void
+}
+
+function NewsFormTabs({
+  form,
+  schema,
+  fieldConfigs,
+  tab,
+  onTabChange,
+}: NewsFormTabsProps) {
+  const errors = form.formState.errors
+  const { submitCount } = form.formState
+
+  React.useEffect(() => {
+    if (submitCount === 0) return
+    const firstWithErrors = TABS.find((t) => tabHasErrors(t.fields, errors))
+    if (firstWithErrors && firstWithErrors.value !== tab) {
+      onTabChange(firstWithErrors.value)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitCount])
+
+  return (
+    <Tabs value={tab} onValueChange={onTabChange} className="px-6 py-2">
+      <TabsList className="w-full">
+        {TABS.map((t) => {
+          const hasErr = tabHasErrors(t.fields, errors)
+          return (
+            <TabsTrigger key={t.value} value={t.value}>
+              <span className="flex items-center gap-1.5">
+                {t.label}
+                {hasErr && (
+                  <span className="size-1.5 rounded-full bg-destructive" />
+                )}
+              </span>
+            </TabsTrigger>
+          )
+        })}
+      </TabsList>
+
+      {TABS.map((t) => (
+        <TabsContent key={t.value} value={t.value} className="mt-2 flex flex-col gap-4">
+          {t.fields.map((name) => (
+            <FormField
+              key={name}
+              fieldConfig={fieldConfigs[name]}
+              schema={schema.shape?.[name]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              control={form.control as any}
+              errors={errors}
+            />
+          ))}
+        </TabsContent>
+      ))}
+    </Tabs>
   )
 }

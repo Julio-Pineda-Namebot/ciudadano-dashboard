@@ -1,47 +1,32 @@
 'use client'
 
-import { z } from 'zod'
 import { Filter } from '@/components/common/form/filter'
 import {
   getDefaultDateRange,
   type DateRangeValue,
 } from '@/lib/date-range'
-import type { AuditAction } from '../_types/audit-log'
-
-const AUDIT_ACTIONS = ['', 'INSERT', 'UPDATE', 'DELETE'] as const
-
-const filterSchema = z.object({
-  range: z.object({ from: z.string(), to: z.string() }),
-  action: z.enum(AUDIT_ACTIONS),
-})
-
-type FilterFormValues = z.infer<typeof filterSchema>
-
-export interface AuditLogsFilterValue {
-  dateFrom: string
-  dateTo: string
-  action: AuditAction | ''
-}
+import {
+  auditLogsFilterSchema,
+  type AuditAction,
+  type AuditLogsFilterFormValues,
+  type AuditLogsFilterValue,
+  type AuditLogsFiltersProps,
+} from '@/app/(menu)/security/audit-logs/_types/types'
 
 export function getDefaultAuditFilters(): AuditLogsFilterValue {
   const range = getDefaultDateRange()
   return { dateFrom: range.from, dateTo: range.to, action: '' }
 }
 
-interface Props {
-  value: AuditLogsFilterValue
-  onApply: (value: AuditLogsFilterValue) => void
-}
-
-export function AuditLogsFilters({ value, onApply }: Props) {
-  const defaultValues: FilterFormValues = {
+export function AuditLogsFilters({ value, onApply }: AuditLogsFiltersProps) {
+  const defaultValues: AuditLogsFilterFormValues = {
     range: { from: value.dateFrom, to: value.dateTo },
     action: value.action,
   }
 
   return (
-    <Filter<FilterFormValues>
-      schema={filterSchema}
+    <Filter<AuditLogsFilterFormValues>
+      schema={auditLogsFilterSchema}
       defaultValues={defaultValues}
       body={['range', 'action']}
       config={{
@@ -59,7 +44,6 @@ export function AuditLogsFilters({ value, onApply }: Props) {
             ],
           },
         },
-
       }}
       onSubmit={(values) => {
         const range = (values.range ?? { from: '', to: '' }) as DateRangeValue

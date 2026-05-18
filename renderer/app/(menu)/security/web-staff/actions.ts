@@ -2,7 +2,7 @@
 
 import { get, post, patch, del } from '@/lib/backendService'
 import { getSession } from '@/lib/session'
-import type { Admin, CreateAdminFormData, UpdateAdminFormData } from './_types/admin'
+import type { Admin, CreateAdminFormData, UpdateAdminFormData } from '@/app/(menu)/security/web-staff/_types/types'
 
 async function authHeaders() {
   const token = await getSession()

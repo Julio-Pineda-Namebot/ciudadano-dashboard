@@ -32,10 +32,10 @@ Reglas:
 
 ## Nomenclatura de archivos
 
-Todos los archivos (componentes, tipos, acciones, utilidades, etc.) se nombran en camelCase. Ejemplos:
-- `incidentReport.ts`, `heatmapUtils.ts`, `authHelper.ts`
+Todos los archivos (tipos, acciones, utilidades, etc.) se nombran en camelCase. Ejemplos:
+- `types.ts`, `heatmapUtils.ts`, `authHelper.ts`
 
-Excepción: los archivos de componentes React que exportan un componente usan PascalCase para coincidir con el nombre del componente (ej. `IncidentReportPanel.tsx`).
+Excepción: los archivos dentro de `_components/` siempre usan PascalCase, ya sea que exporten un componente React (`IncidentReportPanel.tsx`) o un factory de columnas para `DataTable` (`IncidentReportColumns.tsx`).
 
 ## Nomenclatura de componentes
 
@@ -101,35 +101,35 @@ Reglas:
 
 ### DeleteDialog (`*DeleteDialog.tsx`)
 
-Usa `AlertDialog` de `@/components/ui/alert-dialog`. Estructura fija:
+Usa el componente padre `ConfirmDialog` de `@/components/common/ConfirmDialog`. Nunca armar el `AlertDialog` a mano. Estructura fija:
 
 ```tsx
-<AlertDialog open={item !== null} onOpenChange={(v) => !v && !loading && onClose()}>
-  <AlertDialogContent size="sm" dismissible={false}>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Eliminar [entidad]</AlertDialogTitle>
-      <AlertDialogDescription>
-        ¿Estás seguro de que deseas eliminar ...? Esta acción no se puede deshacer.
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-        Cancelar
-      </Button>
-      <AlertDialogAction variant="destructive" onClick={handleConfirm} disabled={loading}>
-        {loading ? <><Spinner /><span>Eliminando...</span></> : 'Eliminar'}
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
+export function EntityDeleteDialog({ item, onClose, onConfirm }: Props) {
+  return (
+    <ConfirmDialog
+      open={item !== null}
+      title="Eliminar [entidad]"
+      description={
+        <>
+          ¿Estás seguro de que deseas eliminar <strong>&ldquo;{item?.name}&rdquo;</strong>?
+          Esta acción no se puede deshacer.
+        </>
+      }
+      onClose={onClose}
+      onConfirm={async () => {
+        if (item) await onConfirm(item.id)
+      }}
+    />
+  )
+}
 ```
 
 Reglas:
-- `size="sm"` y `dismissible={false}` siempre en `AlertDialogContent`
 - `open={item !== null}` — el ítem seleccionado actúa como señal de apertura (null = cerrado)
-- Estado de carga con `useState(false)` local, no viene de fuera
-- Botón destructivo es `AlertDialogAction` con `variant="destructive"`, nunca un `Button` normal
+- `description` recibe `ReactNode`, así puedes incluir `<strong>`, condicionales o texto rico
 - El mensaje siempre menciona el nombre/identificador del ítem entre `<strong>` y aclara que la acción no se puede deshacer
+- `ConfirmDialog` maneja internamente el estado de loading, el spinner y el footer estándar — no duplicarlo
+- Defaults en español: confirmar = "Eliminar" / "Eliminando...", cancelar = "Cancelar". Solo sobreescribir (`confirmLabel`, `loadingLabel`, `cancelLabel`, `variant`) si el caso no es un borrado destructivo
 
 ## Imports
 
@@ -144,3 +144,4 @@ Siempre usar los componentes padre de `ui/` o `common/` antes de crear HTML a ma
 - Charts → `ChartContainer`, `ChartTooltip`, etc. de `@/components/ui/chart`
 - Cards → `Card`, `CardHeader`, `CardContent` de `@/components/ui/card`
 - Botones de mapa → `MapButton` de `@/components/common/map-button`
+- Diálogos de confirmación / borrado → `ConfirmDialog` de `@/components/common/ConfirmDialog`

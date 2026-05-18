@@ -2,20 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { Filter } from '@/components/common/form/filter'
 import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
-import { GroupsTable } from './GroupsTable'
-import { GroupFormModal } from './GroupFormModal'
-import { GroupDeleteDialog } from './GroupDeleteDialog'
-import { getGroups, createGroup, updateGroup, deleteGroup } from '../actions'
-import type { Group, GroupFormData } from '../_types/group'
-
-const filterSchema = z.object({
-  range: z.object({ from: z.string(), to: z.string() }),
-})
-
-type FilterValues = z.infer<typeof filterSchema>
+import { GroupsTable } from '@/app/(menu)/security/groups/_components/GroupsTable'
+import { GroupFormModal } from '@/app/(menu)/security/groups/_components/GroupFormModal'
+import { GroupDeleteDialog } from '@/app/(menu)/security/groups/_components/GroupDeleteDialog'
+import { getGroups, createGroup, updateGroup, deleteGroup } from '@/app/(menu)/security/groups/actions'
+import { groupFilterSchema } from '@/app/(menu)/security/groups/_types/types'
+import type { Group, GroupFormData, GroupFilterValues } from '@/app/(menu)/security/groups/_types/types'
 
 export function GroupsPanel() {
   const [groups, setGroups] = useState<Group[]>([])
@@ -57,16 +51,20 @@ export function GroupsPanel() {
   }
 
   async function handleSubmit(data: GroupFormData) {
-    if (editTarget) {
-      const updated = await updateGroup(editTarget.id, data)
-      setGroups((prev) => prev.map((g) => (g.id === updated.id ? updated : g)))
-      toast.success('Grupo actualizado correctamente')
-    } else {
-      const created = await createGroup(data)
-      setGroups((prev) => [...prev, created])
-      toast.success('Grupo creado correctamente')
+    try {
+      if (editTarget) {
+        const updated = await updateGroup(editTarget.id, data)
+        setGroups((prev) => prev.map((g) => (g.id === updated.id ? updated : g)))
+        toast.success('Grupo actualizado correctamente')
+      } else {
+        const created = await createGroup(data)
+        setGroups((prev) => [...prev, created])
+        toast.success('Grupo creado correctamente')
+      }
+      closeForm()
+    } catch {
+      toast.error(editTarget ? 'No se pudo actualizar el grupo' : 'No se pudo crear el grupo')
     }
-    closeForm()
   }
 
   async function handleDelete(id: string) {
@@ -83,12 +81,8 @@ export function GroupsPanel() {
 
   return (
     <div className="p-6 space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold">Grupos</h1>
-      </div>
-
-      <Filter<FilterValues>
-        schema={filterSchema}
+      <Filter<GroupFilterValues>
+        schema={groupFilterSchema}
         defaultValues={{ range: dateRange }}
         body={['range']}
         config={{

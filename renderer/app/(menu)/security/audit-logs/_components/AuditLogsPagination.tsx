@@ -14,17 +14,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { AuditLogsMeta } from '../_types/audit-log'
+import type { AuditLogsPaginationProps } from '@/app/(menu)/security/audit-logs/_types/types'
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50]
 
-interface Props {
-  meta: AuditLogsMeta | null
-  onPageChange: (page: number) => void
-  onPerPageChange: (perPage: number) => void
-}
-
-export function AuditLogsPagination({ meta, onPageChange, onPerPageChange }: Props) {
+export function AuditLogsPagination({ meta, onPageChange, onPerPageChange }: AuditLogsPaginationProps) {
   const perPage = meta?.perPage ?? 20
   const current = meta?.page ?? 1
   const totalPages = meta?.totalPages ?? 0

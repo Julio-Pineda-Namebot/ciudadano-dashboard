@@ -1,20 +1,36 @@
 import { z } from 'zod'
 
-export const newsSchema = z.object({
+const newsBaseSchema = z.object({
   title: z.string().trim().min(1, 'El título es obligatorio'),
-  date: z.string().min(1, 'La fecha es obligatoria'),
+  date: z.date({ message: 'La fecha es obligatoria' }),
   tag: z.string().trim().min(1, 'La etiqueta es obligatoria'),
-  image: z.string().trim().optional().or(z.literal('')),
   summary: z.string().trim().min(1, 'El resumen es obligatorio'),
   content: z.string().trim().min(1, 'El contenido es obligatorio'),
 })
 
-export const EMPTY_NEWS_FORM: z.infer<typeof newsSchema> = {
+export const newsCreateSchema = newsBaseSchema.extend({
+  image: z.instanceof(File, { message: 'La imagen es obligatoria' }),
+})
+
+export const newsUpdateSchema = newsBaseSchema.extend({
+  image: z.instanceof(File).optional(),
+})
+
+export type NewsFormValues = {
+  title: string
+  date: Date | undefined
+  tag: string
+  summary: string
+  content: string
+  image: File | undefined
+}
+
+export const EMPTY_NEWS_FORM: NewsFormValues = {
   title: '',
   summary: '',
   content: '',
-  image: '',
-  date: '',
+  image: undefined,
+  date: undefined,
   tag: '',
 }
 
@@ -30,19 +46,17 @@ export interface News {
   updatedAt?: string
 }
 
-export type NewsFormData = Omit<News, 'id' | 'createdAt' | 'updatedAt'>
+export interface NewsFormData {
+  title: string
+  summary: string
+  content: string
+  date: string
+  tag: string
+  image?: File
+}
 
 export type NewsFilterValues = {
   range: { from: string; to: string }
-}
-
-export type NewsFormValues = {
-  title: string
-  date: string
-  tag: string
-  image?: string | ''
-  summary: string
-  content: string
 }
 
 export interface NewsFormModalProps {

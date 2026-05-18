@@ -39,7 +39,8 @@ const createWindow = () => {
     icon: path.join(__dirname, '..', 'assets', 'icon.png'),
     backgroundColor: '#0a0a0a',
     autoHideMenuBar: true,
-    frame: false,
+    frame: process.platform === 'darwin',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     fullscreen: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -97,6 +98,7 @@ const createWindow = () => {
 
 app.whenReady().then(async () => {
   if (process.platform === 'darwin') {
+    try { app.dock.setIcon(path.join(__dirname, '..', 'assets', 'icon.png')) } catch {}
     try { await systemPreferences.askForMediaAccess('camera') } catch {}
   }
 

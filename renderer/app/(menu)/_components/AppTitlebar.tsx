@@ -22,7 +22,7 @@ const MODULE_NAMES: { pattern: RegExp; label: string }[] = [
   { pattern: /^\/incident/,            label: 'Incidencias' },
   { pattern: /^\/dashboard/,           label: 'Dashboard General' },
   { pattern: /^\/news/,                label: 'Noticias' },
-  { pattern: /^\/ciudadanos/,          label: 'Ciudadanos' },
+  { pattern: /^\/citizens/,            label: 'Ciudadanos' },
   { pattern: /^\/security\/groups/,    label: 'Grupos' },
   { pattern: /^\/security\/web-staff/, label: 'Personal Web' },
   { pattern: /^\/security\/cameras/,   label: 'Cámaras' },
@@ -47,11 +47,16 @@ export function AppTitlebar() {
   const profile = useAuth()
   const pathname = usePathname()
   const hasElectron = useSyncExternalStore(subscribe, () => !!window.electron, () => false)
+  const isMac = hasElectron && window.electron!.platform === 'darwin'
   const moduleName = getModuleName(pathname)
+
+  const titlebarClass = isMac
+    ? 'fixed inset-x-0 top-0 z-50 pl-20'
+    : 'sticky top-0 z-40 w-full shrink-0'
 
   return (
     <div
-      className="sticky top-0 z-40 flex h-10 w-full shrink-0 items-center border-b border-border bg-background px-2 gap-2"
+      className={`${titlebarClass} flex h-10 items-center border-b border-border bg-background px-2 gap-2`}
       // @ts-expect-error webkit drag region
       style={{ WebkitAppRegion: 'drag' }}
     >
@@ -102,10 +107,10 @@ export function AppTitlebar() {
         />
 
         {/* separador visual */}
-        {hasElectron && <div className="mx-1 h-4 w-px bg-border" />}
+        {hasElectron && !isMac && <div className="mx-1 h-4 w-px bg-border" />}
 
-        {/* botones de ventana */}
-        {hasElectron && (
+        {/* botones de ventana (solo Windows/Linux: en mac usamos los semáforos nativos) */}
+        {hasElectron && !isMac && (
           <>
             <button
               onClick={() => window.electron!.minimize()}

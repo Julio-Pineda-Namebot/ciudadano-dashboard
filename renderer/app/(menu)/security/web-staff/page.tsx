@@ -1,4 +1,4 @@
-import { AdminsPanel } from './_components/AdminsPanel'
+import { AdminsPanel } from '@/app/(menu)/security/web-staff/_components/AdminsPanel'
 import { ModuleTheme } from '@/components/common/module-theme'
 
 export default function AdminsPage() {

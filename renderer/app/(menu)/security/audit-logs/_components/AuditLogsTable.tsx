@@ -18,18 +18,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { AuditLogBadge } from './AuditLogBadge'
+import { AuditLogBadge } from '@/app/(menu)/security/audit-logs/_components/AuditLogBadge'
 import { DataState } from '@/components/common/data-state'
-import type { AuditLog } from '../_types/audit-log'
+import type { AuditLogsTableProps } from '@/app/(menu)/security/audit-logs/_types/types'
 import { formatDateTime } from '@/lib/utils'
 
-interface Props {
-  logs: AuditLog[]
-  loading: boolean
-  onShowDetail: (log: AuditLog) => void
-}
-
-export function AuditLogsTable({ logs, loading, onShowDetail }: Props) {
+export function AuditLogsTable({ logs, loading, onShowDetail }: AuditLogsTableProps) {
   const theme = useModuleTheme()
   const headerClass = theme?.color ? MODULE_HEADER_CLASS[theme.color] : 'bg-[#1a3a6b] [&_th]:text-white [&_th]:border-[#1a3a6b]/30'
 

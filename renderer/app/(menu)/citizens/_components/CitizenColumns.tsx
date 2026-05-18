@@ -3,7 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
 import { formatDate } from '@/lib/utils'
-import type { Citizen } from '@/app/(menu)/ciudadanos/_types/types'
+import type { Citizen } from '@/app/(menu)/citizens/_types/types'
 
 export function getCitizenColumns(): ColumnDef<Citizen>[] {
   return [

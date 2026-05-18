@@ -13,7 +13,11 @@ import type { z } from 'zod'
 import { cn } from '@/lib/utils'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { DateRangePicker } from '@/components/common/date-picker'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { DatePicker, DateRangePicker } from '@/components/common/date-picker'
+import ImportadorDropZone from '@/components/common/importador/ImportadorDropZone'
+import type { ArchivoSeleccionado } from '@/components/common/importador/types'
 import {
   Combobox,
   ComboboxContent,
@@ -38,10 +42,14 @@ import {
 import type {
   ComboboxFieldConfig,
   ComboboxOption,
+  DatePickerFieldConfig,
   DateRangePickerFieldConfig,
   FieldMetadata,
+  ImageUploadFieldConfig,
   SelectFieldConfig,
   SwitchFieldConfig,
+  TextFieldConfig,
+  TextareaFieldConfig,
 } from './types'
 
 interface FormFieldProps {
@@ -98,8 +106,16 @@ function FieldControl({ fieldConfig, field, id, invalid }: FieldControlProps) {
       return <SwitchControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
     case 'date-range-picker':
       return <DateRangeControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
+    case 'date-picker':
+      return <DatePickerControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
     case 'select':
       return <SelectControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
+    case 'text':
+      return <TextControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
+    case 'textarea':
+      return <TextareaControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
+    case 'image-upload':
+      return <ImageUploadControl fieldConfig={fieldConfig} field={field} id={id} invalid={invalid} />
   }
 }
 
@@ -144,6 +160,7 @@ function ComboboxControl({
         showClear
         onBlur={field.onBlur}
         disabled={disabled}
+        className="h-10"
       />
       <ComboboxContent>
         <ComboboxEmpty>{emptyText ?? 'Sin resultados'}</ComboboxEmpty>
@@ -194,6 +211,23 @@ function DateRangeControl({
   )
 }
 
+function DatePickerControl({
+  fieldConfig,
+  field,
+}: ControlProps<DatePickerFieldConfig>) {
+  const value = field.value instanceof Date ? field.value : undefined
+  return (
+    <DatePicker
+      value={value}
+      onChange={(date) => field.onChange(date)}
+      align={fieldConfig.align}
+      disabled={fieldConfig.disabled}
+      placeholder={fieldConfig.placeholder}
+      className="w-full"
+    />
+  )
+}
+
 function SelectControl({
   fieldConfig,
   field,
@@ -217,5 +251,127 @@ function SelectControl({
         ))}
       </SelectContent>
     </Select>
+  )
+}
+
+function TextControl({
+  fieldConfig,
+  field,
+  id,
+  invalid,
+}: ControlProps<TextFieldConfig>) {
+  return (
+    <Input
+      id={id}
+      type={fieldConfig.inputType ?? 'text'}
+      value={field.value ?? ''}
+      onChange={(e) => field.onChange(e.target.value)}
+      onBlur={field.onBlur}
+      placeholder={fieldConfig.placeholder}
+      disabled={fieldConfig.disabled}
+      aria-invalid={invalid || undefined}
+    />
+  )
+}
+
+function TextareaControl({
+  fieldConfig,
+  field,
+  id,
+  invalid,
+}: ControlProps<TextareaFieldConfig>) {
+  const value = (field.value ?? '') as string
+  const { maxLength, maxHeight } = fieldConfig
+  const atLimit = maxLength !== undefined && value.length >= maxLength
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Textarea
+        id={id}
+        rows={fieldConfig.rows ?? 3}
+        value={value}
+        onChange={(e) => field.onChange(e.target.value)}
+        onBlur={field.onBlur}
+        placeholder={fieldConfig.placeholder}
+        disabled={fieldConfig.disabled}
+        maxLength={maxLength}
+        aria-invalid={invalid || undefined}
+        className={cn('overflow-auto', maxHeight)}
+      />
+      {maxLength !== undefined && (
+        <p
+          className={cn(
+            'self-end text-xs tabular-nums',
+            atLimit ? 'text-destructive' : 'text-muted-foreground',
+          )}
+        >
+          {value.length}/{maxLength}
+        </p>
+      )}
+    </div>
+  )
+}
+
+const DEFAULT_IMAGE_ACCEPT: Record<string, string[]> = {
+  'image/png': ['.png'],
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/webp': ['.webp'],
+}
+
+function ImageUploadControl({
+  fieldConfig,
+  field,
+}: ControlProps<ImageUploadFieldConfig>) {
+  const value = field.value as File | undefined
+  const [archivos, setArchivos] = React.useState<ArchivoSeleccionado[]>(() =>
+    value
+      ? [{ file: value, id: `${Date.now()}-${Math.random().toString(36).slice(2)}` }]
+      : []
+  )
+
+  React.useEffect(() => {
+    if (!value && archivos.length > 0) {
+      setArchivos([])
+    }
+  }, [value, archivos.length])
+
+  const handleChange = (next: ArchivoSeleccionado[]) => {
+    setArchivos(next)
+    const validFile = next.find((a) => !a.error)?.file
+    field.onChange(validFile ?? undefined)
+  }
+
+  const accept = fieldConfig.accept ?? DEFAULT_IMAGE_ACCEPT
+  const maxSize = fieldConfig.maxSize ?? 5 * 1024 * 1024
+
+  return (
+    <div className="flex flex-col gap-2">
+      {fieldConfig.previewUrl && archivos.length === 0 && (
+        <div className="flex items-center gap-3 rounded-md border border-border bg-muted/30 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={fieldConfig.previewUrl}
+            alt="Imagen actual"
+            className="size-16 rounded object-cover"
+          />
+          <p className="text-xs text-muted-foreground">
+            Imagen actual. Sube una nueva para reemplazarla.
+          </p>
+        </div>
+      )}
+      <ImportadorDropZone
+        config={{
+          accept,
+          maxSize,
+          multiple: false,
+          textoArrastrar:
+            fieldConfig.textoArrastrar ?? 'Arrastra una imagen aquí',
+          textoSubtexto: fieldConfig.textoSubtexto,
+        }}
+        archivos={archivos}
+        onArchivosChange={handleChange}
+        disabled={fieldConfig.disabled}
+      />
+    </div>
   )
 }

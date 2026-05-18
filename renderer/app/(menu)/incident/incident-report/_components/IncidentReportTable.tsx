@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getIncidentReportColumns } from '@/app/(menu)/incident/incident-report/_components/incident-report-columns'
+import { getIncidentReportColumns } from '@/app/(menu)/incident/incident-report/_components/IncidentReportColumns'
 import type { IncidentReportTableProps } from '@/app/(menu)/incident/incident-report/_types/types'
 
 export function IncidentReportTable({ reports, onEdit, onDelete, onView }: IncidentReportTableProps) {

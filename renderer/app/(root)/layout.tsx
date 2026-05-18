@@ -1,3 +1,10 @@
+import { RootTitlebar } from '@/app/(root)/_components/RootTitlebar'
+
 export default function RootGroupLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <RootTitlebar />
+      {children}
+    </>
+  )
 }

@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { DataTable } from '@/components/common/datatable/data-table'
-import { getNewsColumns } from '@/app/(menu)/news/_components/newsColumns'
+import { getNewsColumns } from '@/app/(menu)/news/_components/NewsColumns'
 import type { NewsTableProps } from '@/app/(menu)/news/_types/types'
 
 export function NewsTable({ news, loading, onEdit, onDelete, onCreate }: NewsTableProps) {

@@ -9,6 +9,17 @@
   -webkit-app-region: no-drag;
 }
 
+/* En mac usamos un titlebar full-width con los semáforos nativos arriba.
+   El sidebar de shadcn usa `fixed inset-y-0 h-svh`, así que sin este override
+   taparía la titlebar. Scope a `.mac-titlebar` para que Windows/Linux mantengan
+   el layout original. */
+@media (min-width: 768px) {
+  .mac-titlebar [data-slot="sidebar-container"] {
+    top: 2.5rem !important;
+    height: calc(100svh - 2.5rem) !important;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
