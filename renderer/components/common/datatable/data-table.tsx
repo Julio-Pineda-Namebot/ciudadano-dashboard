@@ -4,7 +4,9 @@ import * as React from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
+  PaginationState,
   SortingState,
+  Updater,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -13,24 +15,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import {
-  ChevronDownIcon,
-  PlusIcon,
-  SearchIcon,
-  ChevronsLeftIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsRightIcon,
-} from 'lucide-react'
+import { PlusIcon, SearchIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -41,18 +29,27 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { DataTableViewOptions } from './data-table-view-options'
+import { DataTablePagination } from './data-table-pagination'
 import { DataState } from '../data-state'
 import { useModuleTheme, MODULE_HEADER_CLASS, MODULE_BUTTON_CLASS, type ModuleColor } from '../module-theme'
 
-const PAGE_SIZE_OPTIONS = [10, 20, 50]
-
 export type TableHeaderColor = ModuleColor
+
+export interface ServerPagination {
+  page: number
+  perPage: number
+  totalPages: number
+  totalRows?: number
+  onPageChange: (page: number) => void
+  onPerPageChange: (perPage: number) => void
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchPlaceholder?: string
   searchColumn?: string
+  showSearch?: boolean
   pageSize?: number
   onCreate?: () => void
   createLabel?: string
@@ -61,6 +58,7 @@ interface DataTableProps<TData, TValue> {
   emptyDescription?: string
   headerColor?: TableHeaderColor
   buttonClassName?: string
+  serverPagination?: ServerPagination
 }
 
 export function DataTable<TData, TValue>({
@@ -68,6 +66,7 @@ export function DataTable<TData, TValue>({
   data,
   searchPlaceholder = 'Búsqueda rápida',
   searchColumn,
+  showSearch,
   pageSize = 10,
   onCreate,
   createLabel = 'Nuevo',
@@ -76,17 +75,33 @@ export function DataTable<TData, TValue>({
   emptyDescription,
   headerColor,
   buttonClassName,
+  serverPagination,
 }: DataTableProps<TData, TValue>) {
   const theme = useModuleTheme()
   const resolvedColor = headerColor ?? theme?.color
   const resolvedButtonClass = buttonClassName ?? (resolvedColor ? MODULE_BUTTON_CLASS[resolvedColor] : undefined)
   const headerColorClass = resolvedColor ? MODULE_HEADER_CLASS[resolvedColor] : undefined
+  const resolvedShowSearch = showSearch ?? !serverPagination
 
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const [globalFilter, setGlobalFilter] = React.useState('')
+
+  function handlePaginationChange(updater: Updater<PaginationState>) {
+    if (!serverPagination) return
+    const prev: PaginationState = {
+      pageIndex: serverPagination.page - 1,
+      pageSize: serverPagination.perPage,
+    }
+    const next = typeof updater === 'function' ? updater(prev) : updater
+    if (next.pageSize !== prev.pageSize) {
+      serverPagination.onPerPageChange(next.pageSize)
+    } else if (next.pageIndex !== prev.pageIndex) {
+      serverPagination.onPageChange(next.pageIndex + 1)
+    }
+  }
 
   const table = useReactTable({
     data,
@@ -98,6 +113,9 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       globalFilter: searchColumn ? undefined : globalFilter,
+      ...(serverPagination
+        ? { pagination: { pageIndex: serverPagination.page - 1, pageSize: serverPagination.perPage } }
+        : {}),
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -107,6 +125,13 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    ...(serverPagination
+      ? {
+          manualPagination: true,
+          pageCount: serverPagination.totalPages,
+          onPaginationChange: handlePaginationChange,
+        }
+      : {}),
     ...(searchColumn
       ? {}
       : { onGlobalFilterChange: setGlobalFilter, globalFilterFn: 'includesString' }),
@@ -124,29 +149,24 @@ export function DataTable<TData, TValue>({
     }
   }
 
-  const pageIndex = table.getState().pagination.pageIndex
-  const currentPageSize = table.getState().pagination.pageSize
-  const totalPages = table.getPageCount()
-  const current = pageIndex + 1
-  const totalCount = table.getFilteredRowModel().rows.length
-  const from = totalCount === 0 ? 0 : pageIndex * currentPageSize + 1
-  const to = Math.min(current * currentPageSize, totalCount)
   const showEmptyOrLoading = loading || table.getRowModel().rows.length === 0
 
   return (
     <div className="space-y-3">
       {/* toolbar */}
-      <div className="flex items-center gap-2">
-        <div className="relative">
-          <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-          <Input
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-8 max-w-xs"
-            disabled={loading}
-          />
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {resolvedShowSearch && (
+          <div className="relative">
+            <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-8 max-w-xs"
+              disabled={loading}
+            />
+          </div>
+        )}
         <div className="ml-auto flex items-center gap-2">
           <DataTableViewOptions table={table} />
           {onCreate && (
@@ -167,7 +187,7 @@ export function DataTable<TData, TValue>({
       ) : (
         <>
           {/* table */}
-          <div className="overflow-hidden rounded-md border">
+          <div className="overflow-x-auto rounded-md border">
             <Table>
               <TableHeader
                 className={cn(headerColorClass)}
@@ -207,71 +227,7 @@ export function DataTable<TData, TValue>({
             </Table>
           </div>
 
-          {/* pagination */}
-          <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
-            {/* left: ver por página */}
-            <div className="flex items-center gap-1.5">
-              <span>Ver:</span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-7 gap-1 px-2">
-                    {currentPageSize}
-                    <ChevronDownIcon className="size-3.5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  {PAGE_SIZE_OPTIONS.map((size) => (
-                    <DropdownMenuItem key={size} onClick={() => table.setPageSize(size)}>
-                      {size}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* center: nav buttons */}
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <ChevronsLeftIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <ChevronLeftIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <ChevronRightIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => table.setPageIndex(totalPages - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <ChevronsRightIcon className="size-3.5" />
-              </Button>
-            </div>
-
-            {/* right: counter */}
-            <span>[{from} a {to} de {totalCount}]</span>
-          </div>
+          <DataTablePagination table={table} />
         </>
       )}
     </div>

@@ -42,46 +42,31 @@ export function DataTablePagination<TData>({ table }: Props<TData>) {
   const pageSize = table.getState().pagination.pageSize
   const totalPages = table.getPageCount()
   const current = pageIndex + 1
-  const selectedCount = table.getFilteredSelectedRowModel().rows.length
-  const totalCount = table.getFilteredRowModel().rows.length
   const pages = buildPages(current, totalPages)
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-        {selectedCount > 0 && (
-          <span>
-            {selectedCount} de {totalCount} fila(s) seleccionada(s)
-          </span>
-        )}
-        <div className="flex items-center gap-1.5">
-          <span>Filas por página</span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-7 gap-1 px-2">
-                {pageSize}
-                <ChevronDownIcon />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <DropdownMenuItem
-                  key={size}
-                  onClick={() => table.setPageSize(size)}
-                >
-                  {size}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <span>
-          Página {current} de {totalPages}
-        </span>
+    <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+      <div className="flex items-center gap-1.5">
+        <span>Ver:</span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-7 gap-1 px-2">
+              {pageSize}
+              <ChevronDownIcon className="size-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <DropdownMenuItem key={size} onClick={() => table.setPageSize(size)}>
+                {size}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {totalPages > 1 && (
-        <Pagination className="mx-0 w-auto justify-end">
+      {totalPages > 1 ? (
+        <Pagination className="mx-0 w-auto justify-center">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
@@ -122,7 +107,11 @@ export function DataTablePagination<TData>({ table }: Props<TData>) {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+      ) : (
+        <div />
       )}
+
+      <span>Página {current} de {totalPages || 1}</span>
     </div>
   )
 }

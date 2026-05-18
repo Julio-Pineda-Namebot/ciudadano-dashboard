@@ -217,7 +217,7 @@ export function Filter<T extends Record<string, unknown>>({
 
   return (
     <div className="flex justify-center">
-      <div className="rounded-lg border bg-card p-2 shadow-sm">
+      <div className="max-w-full rounded-lg border bg-card p-2 shadow-sm">
         <form onSubmit={handleSubmit(handleFormSubmit)}>{grid}</form>
       </div>
     </div>

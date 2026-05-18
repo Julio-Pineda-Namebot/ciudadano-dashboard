@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { ServerPagination } from '@/components/common/datatable/data-table'
 
 export type AuditAction = 'INSERT' | 'UPDATE' | 'DELETE'
 
@@ -72,12 +73,7 @@ export interface AuditLogsTableProps {
   logs: AuditLog[]
   loading: boolean
   onShowDetail: (log: AuditLog) => void
-}
-
-export interface AuditLogsPaginationProps {
-  meta: AuditLogsMeta | null
-  onPageChange: (page: number) => void
-  onPerPageChange: (perPage: number) => void
+  serverPagination: ServerPagination
 }
 
 export interface AuditLogDetailModalProps {

@@ -1,10 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { AuditLogsFilters, getDefaultAuditFilters } from '@/app/(menu)/security/audit-logs/_components/AuditLogsFilters'
 import { AuditLogsTable } from '@/app/(menu)/security/audit-logs/_components/AuditLogsTable'
-import { AuditLogsPagination } from '@/app/(menu)/security/audit-logs/_components/AuditLogsPagination'
 import { AuditLogDetailModal } from '@/app/(menu)/security/audit-logs/_components/AuditLogDetailModal'
 import { getAuditLogs } from '@/app/(menu)/security/audit-logs/actions'
 import type { AuditLog, AuditLogsFilterValue, AuditLogsMeta } from '@/app/(menu)/security/audit-logs/_types/types'
@@ -50,21 +49,30 @@ export function AuditLogsPanel() {
     setPage(1)
   }
 
-  function handlePerPageChange(value: number) {
-    setPerPage(value)
-    setPage(1)
-  }
+  const serverPagination = useMemo(
+    () => ({
+      page,
+      perPage,
+      totalPages: meta?.totalPages ?? 0,
+      totalRows: meta?.total,
+      onPageChange: setPage,
+      onPerPageChange: (value: number) => {
+        setPerPage(value)
+        setPage(1)
+      },
+    }),
+    [page, perPage, meta?.totalPages, meta?.total],
+  )
 
   return (
     <div className="p-6 space-y-4">
       <AuditLogsFilters value={filters} onApply={handleApplyFilters} />
 
-      <AuditLogsTable logs={logs} loading={loading} onShowDetail={setDetail} />
-
-      <AuditLogsPagination
-        meta={meta}
-        onPageChange={setPage}
-        onPerPageChange={handlePerPageChange}
+      <AuditLogsTable
+        logs={logs}
+        loading={loading}
+        onShowDetail={setDetail}
+        serverPagination={serverPagination}
       />
 
       <AuditLogDetailModal log={detail} onClose={() => setDetail(null)} />
