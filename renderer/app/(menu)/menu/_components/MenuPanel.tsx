@@ -151,12 +151,12 @@ export function MenuPanel() {
               {profile.firstName} {profile.lastName}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {isSuperAdmin ? 'Super Administrador' : 'Administrador'} · Ciudadano Dashboard v1.0.0
+              {profile.group.name} · Ciudadano Dashboard v1.0.0
             </p>
           </div>
           <div className="flex flex-row gap-3 w-full sm:w-auto">
             <MenuStatBadge label="Usuario desde" value={String(joinYear)} />
-            <MenuStatBadge label="Rol" value={isSuperAdmin ? 'SUPER ADMIN' : 'ADMIN'} />
+            <MenuStatBadge label="Rol" value={profile.group.name} />
           </div>
         </div>
       </div>

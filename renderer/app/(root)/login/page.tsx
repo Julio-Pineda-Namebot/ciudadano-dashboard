@@ -1,4 +1,19 @@
+import { Poppins, JetBrains_Mono } from 'next/font/google'
 import { LoginForm } from "@/app/(root)/login/_components/login-form"
+import { LoginCard } from "@/app/(landing)/_components/login-card"
+import "@/app/(landing)/landing.css"
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-landing-mono',
+})
 
 interface Props {
   searchParams: Promise<{ reason?: string }>
@@ -12,6 +27,14 @@ export default async function LoginPage({ searchParams }: Props) {
     session_invalid: 'Tu sesión no es válida. Vuelve a ingresar.',
   }
   const sessionRevokedMessage = params.reason ? messages[params.reason] : undefined
+
+  if (process.env.NEXT_PUBLIC_APP_MODE === 'landing') {
+    return (
+      <div className={`landing-root ${poppins.variable} ${jetbrainsMono.variable}`}>
+        <LoginCard sessionRevokedMessage={sessionRevokedMessage} />
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-gray-700 p-4">

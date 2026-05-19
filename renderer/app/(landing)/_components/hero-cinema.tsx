@@ -170,15 +170,14 @@ export function HeroCinema() {
         </div>
 
         <div className="relative z-10 flex h-full flex-col items-center justify-center">
-          <div
-            ref={eyebrowRef}
-            className="mb-8"
-            style={{ willChange: 'transform, opacity' }}
-          >
-            <div className="eyebrow whitespace-nowrap">Seguridad vecinal · Perú</div>
-          </div>
-
           <div className="hero-logo-outer relative grid place-items-center" style={{ width: 280, height: 280 }}>
+            <div
+              ref={eyebrowRef}
+              className="absolute -top-16 left-1/2 -translate-x-1/2"
+              style={{ willChange: 'transform, opacity' }}
+            >
+              <div className="eyebrow whitespace-nowrap">Seguridad vecinal · Perú</div>
+            </div>
             <div
               ref={radarRef}
               className="pointer-events-none absolute inset-0 grid place-items-center"

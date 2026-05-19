@@ -44,6 +44,40 @@ export async function post<T>(path: string, body: unknown, config?: AxiosRequest
   return res.data
 }
 
+/**
+ * POST multipart/form-data. Usa fetch nativo porque el axios instance fuerza
+ * Content-Type: application/json por defecto, y al sobreescribirlo se pierde el
+ * boundary que necesitan Multer/Busboy en el backend.
+ */
+export async function postMultipart<T>(
+  path: string,
+  body: FormData,
+  config?: { headers?: Record<string, string> }
+): Promise<T> {
+  const url = `${BASE_URL}${path}`
+  const res = await fetch(url, {
+    method: 'POST',
+    body,
+    headers: config?.headers,
+  })
+
+  let payload: unknown = null
+  try {
+    payload = await res.json()
+  } catch {
+    payload = null
+  }
+
+  logger.log(`POST ${path} → ${res.status}`, payload)
+
+  if (!res.ok) {
+    logger.error(`POST ${path} → ${res.status}`, payload)
+    throw new ApiError(res.status, payload)
+  }
+
+  return payload as T
+}
+
 export async function patch<T>(path: string, body: unknown, config?: AxiosRequestConfig): Promise<T> {
   const res = await api.patch<T>(path, body, config)
   return res.data
