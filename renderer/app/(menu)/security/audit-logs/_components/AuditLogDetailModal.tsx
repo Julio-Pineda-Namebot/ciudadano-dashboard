@@ -41,7 +41,12 @@ function ChangesView({ log }: { log: AuditLog }) {
 
     return (
       <div className="overflow-hidden rounded-md border">
-        <table className="w-full text-sm">
+        <table className="w-full table-fixed text-sm">
+          <colgroup>
+            <col className="w-[28%]" />
+            <col className="w-[36%]" />
+            <col className="w-[36%]" />
+          </colgroup>
           <thead className="bg-muted/50">
             <tr>
               <th className="px-3 py-2 text-left font-medium">Campo</th>
@@ -52,14 +57,14 @@ function ChangesView({ log }: { log: AuditLog }) {
           <tbody>
             {keys.map((key) => (
               <tr key={key} className="border-t">
-                <td className="px-3 py-2 font-mono text-xs">{key}</td>
+                <td className="px-3 py-2 align-top font-mono text-xs break-all">{key}</td>
                 <td className="px-3 py-2 align-top">
-                  <pre className="whitespace-pre-wrap wrap-break-word text-xs text-muted-foreground">
+                  <pre className="whitespace-pre-wrap break-all text-xs text-muted-foreground">
                     {formatValue(oldVals[key])}
                   </pre>
                 </td>
                 <td className="px-3 py-2 align-top">
-                  <pre className="whitespace-pre-wrap wrap-break-word text-xs">
+                  <pre className="whitespace-pre-wrap break-all text-xs">
                     {formatValue(newVals[key])}
                   </pre>
                 </td>
@@ -89,7 +94,11 @@ function ChangesView({ log }: { log: AuditLog }) {
 
   return (
     <div className="overflow-hidden rounded-md border">
-      <table className="w-full text-sm">
+      <table className="w-full table-fixed text-sm">
+        <colgroup>
+          <col className="w-[30%]" />
+          <col className="w-[70%]" />
+        </colgroup>
         <thead className="bg-muted/50">
           <tr>
             <th className="px-3 py-2 text-left font-medium">Campo</th>
@@ -99,9 +108,9 @@ function ChangesView({ log }: { log: AuditLog }) {
         <tbody>
           {keys.map((key) => (
             <tr key={key} className="border-t">
-              <td className="px-3 py-2 font-mono text-xs">{key}</td>
+              <td className="px-3 py-2 align-top font-mono text-xs break-all">{key}</td>
               <td className="px-3 py-2 align-top">
-                <pre className="whitespace-pre-wrap wrap-break-word text-xs">
+                <pre className="whitespace-pre-wrap break-all text-xs">
                   {formatValue(single[key])}
                 </pre>
               </td>
@@ -118,7 +127,11 @@ export function AuditLogDetailModal({ log, onClose }: AuditLogDetailModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-3xl" dismissible={false} showCloseButton={false}>
+      <DialogContent
+        className="w-[calc(100vw-2rem)] sm:max-w-3xl overflow-hidden"
+        dismissible={false}
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span>Detalle del registro</span>
@@ -132,8 +145,8 @@ export function AuditLogDetailModal({ log, onClose }: AuditLogDetailModalProps) 
         </DialogHeader>
 
         {log && (
-          <ScrollArea className="max-h-[60vh]">
-            <div className="space-y-4 pr-4">
+          <ScrollArea className="max-h-[60vh] w-full">
+            <div className="min-w-0 space-y-4 pr-4">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Administrador</p>
@@ -146,24 +159,24 @@ export function AuditLogDetailModal({ log, onClose }: AuditLogDetailModalProps) 
                   <p className="text-xs font-medium text-muted-foreground">Correo</p>
                   <p className="text-sm">{log.admin.email}</p>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs font-medium text-muted-foreground">Entidad</p>
-                  <p className="text-sm">
+                  <p className="text-sm wrap-break-word">
                     {log.entity}
-                    <span className="ml-2 font-mono text-xs text-muted-foreground">
+                    <span className="ml-2 font-mono text-xs text-muted-foreground break-all">
                       {log.entityId}
                     </span>
                   </p>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs font-medium text-muted-foreground">IP</p>
-                  <p className="font-mono text-sm">{log.ip ?? '—'}</p>
+                  <p className="font-mono text-sm break-all">{log.ip ?? '—'}</p>
                 </div>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-medium text-muted-foreground">Mensaje</p>
-                <p className="text-sm">{log.mensaje}</p>
+                <p className="text-sm wrap-break-word">{log.mensaje}</p>
               </div>
 
               <div>
