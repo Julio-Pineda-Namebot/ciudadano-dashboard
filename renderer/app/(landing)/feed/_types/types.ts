@@ -21,3 +21,31 @@ export interface CitizenFeedPanelProps {
   initialIncidents: NearbyIncident[]
   defaultCenter: { lat: number; lon: number }
 }
+
+export type FeedMode = 'view' | 'report' | 'route'
+
+export interface RoutePoint {
+  lat: number
+  lon: number
+}
+
+export interface RouteResult {
+  coordinates: [number, number][]
+  dangerScore: number
+  isSafe: boolean
+  distanceMeters: number
+  durationSeconds: number
+}
+
+export type RouteOptionLabel = 'safest' | 'middle' | 'shortest'
+
+export interface RouteOption extends RouteResult {
+  id: string
+  label: RouteOptionLabel
+  color: string
+}
+
+export interface RoutePlan {
+  options: RouteOption[]
+  selectedId: string
+}
