@@ -132,7 +132,7 @@ function ComboboxControl({
   id,
   invalid,
 }: ControlProps<ComboboxFieldConfig>) {
-  const { options, placeholder, emptyText, disabled } = fieldConfig
+  const { options, placeholder, emptyText, disabled, clearable } = fieldConfig
   const selected =
     field.value != null
       ? options.find((opt) => opt.value === field.value) ?? null
@@ -157,7 +157,7 @@ function ComboboxControl({
         id={id}
         placeholder={placeholder}
         aria-invalid={invalid || undefined}
-        showClear
+        showClear={clearable}
         onBlur={field.onBlur}
         disabled={disabled}
         className="h-10"

@@ -92,3 +92,20 @@ export async function revokeSession(reason?: string) {
   await deleteSession()
   redirect(reason ? `/login?reason=${encodeURIComponent(reason)}` : '/login')
 }
+
+// Cierra la sesión por decisión del cliente (p. ej. inactividad) cuando la
+// sesión SIGUE viva en el servidor: avisa al backend para desactivarla y luego
+// limpia la cookie. A diferencia de revokeSession (que se usa cuando el backend
+// ya la revocó), aquí sí hay que notificar al backend.
+export async function endSession(reason: string) {
+  const token = await getSession()
+  if (token) {
+    try {
+      await post('/admin/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } })
+    } catch (err) {
+      logger.warn('Logout backend falló al cerrar por inactividad', err)
+    }
+  }
+  await deleteSession()
+  redirect(`/login?reason=${encodeURIComponent(reason)}`)
+}

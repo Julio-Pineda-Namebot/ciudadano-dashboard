@@ -20,6 +20,9 @@ export interface ComboboxFieldConfig extends BaseFieldConfig {
   type: 'combobox'
   options: ComboboxOption[]
   emptyText?: ReactNode
+  // Muestra el botón "X" para limpiar la selección. Por defecto no se muestra
+  // (en filtros con opción "Todas"/vacía, la X es redundante).
+  clearable?: boolean
 }
 
 export interface SwitchFieldConfig extends BaseFieldConfig {

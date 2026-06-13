@@ -32,6 +32,7 @@ export default async function LoginPage({ searchParams }: Props) {
     session_revoked: 'Alguien inició sesión en tu cuenta. Fuiste desconectado.',
     session_expired: 'Tu sesión expiró. Vuelve a ingresar.',
     session_invalid: 'Tu sesión no es válida. Vuelve a ingresar.',
+    session_idle: 'Tu sesión se cerró por inactividad. Vuelve a ingresar.',
   }
   const sessionRevokedMessage = params.reason ? messages[params.reason] : undefined
 
