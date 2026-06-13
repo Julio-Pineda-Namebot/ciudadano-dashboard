@@ -15,10 +15,10 @@ export async function getIncidentReports(): Promise<IncidentReport[]> {
 }
 
 export async function updateIncidentReport(id: string, data: IncidentReportUpdateData): Promise<IncidentReport> {
-  const res = await post<{ data: IncidentReport }>(`/admin/incidents/${id}`, data, { headers: await authHeaders() })
+  const res = await post<{ data: IncidentReport }>(`/admin/incidents/${encodeURIComponent(id)}`, data, { headers: await authHeaders() })
   return res.data
 }
 
 export async function deleteIncidentReport(id: string): Promise<void> {
-  await del(`/admin/incidents/${id}`, { headers: await authHeaders() })
+  await del(`/admin/incidents/${encodeURIComponent(id)}`, { headers: await authHeaders() })
 }

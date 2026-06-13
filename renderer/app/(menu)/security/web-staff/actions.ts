@@ -15,7 +15,7 @@ export async function getAdmins(): Promise<Admin[]> {
 }
 
 export async function getAdmin(id: string): Promise<Admin> {
-  const res = await get<{ data: Admin }>(`/admin/admins/${id}`, { headers: await authHeaders() })
+  const res = await get<{ data: Admin }>(`/admin/admins/${encodeURIComponent(id)}`, { headers: await authHeaders() })
   return res.data
 }
 
@@ -25,10 +25,10 @@ export async function createAdmin(data: CreateAdminFormData): Promise<Admin> {
 }
 
 export async function updateAdmin(id: string, data: UpdateAdminFormData): Promise<Admin> {
-  const res = await patch<{ data: Admin }>(`/admin/admins/${id}`, data, { headers: await authHeaders() })
+  const res = await patch<{ data: Admin }>(`/admin/admins/${encodeURIComponent(id)}`, data, { headers: await authHeaders() })
   return res.data
 }
 
 export async function deleteAdmin(id: string): Promise<void> {
-  await del(`/admin/admins/${id}`, { headers: await authHeaders() })
+  await del(`/admin/admins/${encodeURIComponent(id)}`, { headers: await authHeaders() })
 }
