@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Icon } from './icons';
+import { ArrowRight, Check, Sparkles, X } from 'lucide-react';
 
 type Plan = {
   name: string;
@@ -80,7 +80,7 @@ function PriceFeature({ enabled, children }: { enabled: boolean; children: React
           enabled ? 'bg-white/15 text-white' : 'bg-white/5 text-white/25'
         }`}
       >
-        <Icon name={enabled ? 'check' : 'x'} size={10} stroke={2.4} />
+        {enabled ? <Check size={10} strokeWidth={2.4} /> : <X size={10} strokeWidth={2.4} />}
       </div>
       <span>{children}</span>
     </li>
@@ -140,7 +140,7 @@ export function Pricing() {
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="font-display text-[16px] font-medium tracking-tight text-white/85">{p.name}</div>
-                    {pop && <Icon name="sparkle" size={16} className="text-white" />}
+                    {pop && <Sparkles size={16} className="text-white" />}
                   </div>
                   <div className="mt-5 flex items-baseline gap-2">
                     <div className="font-display text-[56px] font-semibold leading-none tracking-[-0.03em]">{p.price}</div>
@@ -164,7 +164,7 @@ export function Pricing() {
                     p.ctaTone === 'primary' ? 'landing-btn-primary' : 'landing-btn-ghost'
                   }`}
                 >
-                  {p.cta} <Icon name="arrow" size={14} />
+                  {p.cta} <ArrowRight size={14} />
                 </a>
               </div>
             );

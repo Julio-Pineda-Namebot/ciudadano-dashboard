@@ -15,7 +15,7 @@ export async function getGroups(): Promise<Group[]> {
 }
 
 export async function getGroup(id: string): Promise<Group> {
-  const res = await get<{ data: Group }>(`/admin/groups/${id}`, { headers: await authHeaders() })
+  const res = await get<{ data: Group }>(`/admin/groups/${encodeURIComponent(id)}`, { headers: await authHeaders() })
   return res.data
 }
 
@@ -25,10 +25,10 @@ export async function createGroup(data: GroupFormData): Promise<Group> {
 }
 
 export async function updateGroup(id: string, data: Partial<GroupFormData>): Promise<Group> {
-  const res = await patch<{ data: Group }>(`/admin/groups/${id}`, data, { headers: await authHeaders() })
+  const res = await patch<{ data: Group }>(`/admin/groups/${encodeURIComponent(id)}`, data, { headers: await authHeaders() })
   return res.data
 }
 
 export async function deleteGroup(id: string): Promise<void> {
-  await del(`/admin/groups/${id}`, { headers: await authHeaders() })
+  await del(`/admin/groups/${encodeURIComponent(id)}`, { headers: await authHeaders() })
 }

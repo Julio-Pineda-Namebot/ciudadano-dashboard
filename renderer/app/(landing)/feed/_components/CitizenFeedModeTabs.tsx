@@ -1,6 +1,6 @@
 'use client'
 
-import { Icon } from '@/app/(landing)/_components/icons'
+import { Eye, MapPin, Plus } from 'lucide-react'
 import type { FeedMode } from '@/app/(landing)/feed/_types/types'
 
 interface CitizenFeedModeTabsProps {
@@ -28,7 +28,7 @@ export function CitizenFeedModeTabs({ mode, onChangeMode, onRecenter }: CitizenF
               : 'text-white/50 hover:text-white/80'
           }`}
         >
-          <Icon name="eye" size={13} />
+          <Eye size={13} />
           Ver
         </button>
         <button
@@ -42,7 +42,7 @@ export function CitizenFeedModeTabs({ mode, onChangeMode, onRecenter }: CitizenF
               : 'text-white/50 hover:text-white/80'
           }`}
         >
-          <Icon name="plus" size={13} />
+          <Plus size={13} />
           Reportar
         </button>
         <button
@@ -56,7 +56,7 @@ export function CitizenFeedModeTabs({ mode, onChangeMode, onRecenter }: CitizenF
               : 'text-white/50 hover:text-white/80'
           }`}
         >
-          <Icon name="pin" size={13} />
+          <MapPin size={13} />
           Ruta segura
         </button>
       </div>
@@ -67,7 +67,7 @@ export function CitizenFeedModeTabs({ mode, onChangeMode, onRecenter }: CitizenF
         aria-label="Centrar en mi ubicación"
         className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-black/70 text-white/70 backdrop-blur-md shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)] transition hover:bg-black/85 hover:text-white"
       >
-        <Icon name="pin" size={14} />
+        <MapPin size={14} />
       </button>
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { Icon } from '@/app/(landing)/_components/icons'
+import { ArrowRight, X } from 'lucide-react'
 import {
   DESTINATION_COLOR,
   LABEL_TEXT,
@@ -143,7 +143,7 @@ export function CitizenFeedRoutePlanner({
                   className="text-white/40 transition hover:text-white"
                   aria-label="Limpiar origen"
                 >
-                  <Icon name="x" size={13} />
+                  <X size={13} />
                 </button>
               </div>
             ) : (
@@ -172,7 +172,7 @@ export function CitizenFeedRoutePlanner({
                   className="text-white/40 transition hover:text-white"
                   aria-label="Limpiar destino"
                 >
-                  <Icon name="x" size={13} />
+                  <X size={13} />
                 </button>
               </div>
             ) : (
@@ -192,7 +192,7 @@ export function CitizenFeedRoutePlanner({
             disabled={!origin || !destination || calculating}
             className="landing-btn landing-btn-primary h-12 flex-1 text-[14px] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {calculating ? 'Calculando…' : <>Calcular ruta segura <Icon name="arrow" size={14} /></>}
+            {calculating ? 'Calculando…' : <>Calcular ruta segura <ArrowRight size={14} /></>}
           </button>
           {(origin || destination || route) && (
             <button

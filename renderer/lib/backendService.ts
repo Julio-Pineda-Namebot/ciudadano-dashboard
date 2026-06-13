@@ -26,7 +26,8 @@ api.interceptors.response.use(
   (err: AxiosError) => {
     if (err.response) {
       const { status, data, config } = err.response
-      logger.error(`${config.method?.toUpperCase()} ${config.url} → ${status}`, data)
+      const detail = process.env.NODE_ENV === 'production' ? undefined : data
+      logger.error(`${config.method?.toUpperCase()} ${config.url} → ${status}`, detail)
       return Promise.reject(new ApiError(status, data))
     }
     logger.error(`Network error: ${err.message}`)
