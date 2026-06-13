@@ -1,11 +1,16 @@
-import { Icon, LogoMark } from './icons';
+import { LogoMark } from './icons';
+import { InstagramIcon, LinkedinIcon, TwitterIcon } from './brand-icons';
 
 const COLUMNS: Array<[heading: string, items: string[]]> = [
   ['Producto', ['Funciones', 'Mapa', 'Planes', 'Cambios']],
   ['Comunidad', ['Vecinos', 'Juntas', 'Aliados', 'Blog']],
 ];
 
-const SOCIALS = ['twitter', 'instagram', 'linkedin'] as const;
+const SOCIALS = [
+  { label: 'twitter', Logo: TwitterIcon },
+  { label: 'instagram', Logo: InstagramIcon },
+  { label: 'linkedin', Logo: LinkedinIcon },
+] as const;
 
 export function Footer() {
   return (
@@ -21,14 +26,14 @@ export function Footer() {
               Tu comunidad más segura, unida y vigilante. Hecho en Lima, con vecinos para vecinos.
             </p>
             <div className="mt-5 flex items-center gap-2">
-              {SOCIALS.map((s) => (
+              {SOCIALS.map(({ label, Logo }) => (
                 <a
-                  key={s}
+                  key={label}
                   href="#"
                   className="grid h-9 w-9 place-items-center rounded-lg bg-white/4 text-white/70 ring-1 ring-white/10 transition hover:bg-white/8 hover:text-white"
-                  aria-label={s}
+                  aria-label={label}
                 >
-                  <Icon name={s} size={14} />
+                  <Logo size={14} />
                 </a>
               ))}
             </div>

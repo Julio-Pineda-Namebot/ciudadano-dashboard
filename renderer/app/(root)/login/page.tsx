@@ -1,4 +1,6 @@
 import { Poppins, JetBrains_Mono } from 'next/font/google'
+import { redirect } from 'next/navigation'
+import { fetchCitizenProfile } from '@/app/auth-citizen'
 import { LoginForm } from "@/app/(root)/login/_components/login-form"
 import { LoginCard } from "@/app/(landing)/_components/login-card"
 import "@/app/(landing)/landing.css"
@@ -20,6 +22,11 @@ interface Props {
 }
 
 export default async function LoginPage({ searchParams }: Props) {
+  // Si ya hay una sesión válida guardada, entrar directo al feed.
+  // fetchCitizenProfile limpia la cookie si el token está vencido, evitando bucles.
+  const profile = await fetchCitizenProfile()
+  if (profile) redirect('/feed')
+
   const params = await searchParams
   const messages: Record<string, string> = {
     session_revoked: 'Alguien inició sesión en tu cuenta. Fuiste desconectado.',

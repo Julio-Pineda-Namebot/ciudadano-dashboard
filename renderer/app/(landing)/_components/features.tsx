@@ -1,12 +1,19 @@
 'use client';
 
 import { useRef, type MouseEvent, type ReactNode } from 'react';
-import { Icon } from './icons';
-
-type IconName = Parameters<typeof Icon>[0]['name'];
+import {
+  BarChart3,
+  Bell,
+  Camera,
+  MessageSquare,
+  Route,
+  Siren,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 
 type CardProps = {
-  icon: IconName;
+  icon: LucideIcon;
   title: string;
   body: string;
   accent?: string;
@@ -14,7 +21,7 @@ type CardProps = {
   children?: ReactNode;
 };
 
-function FeatureCard({ icon, title, body, accent = '#FFFFFF', big = false, children }: CardProps) {
+function FeatureCard({ icon: Icon, title, body, accent = '#FFFFFF', big = false, children }: CardProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const onMove = (e: MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
@@ -28,14 +35,14 @@ function FeatureCard({ icon, title, body, accent = '#FFFFFF', big = false, child
     <div
       ref={ref}
       onMouseMove={onMove}
-      className={`feature group relative rounded-2xl border border-white/7 bg-white/2 p-6 ${big ? 'lg:p-7' : ''}`}
+      className={`feature group relative flex h-full flex-col rounded-2xl border border-white/7 bg-white/2 p-6 ${big ? 'lg:p-7' : ''}`}
     >
       <div className="flex items-start justify-between">
         <div
           className="grid h-11 w-11 place-items-center rounded-xl"
           style={{ background: `${accent}18`, color: accent, boxShadow: `inset 0 0 0 1px ${accent}33` }}
         >
-          <Icon name={icon} size={18} />
+          <Icon size={18} />
         </div>
         <div className="font-mono text-[10px] uppercase tracking-widest text-white/30">Función</div>
       </div>
@@ -72,7 +79,7 @@ export function Features() {
           <div className="reveal lg:col-span-2">
             <FeatureCard
               big
-              icon="siren"
+              icon={Siren}
               accent="#E04B5E"
               title="Reporte de incidencias"
               body="Reporta robos, vandalismo o situaciones de riesgo en menos de 8 segundos. Tu cuadra entera lo sabrá en tiempo real."
@@ -92,7 +99,7 @@ export function Features() {
 
           <div className="reveal reveal-delay-1">
             <FeatureCard
-              icon="bell"
+              icon={Bell}
               accent="#D9A55E"
               title="Alertas en tiempo real"
               body="Notificaciones push verificadas por la comunidad. Solo lo que necesitas saber, cuando lo necesitas saber."
@@ -107,7 +114,7 @@ export function Features() {
 
           <div className="reveal">
             <FeatureCard
-              icon="chat"
+              icon={MessageSquare}
               accent="#FFFFFF"
               title="Chat vecinal"
               body="Comunicación cifrada con tu junta vecinal y serenazgo. Verificada, sin spam."
@@ -132,7 +139,7 @@ export function Features() {
           <div className="reveal reveal-delay-1 lg:col-span-2">
             <FeatureCard
               big
-              icon="route"
+              icon={Route}
               accent="#9CA3B0"
               title="Recorrido seguro"
               body="Caminos sugeridos por los reportes vecinales recientes. Evita zonas con incidencias activas."
@@ -149,7 +156,7 @@ export function Features() {
 
           <div className="reveal reveal-delay-2">
             <FeatureCard
-              icon="camera"
+              icon={Camera}
               accent="#B8D6BC"
               title="Cámaras públicas"
               body="Acceso autorizado a CCTV pública integrada con la municipalidad y serenazgo."
@@ -173,7 +180,7 @@ export function Features() {
           <div className="reveal reveal-delay-2 lg:col-span-2">
             <FeatureCard
               big
-              icon="users"
+              icon={Users}
               accent="#FFFFFF"
               title="Comunidades privadas"
               body="Tu edificio, tu manzana o tu junta vecinal. Espacios cifrados de coordinación."
@@ -194,7 +201,7 @@ export function Features() {
           <div className="reveal reveal-delay-3 md:col-span-2 lg:col-span-3">
             <FeatureCard
               big
-              icon="chart"
+              icon={BarChart3}
               accent="#FFFFFF"
               title="Estadísticas de seguridad"
               body="Reportes mensuales con tendencias, mapas de calor y comparativas por distrito. Decisiones basadas en datos."

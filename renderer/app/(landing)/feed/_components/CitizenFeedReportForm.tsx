@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState, type RefObject } from 'react'
-import { Icon } from '@/app/(landing)/_components/icons'
+import { ArrowRight, Camera, Check, X } from 'lucide-react'
+import { CitizenFeedTermsSheet } from './CitizenFeedTermsSheet'
 import { TYPE_COLOR, TYPE_LABEL } from '@/app/(landing)/feed/constants'
 import type { IncidentType, RoutePoint } from '@/app/(landing)/feed/_types/types'
 
@@ -11,9 +12,7 @@ interface CitizenFeedReportFormProps {
   pending: boolean
   selected: RoutePoint | null
   onClearSelected: () => void
-  onOpenTerms: () => void
-  successMessage: string | null
-  errorMessage: string | null
+  resetSignal: number
 }
 
 export function CitizenFeedReportForm({
@@ -22,20 +21,24 @@ export function CitizenFeedReportForm({
   pending,
   selected,
   onClearSelected,
-  onOpenTerms,
-  successMessage,
-  errorMessage,
+  resetSignal,
 }: CitizenFeedReportFormProps) {
   const [mediaPreview, setMediaPreview] = useState<string | null>(null)
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [incidentType, setIncidentType] = useState<IncidentType | ''>('')
 
-  // Clear the local preview when a report succeeds (parent resets the form).
+  // El parent incrementa resetSignal tras un reporte exitoso (y resetea el form
+  // nativo); aquí limpiamos el estado local que el reset nativo no controla.
   useEffect(() => {
-    if (successMessage) {
+    if (resetSignal > 0) {
       setMediaPreview(null)
       setTermsAccepted(false)
+      setIncidentType('')
     }
-  }, [successMessage])
+  }, [resetSignal])
+
+  // La imagen es obligatoria salvo para robo (accidente y vandalismo la requieren).
+  const mediaRequired = incidentType !== 'robo'
 
   return (
     <>
@@ -49,17 +52,6 @@ export function CitizenFeedReportForm({
           Toca un punto del mapa para marcar la ubicación. Luego describe lo ocurrido.
         </p>
       </div>
-
-      {successMessage && (
-        <div className="rounded-lg border border-[#6BAE7A]/30 bg-[#6BAE7A]/10 px-3 py-2 text-[12.5px] text-[#A8DDB5]">
-          {successMessage}
-        </div>
-      )}
-      {errorMessage && (
-        <div className="rounded-lg border border-[#E04B5E]/30 bg-[#E04B5E]/10 px-3 py-2 text-[12.5px] text-[#FF8A99]">
-          {errorMessage}
-        </div>
-      )}
 
       <form ref={formRef} action={action} className="flex flex-col gap-4">
         <input type="hidden" name="latitude" value={selected?.lat ?? ''} />
@@ -75,7 +67,14 @@ export function CitizenFeedReportForm({
                 key={t}
                 className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/4 px-2 py-2.5 text-[12.5px] text-white/70 transition hover:bg-white/8 has-[input:checked]:border-white/40 has-[input:checked]:bg-white/10 has-[input:checked]:text-white"
               >
-                <input type="radio" name="incident_type" value={t} required className="sr-only" />
+                <input
+                  type="radio"
+                  name="incident_type"
+                  value={t}
+                  required
+                  className="sr-only"
+                  onChange={() => setIncidentType(t)}
+                />
                 <span
                   className="h-2 w-2 rounded-full"
                   style={{ background: TYPE_COLOR[t], boxShadow: `0 0 8px ${TYPE_COLOR[t]}` }}
@@ -117,7 +116,7 @@ export function CitizenFeedReportForm({
                   className="text-white/40 transition hover:text-white"
                   aria-label="Limpiar ubicación"
                 >
-                  <Icon name="x" size={13} />
+                  <X size={13} />
                 </button>
               </div>
             ) : (
@@ -128,14 +127,14 @@ export function CitizenFeedReportForm({
 
         <label className="flex flex-col gap-2">
           <span className="font-mono text-[10.5px] uppercase tracking-[0.25em] text-white/55">
-            Foto o video
+            Foto o video{incidentType === 'robo' && <span className="text-white/35"> (opcional)</span>}
           </span>
           <div className="relative flex items-center gap-3 rounded-xl border border-dashed border-white/15 bg-white/3 px-3 py-3">
             <input
               type="file"
               name="multimedia"
               accept="image/*,video/*"
-              required
+              required={mediaRequired}
               className="absolute inset-0 cursor-pointer opacity-0"
               onChange={(e) => {
                 const file = e.target.files?.[0]
@@ -151,10 +150,14 @@ export function CitizenFeedReportForm({
               }}
             />
             <div className="grid h-9 w-9 place-items-center rounded-lg bg-white/8 text-white/80">
-              <Icon name="camera" size={15} />
+              <Camera size={15} />
             </div>
             <div className="flex-1 text-[12.5px] text-white/55">
-              {mediaPreview ? 'Archivo listo' : 'Adjunta una foto o video del incidente'}
+              {mediaPreview
+                ? 'Archivo listo'
+                : mediaRequired
+                  ? 'Adjunta una foto o video del incidente'
+                  : 'Adjunta una foto o video (opcional para robo)'}
             </div>
             {mediaPreview && (
               <img
@@ -179,22 +182,10 @@ export function CitizenFeedReportForm({
             aria-hidden
             className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-[5px] border border-white/25 bg-white/5 transition peer-checked:border-[#D9A55E] peer-checked:bg-[#D9A55E] peer-checked:shadow-[0_0_12px_rgba(217,165,94,0.55)]"
           >
-            {termsAccepted && <Icon name="check" size={11} />}
+            {termsAccepted && <Check size={11} />}
           </span>
           <span className="text-[12.5px] leading-relaxed text-white/75">
-            Acepto los{' '}
-            <a
-              href="/terms"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => {
-                e.stopPropagation()
-                onOpenTerms()
-              }}
-              className="text-white underline decoration-white/40 underline-offset-2 transition hover:decoration-white"
-            >
-              términos y condiciones
-            </a>{' '}
+            Acepto los <CitizenFeedTermsSheet />{' '}
             sobre veracidad del reporte, uso de imágenes y geolocalización.
           </span>
         </label>
@@ -204,7 +195,7 @@ export function CitizenFeedReportForm({
           disabled={pending || !selected || !termsAccepted}
           className="landing-btn landing-btn-primary mt-1 h-12 w-full text-[14px] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {pending ? 'Reportando…' : <>Reportar <Icon name="arrow" size={14} /></>}
+          {pending ? 'Reportando…' : <>Reportar <ArrowRight size={14} /></>}
         </button>
       </form>
     </>

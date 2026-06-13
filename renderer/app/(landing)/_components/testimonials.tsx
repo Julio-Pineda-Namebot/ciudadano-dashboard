@@ -1,4 +1,4 @@
-import { Icon } from './icons';
+import { Quote, Star } from 'lucide-react';
 
 const ITEMS = [
   {
@@ -61,7 +61,7 @@ export function Testimonials() {
               key={t.name}
               className={`reveal reveal-delay-${(i % 4) + 1} group relative overflow-hidden rounded-2xl border border-white/7 bg-white/2 p-6 transition hover:border-white/15`}
             >
-              <Icon name="quote" size={18} className="text-white/15" />
+              <Quote size={18} className="text-white/15" />
               <p className="mt-3 text-[14.5px] leading-relaxed text-white/80">&ldquo;{t.quote}&rdquo;</p>
               <div className="mt-6 flex items-center gap-3">
                 <div
@@ -77,7 +77,7 @@ export function Testimonials() {
                 </div>
                 <div className="ml-auto flex gap-0.5 text-white">
                   {[0, 1, 2, 3, 4].map((s) => (
-                    <Icon key={s} name="star" size={11} stroke={1} />
+                    <Star key={s} size={11} strokeWidth={1} />
                   ))}
                 </div>
               </div>

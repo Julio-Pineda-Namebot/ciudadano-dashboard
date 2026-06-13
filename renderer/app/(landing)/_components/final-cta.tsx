@@ -1,4 +1,5 @@
-import { Icon } from './icons';
+import { ArrowRight } from 'lucide-react';
+import { AppleIcon, GoogleIcon } from './brand-icons';
 
 export function FinalCTA() {
   return (
@@ -47,7 +48,7 @@ export function FinalCTA() {
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:mt-9">
             <a href="/login" className="landing-btn landing-btn-primary h-12 px-6 text-[14.5px]">
-              Iniciar sesión <Icon name="arrow" size={14} />
+              Iniciar sesión <ArrowRight size={14} />
             </a>
             <a href="#voices" className="landing-btn landing-btn-ghost h-12 px-6 text-[14.5px]">
               Hablar con tu junta vecinal
@@ -56,11 +57,11 @@ export function FinalCTA() {
 
           <div className="mt-8 flex items-center justify-center gap-6 text-white/45">
             <div className="flex items-center gap-2 text-[12px]">
-              <Icon name="apple" size={16} /> App Store
+              <AppleIcon size={16} /> App Store
             </div>
             <div className="h-3 w-px bg-white/15" />
             <div className="flex items-center gap-2 text-[12px]">
-              <Icon name="google" size={16} /> Google Play
+              <GoogleIcon size={16} /> Google Play
             </div>
           </div>
         </div>
