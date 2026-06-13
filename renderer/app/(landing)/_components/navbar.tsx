@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Icon, LogoMark } from './icons';
+import { ArrowRight, Menu, X } from 'lucide-react';
+import { LogoMark } from './icons';
 
 type LinkItem = { label: string; href: string; description: string };
 
@@ -43,7 +44,11 @@ const LINKS: LinkItem[] = [
   },
 ];
 
-export function Navbar() {
+type NavbarProps = {
+  isAuthenticated?: boolean;
+};
+
+export function Navbar({ isAuthenticated = false }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>('hero');
@@ -134,7 +139,7 @@ export function Navbar() {
             aria-expanded={open}
             aria-controls="landing-menu-sheet"
           >
-            <Icon name={open ? 'x' : 'menu'} size={18} />
+            {open ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </header>
@@ -187,7 +192,7 @@ export function Navbar() {
               aria-label="Cerrar menú"
               tabIndex={open ? 0 : -1}
             >
-              <Icon name="x" size={18} />
+              <X size={18} />
             </button>
           </div>
 
@@ -224,12 +229,12 @@ export function Navbar() {
 
           <div className="border-t border-white/8 px-6 py-6 sm:px-10">
             <a
-              href="/login"
+              href={isAuthenticated ? '/feed' : '/login'}
               onClick={() => setOpen(false)}
               tabIndex={open ? 0 : -1}
               className="landing-btn landing-btn-primary h-12 w-full"
             >
-              Iniciar sesión <Icon name="arrow" size={14} />
+              {isAuthenticated ? 'Volver a mi feed' : 'Iniciar sesión'} <ArrowRight size={14} />
             </a>
             <div className="mt-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-white/40">
               <span>Ciudadano · v1.0 · Ica</span>

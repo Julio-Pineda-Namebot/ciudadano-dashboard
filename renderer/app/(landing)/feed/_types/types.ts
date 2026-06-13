@@ -1,3 +1,5 @@
+import type { CitizenProfile } from '@/app/auth-citizen-types'
+
 export type IncidentType = 'robo' | 'accidente' | 'vandalismo'
 
 export interface NearbyIncident {
@@ -20,6 +22,7 @@ export type ReportIncidentState =
 export interface CitizenFeedPanelProps {
   initialIncidents: NearbyIncident[]
   defaultCenter: { lat: number; lon: number }
+  profile: CitizenProfile
 }
 
 export type FeedMode = 'view' | 'report' | 'route'

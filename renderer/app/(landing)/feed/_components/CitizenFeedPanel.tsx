@@ -1,6 +1,8 @@
 'use client'
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react'
+import Link from 'next/link'
+import { toast } from 'sonner'
 import { LogoMark } from '@/app/(landing)/_components/icons'
 import { getNearbyIncidents, reportIncident } from '@/app/(landing)/feed/actions'
 import { calculateSafeRoute } from '@/app/(landing)/feed/routeService'
@@ -15,11 +17,11 @@ import type {
 import { LABEL_TEXT } from '@/app/(landing)/feed/constants'
 import { CitizenFeedMap, type CitizenFeedMapHandle } from './CitizenFeedMap'
 import { CitizenFeedModeTabs } from './CitizenFeedModeTabs'
-import { CitizenFeedInactiveOverlay } from './CitizenFeedInactiveOverlay'
 import { CitizenFeedReportForm } from './CitizenFeedReportForm'
 import { CitizenFeedRoutePlanner } from './CitizenFeedRoutePlanner'
+import { CitizenFeedUserMenu } from './CitizenFeedUserMenu'
 
-export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFeedPanelProps) {
+export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: CitizenFeedPanelProps) {
   const mapHandleRef = useRef<CitizenFeedMapHandle | null>(null)
   const formRef = useRef<HTMLFormElement | null>(null)
 
@@ -31,15 +33,20 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
   const [route, setRoute] = useState<RoutePlan | null>(null)
   const [routeError, setRouteError] = useState<string | null>(null)
   const [calculatingRoute, setCalculatingRoute] = useState(false)
-  const [inactive, setInactive] = useState(false)
+  const [userLocation, setUserLocation] = useState<RoutePoint | null>(null)
+  const [resetSignal, setResetSignal] = useState(0)
   const [state, action, pending] = useActionState<ReportIncidentState, FormData>(reportIncident, null)
   const [refreshing, startRefresh] = useTransition()
 
-  // Refresh incidents and reset form when a report succeeds.
+  // Avisa por toast (top-center, ver layout) y refresca/limpia el form según el
+  // resultado del reporte. resetSignal limpia el estado local del formulario.
   useEffect(() => {
-    if (state && 'ok' in state && state.ok) {
+    if (!state) return
+    if ('ok' in state && state.ok) {
+      toast.success(state.message)
       formRef.current?.reset()
       setSelected(null)
+      setResetSignal((n) => n + 1)
       const center = mapHandleRef.current?.getCenter()
       const lat = center?.lat ?? defaultCenter.lat
       const lon = center?.lon ?? defaultCenter.lon
@@ -47,6 +54,8 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
         const next = await getNearbyIncidents(lat, lon)
         setIncidents(next)
       })
+    } else if ('error' in state) {
+      toast.error(state.error)
     }
   }, [state, defaultCenter.lat, defaultCenter.lon])
 
@@ -106,6 +115,7 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
       (pos) => {
         const { latitude, longitude } = pos.coords
         map.flyTo(latitude, longitude, 15)
+        setUserLocation({ lat: latitude, lon: longitude })
         startRefresh(async () => {
           const next = await getNearbyIncidents(latitude, longitude)
           setIncidents(next)
@@ -126,9 +136,6 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
   const handleMapSelectPoint = (p: RoutePoint) => {
     if (mode === 'report') setSelected(p)
   }
-
-  const errorMessage = state && 'error' in state ? state.error : null
-  const successMessage = state && 'ok' in state && state.ok ? state.message : null
 
   const selectedRoute = route?.options.find((o) => o.id === route.selectedId)
   const footerLeft =
@@ -153,10 +160,13 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
 
       {/* Form panel (left on desktop, bottom on mobile) */}
       <aside className="relative z-10 flex h-[45svh] min-h-0 shrink-0 flex-col gap-5 overflow-y-auto border-t border-white/8 bg-black/40 p-6 backdrop-blur-md sm:p-8 lg:h-full lg:w-[420px] lg:border-r lg:border-t-0">
-        <a href="/" className="flex items-center gap-2">
-          <LogoMark size={22} />
-          <span className="font-display text-[14px] font-semibold tracking-tight">Ciudadano</span>
-        </a>
+        <div className="flex items-center justify-between gap-3">
+          <Link href="/" className="flex items-center gap-2">
+            <LogoMark size={22} />
+            <span className="font-display text-[14px] font-semibold tracking-tight">Ciudadano</span>
+          </Link>
+          <CitizenFeedUserMenu profile={profile} />
+        </div>
 
         {mode === 'route' ? (
           <CitizenFeedRoutePlanner
@@ -186,9 +196,7 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
             pending={pending}
             selected={selected}
             onClearSelected={() => setSelected(null)}
-            onOpenTerms={() => setInactive(true)}
-            successMessage={successMessage}
-            errorMessage={errorMessage}
+            resetSignal={resetSignal}
           />
         )}
 
@@ -221,6 +229,7 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
           onSelectPoint={handleMapSelectPoint}
           onSetOrigin={handleSetOrigin}
           onSetDestination={handleSetDestination}
+          userLocation={userLocation}
         />
 
         <CitizenFeedModeTabs
@@ -242,7 +251,6 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter }: CitizenFee
         )}
       </section>
 
-      {inactive && <CitizenFeedInactiveOverlay />}
     </main>
   )
 }

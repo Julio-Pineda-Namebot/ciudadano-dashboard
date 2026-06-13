@@ -44,6 +44,11 @@ export async function loginCitizen(_prevState: CitizenLoginState, formData: Form
   redirect('/feed')
 }
 
+export async function logoutCitizen() {
+  await deleteSession()
+  redirect('/login')
+}
+
 export async function fetchCitizenProfile(): Promise<CitizenProfile | null> {
   const token = await getSession()
   if (!token) return null
@@ -54,7 +59,11 @@ export async function fetchCitizenProfile(): Promise<CitizenProfile | null> {
     return res.data
   } catch (err) {
     if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-      await deleteSession()
+      try {
+        await deleteSession()
+      } catch {
+        // se ignora cuando se invoca fuera de un Server Action / Route Handler
+      }
       return null
     }
     logger.warn('fetchCitizenProfile falló', err)

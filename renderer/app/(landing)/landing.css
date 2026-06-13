@@ -184,11 +184,22 @@
 }
 
 /* ---------- Gradient text ---------- */
+/* box-decoration-break: clone aplica el padding a CADA fragmento de línea cuando
+   el texto hace wrap (no solo al primero/último). Con el padding vertical evita
+   que background-clip:text recorte ascendentes/descendentes de las cursivas. */
+.landing-root .gradient-text,
+.landing-root .gradient-text-accent {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 .landing-root .gradient-text {
   background: linear-gradient(180deg, #FFFFFF 0%, #B8B8B8 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-top: 0.06em;
+  padding-bottom: 0.2em;
 }
 
 .landing-root .gradient-text-accent {
@@ -196,9 +207,10 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  /* Prevent italic overhang/descenders from being clipped by background-clip:text. */
-  padding-right: 0.08em;
-  padding-bottom: 0.08em;
+  padding-top: 0.08em;
+  padding-right: 0.16em;
+  padding-bottom: 0.22em;
+  padding-left: 0.06em;
 }
 
 /* ---------- Cinematic hero ---------- */
@@ -335,9 +347,7 @@
   overflow: hidden;
 }
 
-/* Off-screen sections skip layout+paint entirely (modern browsers). */
 .landing-root #features,
-.landing-root #pricing,
 .landing-root #voices,
 .landing-root #contact {
   content-visibility: auto;
@@ -881,4 +891,20 @@
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.45);
   margin-top: 2px;
+}
+
+/* ---------- Pin de "tu ubicación actual" (marcador del mapa) ---------- */
+.ciudadano-userloc {
+  cursor: pointer;
+  line-height: 0;
+}
+.ciudadano-userloc-pin {
+  display: block;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+  animation: landing-pin-bounce 1.1s cubic-bezier(0.3, 0.7, 0.3, 1) infinite;
+}
+@keyframes landing-pin-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
 }

@@ -37,6 +37,7 @@ interface CitizenFeedMapProps {
   onSelectPoint: (p: RoutePoint) => void
   onSetOrigin: (p: RoutePoint) => void
   onSetDestination: (p: RoutePoint) => void
+  userLocation: RoutePoint | null
 }
 
 export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapProps>(
@@ -52,6 +53,7 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
       onSelectPoint,
       onSetOrigin,
       onSetDestination,
+      userLocation,
     },
     ref
   ) {
@@ -61,6 +63,7 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
     const incidentMarkersRef = useRef<mapboxgl.Marker[]>([])
     const originMarkerRef = useRef<mapboxgl.Marker | null>(null)
     const destinationMarkerRef = useRef<mapboxgl.Marker | null>(null)
+    const userLocationMarkerRef = useRef<mapboxgl.Marker | null>(null)
     const drawnRouteLayersRef = useRef<Set<string>>(new Set())
 
     const modeRef = useRef(mode)
@@ -144,6 +147,8 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
         originMarkerRef.current = null
         destinationMarkerRef.current?.remove()
         destinationMarkerRef.current = null
+        userLocationMarkerRef.current?.remove()
+        userLocationMarkerRef.current = null
         map.remove()
         mapRef.current = null
       }
@@ -267,6 +272,49 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
         destinationMarkerRef.current = null
       }
     }, [origin, destination, mode])
+
+    // Render the "your location" pin: a bouncing marker whose tooltip starts open
+    // and toggles when the marker is clicked (mapbox toggles the popup on click).
+    useEffect(() => {
+      const map = mapRef.current
+      if (!map) return
+
+      userLocationMarkerRef.current?.remove()
+      userLocationMarkerRef.current = null
+      if (!userLocation) return
+
+      const el = document.createElement('div')
+      el.className = 'ciudadano-userloc'
+      el.innerHTML = `<span class="ciudadano-userloc-pin">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#4C9AFF" stroke="#FFFFFF" stroke-width="1.6" stroke-linejoin="round">
+          <path d="M12 21s7-6 7-12a7 7 0 10-14 0c0 6 7 12 7 12z" />
+          <circle cx="12" cy="9" r="2.6" fill="#FFFFFF" stroke="none" />
+        </svg>
+      </span>`
+
+      const popup = new mapboxgl.Popup({
+        offset: 36,
+        closeButton: false,
+        closeOnClick: false,
+        className: 'ciudadano-popup',
+        maxWidth: '220px',
+      }).setHTML(
+        `<div class="cp-body">
+          <div class="cp-type" style="color:#4C9AFF">
+            <span class="cp-dot" style="background:#4C9AFF;box-shadow:0 0 8px #4C9AFF"></span>Tu ubicación
+          </div>
+          <div class="cp-desc">Esta es tu ubicación actual</div>
+        </div>`
+      )
+
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([userLocation.lon, userLocation.lat])
+        .setPopup(popup)
+        .addTo(map)
+      // Abrir el tooltip al obtener la ubicación; el click en el pin lo alterna.
+      marker.togglePopup()
+      userLocationMarkerRef.current = marker
+    }, [userLocation])
 
     // Render every route option on the map. The selected one is drawn solid and on top;
     // the rest are drawn dashed and dimmer underneath.

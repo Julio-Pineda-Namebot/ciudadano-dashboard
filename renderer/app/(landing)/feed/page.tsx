@@ -17,6 +17,7 @@ export default async function FeedPage() {
     <CitizenFeedClient
       initialIncidents={initialIncidents}
       defaultCenter={{ lat: DEFAULT_LAT, lon: DEFAULT_LON }}
+      profile={profile}
     />
   )
 }

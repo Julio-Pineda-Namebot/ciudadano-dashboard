@@ -1,30 +1,30 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Icon } from "./icons";
+import { Check, Eye, Radio, Route, Shield, Siren, Zap, type LucideIcon } from "lucide-react";
 import { useScrollProgress } from "./scroll/use-element-progress";
 
 function PhoneScreen1() {
-  const items: Array<[icon: Parameters<typeof Icon>[0]['name'], label: string, color: string]> = [
-    ['siren', 'Robo', '#E04B5E'],
-    ['eye', 'Sospechoso', '#D9A55E'],
-    ['zap', 'Accidente', '#9CA3B0'],
-    ['shield', 'Vandalismo', '#FFFFFF'],
+  const items: Array<[icon: LucideIcon, label: string, color: string]> = [
+    [Siren, 'Robo', '#E04B5E'],
+    [Eye, 'Sospechoso', '#D9A55E'],
+    [Zap, 'Accidente', '#9CA3B0'],
+    [Shield, 'Vandalismo', '#FFFFFF'],
   ];
 
   return (
     <div className="absolute inset-0 flex flex-col px-5 pt-10">
       <div className="text-center font-mono text-[10px] uppercase tracking-widest text-white/45">Paso 01</div>
       <div className="mx-auto mt-2 grid h-16 w-16 place-items-center rounded-2xl bg-[#E04B5E]/15 text-[#E04B5E] ring-1 ring-[#E04B5E]/30">
-        <Icon name="siren" size={28} />
+        <Siren size={28} />
       </div>
       <div className="mt-5 text-center font-display text-[20px] font-semibold leading-tight">¿Qué está pasando?</div>
       <div className="mt-1 text-center text-[11.5px] text-white/55">Selecciona el tipo de incidencia</div>
       <div className="mt-5 grid grid-cols-2 gap-2">
-        {items.map(([ic, label, c]) => (
+        {items.map(([Ic, label, c]) => (
           <div key={label} className="rounded-2xl border border-white/10 bg-white/3 p-3 text-left">
             <div className="grid h-9 w-9 place-items-center rounded-xl" style={{ background: `${c}22`, color: c }}>
-              <Icon name={ic} size={14} />
+              <Ic size={14} />
             </div>
             <div className="mt-2 text-[12px] font-medium text-white/85">{label}</div>
           </div>
@@ -41,24 +41,24 @@ function PhoneScreen1() {
 }
 
 function PhoneScreen2() {
-  const confirms: Array<[name: string, msg: string, color: string, icon: Parameters<typeof Icon>[0]['name']]> = [
-    ['Lucía M.', 'Confirmado · cerca', '#FFFFFF', 'check'],
-    ['Junta Pardo', 'Sereno avisado', '#6BAE7A', 'shield'],
-    ['Carlos Q.', 'Voy a verificar', '#9CA3B0', 'eye'],
+  const confirms: Array<[name: string, msg: string, color: string, icon: LucideIcon]> = [
+    ['Lucía M.', 'Confirmado · cerca', '#FFFFFF', Check],
+    ['Junta Pardo', 'Sereno avisado', '#6BAE7A', Shield],
+    ['Carlos Q.', 'Voy a verificar', '#9CA3B0', Eye],
   ];
 
   return (
     <div className="absolute inset-0 flex flex-col px-5 pt-10">
       <div className="text-center font-mono text-[10px] uppercase tracking-widest text-white/45">Paso 02</div>
       <div className="relative mx-auto mt-2 grid h-16 w-16 place-items-center rounded-full bg-[#E04B5E]/15 text-[#E04B5E] ring-1 ring-[#E04B5E]/30">
-        <Icon name="radio" size={28} />
+        <Radio size={28} />
         <span className="absolute inset-[-8px] animate-ping rounded-full border border-[#E04B5E] opacity-60" />
       </div>
       <div className="mt-5 text-center font-display text-[20px] font-semibold leading-tight">Alerta enviada</div>
       <div className="mt-1 text-center text-[11.5px] text-white/55">A 14 vecinos en 320 m</div>
 
       <div className="mt-6 space-y-2.5">
-        {confirms.map(([n, m, c, ic], i) => (
+        {confirms.map(([n, m, c, Ic], i) => (
           <div
             key={n}
             className="flex items-center gap-2.5 rounded-xl bg-white/4 p-2.5 ring-1 ring-white/10"
@@ -70,7 +70,7 @@ function PhoneScreen2() {
               <div className="text-[10px] text-white/55">{m}</div>
             </div>
             <div className="grid h-6 w-6 place-items-center rounded-full" style={{ background: `${c}22`, color: c }}>
-              <Icon name={ic} size={11} />
+              <Ic size={11} />
             </div>
           </div>
         ))}
@@ -84,7 +84,7 @@ function PhoneScreen3() {
     <div className="absolute inset-0 flex flex-col px-5 pt-10">
       <div className="text-center font-mono text-[10px] uppercase tracking-widest text-white/45">Paso 03</div>
       <div className="mx-auto mt-2 grid h-16 w-16 place-items-center rounded-2xl bg-white/15 text-white ring-1 ring-white/30">
-        <Icon name="route" size={28} />
+        <Route size={28} />
       </div>
       <div className="mt-5 text-center font-display text-[20px] font-semibold leading-tight">Ruta segura</div>
       <div className="mt-1 text-center text-[11.5px] text-white/55">+12% más seguro · 8 min</div>
@@ -131,7 +131,7 @@ function PhoneScreen3() {
 
       <div className="mt-3 flex items-center justify-between rounded-xl bg-white/4 px-3 py-2 ring-1 ring-white/10">
         <div className="flex items-center gap-2">
-          <Icon name="check" size={14} className="text-[#6BAE7A]" />
+          <Check size={14} className="text-[#6BAE7A]" />
           <span className="text-[11.5px] text-white/85">Evita zona activa</span>
         </div>
         <span className="font-mono text-[10px] text-white/40">8 min</span>

@@ -1,9 +1,11 @@
 'use client';
 
 import { useActionState, useState } from 'react';
+import Link from 'next/link';
 import { loginCitizen } from '@/app/auth-citizen';
 import type { CitizenLoginState } from '@/app/auth-citizen-types';
-import { Icon, LogoMark } from './icons';
+import { ArrowRight, Eye, Lock, MessageSquare } from 'lucide-react';
+import { LogoMark } from './icons';
 
 type LoginCardProps = {
   sessionRevokedMessage?: string;
@@ -26,13 +28,13 @@ export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
       />
       <div className="grid-bg absolute inset-0 -z-10 opacity-25" />
 
-      <a
+      <Link
         href="/"
         className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-2xl bg-white/4 px-3 py-2 ring-1 ring-white/10 backdrop-blur-sm transition hover:bg-white/8 sm:left-6 sm:top-6"
       >
         <LogoMark size={22} />
         <span className="font-display text-[14px] font-semibold tracking-tight text-white">Ciudadano</span>
-      </a>
+      </Link>
 
       <div className="flex min-h-svh items-center justify-center px-4 py-20 sm:px-6">
         <div className="mx-auto w-full max-w-[1100px]">
@@ -128,7 +130,7 @@ export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
                     </span>
                     <div className="group relative">
                       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35 transition group-focus-within:text-white/70">
-                        <Icon name="chat" size={16} />
+                        <MessageSquare size={16} />
                       </span>
                       <input
                         type="email"
@@ -147,7 +149,7 @@ export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
                     </span>
                     <div className="group relative">
                       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35 transition group-focus-within:text-white/70">
-                        <Icon name="lock" size={16} />
+                        <Lock size={16} />
                       </span>
                       <input
                         type={showPassword ? 'text' : 'password'}
@@ -164,20 +166,12 @@ export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
                         className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-white/40 transition hover:bg-white/8 hover:text-white/80"
                         aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                       >
-                        <Icon name="eye" size={15} />
+                        <Eye size={15} />
                       </button>
                     </div>
                   </label>
 
-                  <div className="flex items-center justify-between text-[12.5px]">
-                    <label className="flex cursor-pointer items-center gap-2 text-white/55 transition hover:text-white/80">
-                      <input
-                        type="checkbox"
-                        name="remember"
-                        className="h-3.5 w-3.5 cursor-pointer rounded border-white/20 bg-white/4 accent-white"
-                      />
-                      Recuérdame
-                    </label>
+                  <div className="flex items-center justify-end text-[12.5px]">
                     <a href="#" className="text-white/55 underline-offset-4 transition hover:text-white hover:underline">
                       ¿Olvidaste tu contraseña?
                     </a>
@@ -188,7 +182,7 @@ export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
                     disabled={pending}
                     className="landing-btn landing-btn-primary mt-1 h-12 w-full text-[14.5px] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {pending ? 'Ingresando…' : <>Iniciar sesión <Icon name="arrow" size={14} /></>}
+                    {pending ? 'Ingresando…' : <>Iniciar sesión <ArrowRight size={14} /></>}
                   </button>
 
                   <div className="relative my-1 flex items-center gap-3 text-[11px] uppercase tracking-[0.25em] text-white/35">
@@ -199,9 +193,9 @@ export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
 
                   <p className="text-center text-[13px] text-white/55">
                     ¿No tienes cuenta?{' '}
-                    <a href="/#contact" className="text-white underline-offset-4 hover:underline">
+                    <Link href="/#contact" className="text-white underline-offset-4 hover:underline">
                       Habla con tu junta vecinal
-                    </a>
+                    </Link>
                   </p>
                 </form>
               </div>
