@@ -68,9 +68,11 @@ export const TERMS_SECTIONS: TermsSection[] = [
 ]
 
 /**
- * Contenido legal con el look de la landing, pero con estilos autocontenidos
- * (Tailwind, sin depender de .landing-root) para poder vivir tanto en /terms
- * como en el Sheet del feed, que se renderiza en un portal fuera del landing.
+ * Renders the terms and conditions content with self-contained styling suitable for the landing page or a portal-mounted sheet.
+ *
+ * The component outputs the legal intro, a highlighted acceptance reminder with an icon, and the numbered terms sections sourced from `TERMS_INTRO` and `TERMS_SECTIONS`. Styles are applied via Tailwind classes so the component can be used both on the /terms route and in portal-based UI (e.g., a feed sheet) without depending on external layout wrappers.
+ *
+ * @returns A React element containing the fully styled terms content.
  */
 export function TermsContent() {
   return (

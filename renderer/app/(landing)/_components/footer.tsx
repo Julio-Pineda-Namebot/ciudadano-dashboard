@@ -12,6 +12,14 @@ const SOCIALS = [
   { label: 'linkedin', Logo: LinkedinIcon },
 ] as const;
 
+/**
+ * Render the site footer containing brand, social links, navigation columns, and legal/status controls.
+ *
+ * Renders the brand mark and description, social icon buttons (from `SOCIALS`), two link columns (from `COLUMNS`),
+ * and a bottom row with copyright, policy links, and an "Operativo" status indicator.
+ *
+ * @returns A JSX element containing the site footer.
+ */
 export function Footer() {
   return (
     <footer className="relative border-t border-white/5 bg-[#040611] pt-16 pb-10">

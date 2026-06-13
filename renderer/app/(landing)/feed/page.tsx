@@ -7,6 +7,13 @@ import { CitizenFeedClient } from './_components/CitizenFeedClient'
 const DEFAULT_LAT = -14.0681
 const DEFAULT_LON = -75.7286
 
+/**
+ * Server page that ensures an authenticated citizen profile, fetches nearby incidents for a default location, and renders the feed client.
+ *
+ * If no profile is found the request is redirected to `/login?reason=session_expired`.
+ *
+ * @returns A React element rendering `CitizenFeedClient` initialized with the fetched `profile`, `initialIncidents`, and the default center coordinates.
+ */
 export default async function FeedPage() {
   const profile = await fetchCitizenProfile()
   if (!profile) redirect('/login?reason=session_expired')

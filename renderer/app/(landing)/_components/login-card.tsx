@@ -11,6 +11,16 @@ type LoginCardProps = {
   sessionRevokedMessage?: string;
 };
 
+/**
+ * Render the login card UI for citizen authentication.
+ *
+ * Renders a two-panel card with a welcome panel and a form panel that accepts email and password,
+ * shows action-driven errors or an optional session-revoked message, and includes a password
+ * visibility toggle and submit button that reflects pending state.
+ *
+ * @param sessionRevokedMessage - Optional alert text to display when a previous session was revoked
+ * @returns The login card React element
+ */
 export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
   const [state, action, pending] = useActionState<CitizenLoginState, FormData>(loginCitizen, null);
   const [showPassword, setShowPassword] = useState(false);

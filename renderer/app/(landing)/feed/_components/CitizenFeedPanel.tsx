@@ -21,6 +21,16 @@ import { CitizenFeedReportForm } from './CitizenFeedReportForm'
 import { CitizenFeedRoutePlanner } from './CitizenFeedRoutePlanner'
 import { CitizenFeedUserMenu } from './CitizenFeedUserMenu'
 
+/**
+ * Render the citizen feed panel containing the interactive map, report form, route planner, and header menu.
+ *
+ * Manages incidents, map selection, routing state, user location, and refresh behavior; updates the incident list after successful reports or when recentering.
+ *
+ * @param initialIncidents - Initial list of nearby incidents to display on the map
+ * @param defaultCenter - Fallback map center `{ lat, lon }` used when no map center is available
+ * @param profile - Current user's profile passed to the header user menu
+ * @returns The feed panel UI as a JSX element
+ */
 export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: CitizenFeedPanelProps) {
   const mapHandleRef = useRef<CitizenFeedMapHandle | null>(null)
   const formRef = useRef<HTMLFormElement | null>(null)

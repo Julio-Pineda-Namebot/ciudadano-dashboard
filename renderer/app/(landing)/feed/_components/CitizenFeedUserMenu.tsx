@@ -10,6 +10,12 @@ type CitizenFeedUserMenuProps = {
   profile: CitizenProfile
 }
 
+/**
+ * Builds a display initial string for a citizen profile.
+ *
+ * @param profile - Citizen profile whose `firstName`, `lastName`, and `email` are used to derive initials
+ * @returns The uppercase initials from `firstName` and `lastName` (first characters concatenated). If both are empty, the uppercase first character of `email` is returned. If none are available, returns `'U'`.
+ */
 function getInitials(profile: CitizenProfile): string {
   const first = profile.firstName?.trim()?.[0] ?? ''
   const last = profile.lastName?.trim()?.[0] ?? ''
@@ -17,6 +23,15 @@ function getInitials(profile: CitizenProfile): string {
   return initials || profile.email?.[0]?.toUpperCase() || 'U'
 }
 
+/**
+ * Renders a user avatar button that toggles a popover menu with identity, navigation, and logout actions.
+ *
+ * Renders a circular button showing computed initials; when opened, the menu displays the user's name and email,
+ * a link to "Mis incidencias" that closes the menu on click, and a logout form that submits to `logoutCitizen`.
+ *
+ * @param profile - The citizen profile used to derive initials, display name, and email in the menu.
+ * @returns A JSX element containing the avatar button and its accessible popover menu.
+ */
 export function CitizenFeedUserMenu({ profile }: CitizenFeedUserMenuProps) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)

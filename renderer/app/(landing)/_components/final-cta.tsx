@@ -1,6 +1,13 @@
 import { ArrowRight } from 'lucide-react';
 import { AppleIcon, GoogleIcon } from './brand-icons';
 
+/**
+ * Renders the final call-to-action section for the landing page.
+ *
+ * Displays a centered, rounded panel with layered animated background accents, a multi-part headline and supporting description in Spanish, primary and secondary action links, and App Store / Google Play availability indicators.
+ *
+ * @returns The JSX element representing the call-to-action section.
+ */
 export function FinalCTA() {
   return (
     <section id="contact" className="relative py-16 sm:py-20 lg:py-28">

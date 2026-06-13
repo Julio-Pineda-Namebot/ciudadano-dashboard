@@ -15,6 +15,24 @@ interface CitizenFeedReportFormProps {
   resetSignal: number
 }
 
+/**
+ * Renders the "Reportar · Mi cuadra" incident report form and manages its local UI state.
+ *
+ * The form includes incident type selection, description, location (hidden latitude/longitude),
+ * an image/video uploader (required for all types except `robo`), a terms acceptance checkbox,
+ * and a submit button that is disabled until a location is selected and terms are accepted.
+ *
+ * @param formRef - Ref forwarded to the native `<form>` element.
+ * @param action - Submit handler used as the form `action`.
+ * @param pending - When true, disables submission and shows a pending label.
+ * @param selected - Currently chosen map point; its `lat`/`lon` populate hidden inputs and
+ *                   enable the submit button when present.
+ * @param onClearSelected - Callback invoked to clear the selected location.
+ * @param resetSignal - Incrementing signal from the parent used to clear component-local state
+ *                      (media preview, incident type, terms checkbox) after the parent performs
+ *                      a successful native form reset.
+ * @returns The rendered JSX for the report form.
+ */
 export function CitizenFeedReportForm({
   formRef,
   action,

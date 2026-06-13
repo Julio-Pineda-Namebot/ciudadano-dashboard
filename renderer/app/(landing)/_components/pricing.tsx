@@ -68,6 +68,13 @@ const PLANS: Plan[] = [
   },
 ];
 
+/**
+ * Render a feature list item that visually indicates whether the feature is enabled.
+ *
+ * @param enabled - Whether the feature is enabled; controls icon and visual styling
+ * @param children - The feature label to display
+ * @returns A list item (<li>) containing a status icon and the feature label; icon and styling reflect `enabled`
+ */
 function PriceFeature({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return (
     <li
@@ -87,6 +94,13 @@ function PriceFeature({ enabled, children }: { enabled: boolean; children: React
   );
 }
 
+/**
+ * Renders the pricing section containing the header and a responsive grid of plan cards.
+ *
+ * Each card displays the plan name, price, subtext, description, feature list, and a CTA; the most popular plan is visually highlighted.
+ *
+ * @returns The React element representing the complete pricing section.
+ */
 export function Pricing() {
   return (
     <section id="pricing" className="relative py-16 sm:py-20 lg:py-28">

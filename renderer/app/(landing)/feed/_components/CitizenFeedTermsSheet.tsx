@@ -11,6 +11,11 @@ import {
 } from '@/components/ui/sheet'
 import { TermsContent } from '@/app/(landing)/terms/TermsContent'
 
+/**
+ * Render a right-side slide-over sheet that presents the Terms and Conditions.
+ *
+ * The component provides an underlined trigger button labeled "términos y condiciones" (its click handler stops event propagation), and a sheet mounted with native scrolling enabled for portal contexts (sets `data-lenis-prevent` to avoid smooth-scroll interception). The sheet includes a sticky header with the title "Términos y Condiciones" and a close control, and it constrains its width responsively for mobile and desktop.
+ */
 export function CitizenFeedTermsSheet() {
   return (
     <Sheet>

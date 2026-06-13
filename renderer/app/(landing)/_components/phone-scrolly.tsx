@@ -4,6 +4,14 @@ import { useRef, useState } from "react";
 import { Check, Eye, Radio, Route, Shield, Siren, Zap, type LucideIcon } from "lucide-react";
 import { useScrollProgress } from "./scroll/use-element-progress";
 
+/**
+ * Render the "Paso 01" phone screen showing incident type options and a location card.
+ *
+ * Renders a header, a central siren icon, a 2-column grid of incident type tiles (icon, label, color),
+ * and a bottom location panel with a fixed address.
+ *
+ * @returns A JSX element containing the step 01 UI for the phone scrolly section.
+ */
 function PhoneScreen1() {
   const items: Array<[icon: LucideIcon, label: string, color: string]> = [
     [Siren, 'Robo', '#E04B5E'],
@@ -40,6 +48,15 @@ function PhoneScreen1() {
   );
 }
 
+/**
+ * Render the Step 02 phone screen showing an "Alerta enviada" state with nearby confirmations.
+ *
+ * Displays a centered alert icon and headline, a distance subtitle, and a stacked list of confirmation
+ * entries. Each entry shows a sender name, status message, colored avatar, and an icon badge with a
+ * staggered reveal animation.
+ *
+ * @returns The JSX element for the Step 02 phone screen UI
+ */
 function PhoneScreen2() {
   const confirms: Array<[name: string, msg: string, color: string, icon: LucideIcon]> = [
     ['Lucía M.', 'Confirmado · cerca', '#FFFFFF', Check],
@@ -79,6 +96,14 @@ function PhoneScreen2() {
   );
 }
 
+/**
+ * Render the Step 03 phone screen showing a safe-route preview and summary.
+ *
+ * Displays the "Paso 03" header, a centered route icon, a route graphic with an animated dashed path,
+ * a safety/duration summary ("+12% más seguro · 8 min"), and a bottom row with an avoidance note and estimated time.
+ *
+ * @returns A React element containing the Step 03 phone-screen UI.
+ */
 function PhoneScreen3() {
   return (
     <div className="absolute inset-0 flex flex-col px-5 pt-10">

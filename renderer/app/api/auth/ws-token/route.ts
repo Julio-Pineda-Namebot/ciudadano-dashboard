@@ -5,6 +5,13 @@ interface WsTicketBody {
   data: { ticket: string; expiresInSec: number }
 }
 
+/**
+ * Handle GET requests to obtain a WebSocket ticket for the current authenticated session.
+ *
+ * If there is no active session or the backend rejects authorization, responds with a 401 Unauthorized JSON.
+ *
+ * @returns A Response containing `{ token: string }` on success, or `{ error: 'Unauthorized' }` with status 401 when not authenticated.
+ */
 export async function GET() {
   const token = await getSession()
   if (!token) {

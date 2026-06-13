@@ -21,6 +21,14 @@ interface Props {
   searchParams: Promise<{ reason?: string }>
 }
 
+/**
+ * Render the login page or redirect authenticated users to the feed.
+ *
+ * This component checks for an existing authenticated profile and, if present, redirects to `/feed`. It reads an optional `reason` query parameter from `searchParams` to display a contextual session message; when the app is in "landing" mode it renders a compact landing `LoginCard`, otherwise it renders the full two-panel login layout with `LoginForm`.
+ *
+ * @param searchParams - A promise resolving to an object that may include `reason` (e.g., `{ reason?: string }`); used to determine whether to show a session-related message
+ * @returns The login page UI or a redirect to `/feed` when a valid session exists
+ */
 export default async function LoginPage({ searchParams }: Props) {
   // Si ya hay una sesión válida guardada, entrar directo al feed.
   // fetchCitizenProfile limpia la cookie si el token está vencido, evitando bucles.

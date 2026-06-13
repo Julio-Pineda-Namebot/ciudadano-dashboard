@@ -8,6 +8,11 @@ export const metadata = {
     'Términos legales para reportar incidencias, adjuntar imágenes y compartir contenido en Ciudadano.',
 }
 
+/**
+ * Render the Terms and Conditions page for Ciudadano, including a styled background, sticky header, introductory text, an attention notice, dynamic sections, and a footer.
+ *
+ * @returns The JSX element representing the complete Terms and Conditions page layout.
+ */
 export default function TermsPage() {
   return (
     <main className="relative min-h-screen text-white">

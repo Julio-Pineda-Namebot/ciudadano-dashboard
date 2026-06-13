@@ -40,6 +40,13 @@ const ITEMS = [
   },
 ];
 
+/**
+ * Renders the "Testimonials" section with a responsive grid of testimonial cards.
+ *
+ * Each card shows a quote, the author's avatar, name, role, and a five-star rating.
+ *
+ * @returns The JSX element for the testimonials section (`<section id="voices">`).
+ */
 export function Testimonials() {
   return (
     <section id="voices" className="relative py-16 sm:py-20 lg:py-28">

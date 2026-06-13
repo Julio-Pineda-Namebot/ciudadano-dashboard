@@ -1,3 +1,9 @@
+/**
+ * Renders a compact logo mark as an inline SVG.
+ *
+ * @param size - Width and height of the SVG in pixels (default: 28)
+ * @returns The SVG element representing the logo mark sized to `size`
+ */
 export function LogoMark({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden>

@@ -21,6 +21,20 @@ type CardProps = {
   children?: ReactNode;
 };
 
+/**
+ * Render a stylized feature card with an icon, title, description, and optional child content.
+ *
+ * The card updates the CSS custom properties `--mx` and `--my` on mouse movement to reflect the pointer
+ * position relative to the card element.
+ *
+ * @param icon - Lucide icon component to render inside the card's icon square
+ * @param title - Title text displayed as the card heading
+ * @param body - Short descriptive text shown under the title
+ * @param accent - Hex color used for the icon foreground and background tint (default: `#FFFFFF`)
+ * @param big - When true, apply larger padding to the card (default: `false`)
+ * @param children - Optional React nodes rendered below the description
+ * @returns The FeatureCard React element
+ */
 function FeatureCard({ icon: Icon, title, body, accent = '#FFFFFF', big = false, children }: CardProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const onMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -55,6 +69,15 @@ function FeatureCard({ icon: Icon, title, body, accent = '#FFFFFF', big = false,
   );
 }
 
+/**
+ * Render the landing page "Features" section with a responsive grid of feature cards.
+ *
+ * The section includes a header (chip, headline, and description) and a multi-column grid
+ * of predefined feature cards showcasing app capabilities (reporting, alerts, chat, routing,
+ * cameras, private communities, and security statistics).
+ *
+ * @returns The JSX element representing the features section of the landing page.
+ */
 export function Features() {
   return (
     <section id="features" className="relative mt-[20vh] py-16 sm:py-20 md:mt-[60vh] lg:mt-[100vh] lg:py-28">

@@ -48,6 +48,12 @@ type NavbarProps = {
   isAuthenticated?: boolean;
 };
 
+/**
+ * Renders the top navigation bar with a toggleable full-screen menu sheet and a per-section preview.
+ *
+ * @param isAuthenticated - When `true`, the sheet's primary CTA links to `/feed` with label "Volver a mi feed"; otherwise it links to `/login` with label "Iniciar sesión". Defaults to `false`.
+ * @returns The navbar JSX element containing the header, backdrop preview panel, and accessible menu sheet.
+ */
 export function Navbar({ isAuthenticated = false }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);

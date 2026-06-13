@@ -22,12 +22,26 @@ const ALLOWED_UPLOAD_TYPES = [
 ] as const
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024 // 25 MB (imágenes + video)
 
+/**
+ * Return HTTP Authorization headers for the current session.
+ *
+ * If there is no active session token, redirects to `/login?reason=session_expired`.
+ *
+ * @returns An object with the `Authorization` header set to `Bearer <token>`
+ */
 async function bearerHeaders(): Promise<Record<string, string>> {
   const token = await getSession()
   if (!token) redirect('/login?reason=session_expired')
   return { Authorization: `Bearer ${token}` }
 }
 
+/**
+ * Fetches incidents near the specified coordinates.
+ *
+ * If the server responds with 401 (session expired), performs a redirect to /login?reason=session_expired.
+ *
+ * @returns An array of incidents located near the given coordinates; returns an empty array if the request fails.
+ */
 export async function getNearbyIncidents(lat: number, lon: number): Promise<NearbyIncident[]> {
   try {
     const res = await get<NearbyApiResponse>(
@@ -44,6 +58,13 @@ export async function getNearbyIncidents(lat: number, lon: number): Promise<Near
   }
 }
 
+/**
+ * Fetches incidents reported by the currently authenticated user.
+ *
+ * If the session is expired the user is redirected to /login?reason=session_expired.
+ *
+ * @returns The user's incidents as an array; returns an empty array when the request fails or the session has expired.
+ */
 export async function getMyIncidents(): Promise<NearbyIncident[]> {
   try {
     const res = await get<NearbyApiResponse>('/incidents/mine', {
@@ -59,6 +80,12 @@ export async function getMyIncidents(): Promise<NearbyIncident[]> {
   }
 }
 
+/**
+ * Delete the current user's incident identified by `id`.
+ *
+ * @param id - The incident identifier to delete
+ * @returns `{ ok: true }` if the incident was deleted, `{ error: string }` with a user-facing message otherwise
+ */
 export async function deleteMyIncident(id: string): Promise<{ ok: true } | { error: string }> {
   try {
     await del(`/incidents/unreport/${encodeURIComponent(id)}`, {
@@ -76,6 +103,22 @@ export async function deleteMyIncident(id: string): Promise<{ ok: true } | { err
   }
 }
 
+/**
+ * Validate form input, optionally attach media, and submit a new incident report to the API.
+ *
+ * Accepts a FormData containing the fields `incident_type`, `description`, `latitude`, `longitude`, and optionally `multimedia`.
+ * Validates incident type, description length (10–191 chars), coordinate presence, and media requirements/constraints:
+ * - media is required for `accidente` and `vandalismo` but optional for `robo`
+ * - allowed MIME types are limited and maximum size is 25 MB
+ *
+ * @param _prevState - Previous UI/form state (not used by the server action)
+ * @param formData - FormData with keys:
+ *   - `incident_type`: one of the allowed incident types
+ *   - `description`: textual description of the incident
+ *   - `latitude` / `longitude`: coordinates selected on the map
+ *   - `multimedia` (optional): File containing photo/video evidence
+ * @returns A ReportIncidentState object: on success `{ ok: true, message: string }`, on validation or server error `{ error: string }`.
+ */
 export async function reportIncident(
   _prevState: ReportIncidentState,
   formData: FormData

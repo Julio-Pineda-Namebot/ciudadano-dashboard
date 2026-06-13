@@ -9,6 +9,14 @@ interface CitizenFeedModeTabsProps {
   onRecenter: () => void
 }
 
+/**
+ * Render map interaction mode tabs alongside a recenter button.
+ *
+ * @param mode - Current selected mode: 'view', 'report', or 'route'
+ * @param onChangeMode - Callback called with the newly selected mode when a tab is clicked
+ * @param onRecenter - Callback called when the recenter button is clicked
+ * @returns The rendered JSX element containing the mode tabs and recenter control
+ */
 export function CitizenFeedModeTabs({ mode, onChangeMode, onRecenter }: CitizenFeedModeTabsProps) {
   return (
     <div className="absolute left-3 top-3 z-10 flex items-center gap-2 sm:left-4 sm:top-4">

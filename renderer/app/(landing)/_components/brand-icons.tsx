@@ -9,6 +9,15 @@ type BrandIconProps = {
   style?: CSSProperties;
 };
 
+/**
+ * Renders a standardized SVG wrapper for brand icons.
+ *
+ * @param size - Width and height of the SVG in pixels (default: 20)
+ * @param className - Optional CSS class applied to the SVG element
+ * @param style - Optional inline styles applied to the SVG element
+ * @param children - SVG elements (paths, shapes) that compose the brand mark
+ * @returns The rendered `<svg>` element containing the provided children
+ */
 function BrandSvg({
   size = 20,
   className,
@@ -34,6 +43,11 @@ function BrandSvg({
   );
 }
 
+/**
+ * Renders the Apple brand icon as an inline SVG.
+ *
+ * @returns An SVG JSX element displaying the Apple logo. `props.size` controls the SVG width and height; `props.className` and `props.style` are applied to the root SVG.
+ */
 export function AppleIcon(props: BrandIconProps) {
   return (
     <BrandSvg {...props}>
@@ -42,6 +56,12 @@ export function AppleIcon(props: BrandIconProps) {
   );
 }
 
+/**
+ * Render the Google brand mark as an inline SVG icon.
+ *
+ * @param props - Icon properties; `size` sets the SVG width and height in pixels, `className` is applied to the SVG element, and `style` is passed to the SVG's `style`.
+ * @returns A JSX element containing the Google logo rendered as an inline SVG.
+ */
 export function GoogleIcon(props: BrandIconProps) {
   return (
     <BrandSvg {...props}>
@@ -50,6 +70,11 @@ export function GoogleIcon(props: BrandIconProps) {
   );
 }
 
+/**
+ * Renders the Twitter brand mark as an inline SVG.
+ *
+ * @returns A JSX element containing the Twitter logo, sized and styled according to the provided `BrandIconProps`.
+ */
 export function TwitterIcon(props: BrandIconProps) {
   return (
     <BrandSvg {...props}>
@@ -58,6 +83,12 @@ export function TwitterIcon(props: BrandIconProps) {
   );
 }
 
+/**
+ * Renders the Instagram brand icon as an inline SVG.
+ *
+ * @param props - Props to customize the icon's size, CSS class, and inline style.
+ * @returns An SVG element representing the Instagram logo (scalable, uses currentColor for strokes/fills).
+ */
 export function InstagramIcon(props: BrandIconProps) {
   return (
     <BrandSvg {...props}>
@@ -68,6 +99,12 @@ export function InstagramIcon(props: BrandIconProps) {
   );
 }
 
+/**
+ * Renders the LinkedIn brand icon as an inline SVG.
+ *
+ * @param props - BrandIconProps to customize the icon's `size`, `className`, and `style`.
+ * @returns An SVG element representing the LinkedIn brand mark.
+ */
 export function LinkedinIcon(props: BrandIconProps) {
   return (
     <BrandSvg {...props}>

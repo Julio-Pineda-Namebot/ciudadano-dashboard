@@ -19,16 +19,37 @@ const dateFormatter = new Intl.DateTimeFormat('es-PE', {
   minute: '2-digit',
 })
 
+/**
+ * Formats an ISO 8601 timestamp into a localized Spanish (Peru) date and time string.
+ *
+ * @param iso - An ISO 8601 date/time string to format
+ * @returns The formatted date/time string, or an empty string if `iso` is not a valid date
+ */
 function formatDate(iso: string): string {
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return ''
   return dateFormatter.format(date)
 }
 
+/**
+ * Detects whether a media URL points to a supported video file.
+ *
+ * @param url - The media URL to test
+ * @returns `true` if the URL ends with `mp4`, `mov`, `webm`, or `m4v` (case-insensitive), allowing an optional trailing query string; `false` otherwise.
+ */
 function isVideo(url: string): boolean {
   return /\.(mp4|mov|webm|m4v)(\?|$)/i.test(url)
 }
 
+/**
+ * Render a panel that lists the current user's reported incidents and allows deleting them.
+ *
+ * The component displays each incident's media, type, timestamp, and description; shows an empty-state
+ * card when there are no incidents; and provides an in-place delete flow with confirmation and error feedback.
+ *
+ * @param initialIncidents - Initial incidents to display; the component maintains and updates its own local list when items are deleted.
+ * @returns The panel UI as a JSX element.
+ */
 export function MyIncidentsPanel({ initialIncidents }: MyIncidentsPanelProps) {
   const [incidents, setIncidents] = useState<NearbyIncident[]>(initialIncidents)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)

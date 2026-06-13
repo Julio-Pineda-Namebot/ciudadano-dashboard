@@ -12,6 +12,13 @@ import { FinalCTA } from './_components/final-cta';
 import { Footer } from './_components/footer';
 import { ScrollProgress, SectionMarker } from './_components/section-marker';
 
+/**
+ * Render the server-side landing page and redirect to /login if NEXT_PUBLIC_APP_MODE is not 'landing'.
+ *
+ * Renders site chrome, landing sections, footer, and scroll-related UI; passes the presence of an authenticated session to the Navbar.
+ *
+ * @returns The landing page JSX element composed of scroll helpers, Navbar (with authentication state), the main landing sections, Footer, and a SectionMarker.
+ */
 export default async function LandingPage() {
   if (process.env.NEXT_PUBLIC_APP_MODE !== 'landing') {
     redirect('/login');

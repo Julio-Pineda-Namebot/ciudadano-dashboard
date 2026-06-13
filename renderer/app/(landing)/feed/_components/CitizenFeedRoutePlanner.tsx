@@ -21,6 +21,21 @@ interface CitizenFeedRoutePlannerProps {
   onClearAll: () => void
 }
 
+/**
+ * Render the route-planning UI that lets a user set origin and destination, view and select route options, and trigger route calculations.
+ *
+ * @param origin - The selected start coordinates, or `null` when not set
+ * @param destination - The selected destination coordinates, or `null` when not set
+ * @param route - The computed route data including options and the currently selected option, or `null` when none
+ * @param routeError - An error message to display related to route calculation, or `null` when there is no error
+ * @param calculating - Whether a route calculation is currently in progress
+ * @param onSelectRoute - Callback invoked with a route option id when the user selects a route option
+ * @param onClearOrigin - Callback invoked when the user clears the origin
+ * @param onClearDestination - Callback invoked when the user clears the destination
+ * @param onCalculate - Callback invoked when the user requests route calculation
+ * @param onClearAll - Callback invoked when the user clears origin, destination, and route
+ * @returns The rendered JSX element for the citizen route planner UI
+ */
 export function CitizenFeedRoutePlanner({
   origin,
   destination,
