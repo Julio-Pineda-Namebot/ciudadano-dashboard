@@ -1,15 +1,26 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, MapPin, Trash2 } from 'lucide-react'
-import { deleteMyIncident } from '@/app/(landing)/feed/actions'
+import { ArrowRight, MapPin } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { TYPE_COLOR, TYPE_LABEL } from '@/app/(landing)/feed/constants'
 import type { NearbyIncident } from '@/app/(landing)/feed/_types/types'
 
 type MyIncidentsPanelProps = {
-  initialIncidents: NearbyIncident[]
+  incidents: NearbyIncident[]
 }
+
+const PAGE_SIZE = 50
 
 const dateFormatter = new Intl.DateTimeFormat('es-PE', {
   day: '2-digit',
@@ -29,26 +40,37 @@ function isVideo(url: string): boolean {
   return /\.(mp4|mov|webm|m4v)(\?|$)/i.test(url)
 }
 
-export function MyIncidentsPanel({ initialIncidents }: MyIncidentsPanelProps) {
-  const [incidents, setIncidents] = useState<NearbyIncident[]>(initialIncidents)
-  const [confirmingId, setConfirmingId] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [pendingId, setPendingId] = useState<string | null>(null)
-  const [, startTransition] = useTransition()
+// Construye los números de página a mostrar, con elipsis cuando hay muchas.
+function getPageItems(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
 
-  const handleDelete = (id: string) => {
-    setErrorMessage(null)
-    setPendingId(id)
-    startTransition(async () => {
-      const result = await deleteMyIncident(id)
-      if ('ok' in result) {
-        setIncidents((prev) => prev.filter((incident) => incident.id !== id))
-        setConfirmingId(null)
-      } else {
-        setErrorMessage(result.error)
-      }
-      setPendingId(null)
-    })
+  const items: (number | 'ellipsis')[] = [1]
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
+
+  if (start > 2) items.push('ellipsis')
+  for (let i = start; i <= end; i++) items.push(i)
+  if (end < total - 1) items.push('ellipsis')
+
+  items.push(total)
+  return items
+}
+
+export function MyIncidentsPanel({ incidents }: MyIncidentsPanelProps) {
+  const [page, setPage] = useState(1)
+
+  const totalPages = Math.max(1, Math.ceil(incidents.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+
+  const pageItems = useMemo(
+    () => incidents.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [incidents, currentPage]
+  )
+
+  const goToPage = (next: number) => {
+    const clamped = Math.min(Math.max(1, next), totalPages)
+    setPage(clamped)
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
@@ -84,12 +106,6 @@ export function MyIncidentsPanel({ initialIncidents }: MyIncidentsPanelProps) {
           </span>
         </header>
 
-        {errorMessage && (
-          <div className="mt-5 rounded-lg border border-[#E04B5E]/30 bg-[#E04B5E]/10 px-3 py-2 text-[12.5px] text-[#FF8A99]">
-            {errorMessage}
-          </div>
-        )}
-
         {incidents.length === 0 ? (
           <div className="mt-10 flex flex-col items-center gap-3 rounded-2xl border border-white/8 bg-white/2 px-6 py-14 text-center">
             <span className="grid h-12 w-12 place-items-center rounded-full bg-white/6 text-white/50">
@@ -104,11 +120,9 @@ export function MyIncidentsPanel({ initialIncidents }: MyIncidentsPanelProps) {
             </Link>
           </div>
         ) : (
-          <ul className="mt-6 flex flex-col gap-4">
-            {incidents.map((incident) => {
-              const confirming = confirmingId === incident.id
-              const busy = pendingId === incident.id
-              return (
+          <>
+            <ul className="mt-6 flex flex-col gap-4">
+              {pageItems.map((incident) => (
                 <li
                   key={incident.id}
                   className="flex gap-4 rounded-2xl border border-white/8 bg-white/2 p-4 backdrop-blur-sm"
@@ -151,47 +165,67 @@ export function MyIncidentsPanel({ initialIncidents }: MyIncidentsPanelProps) {
                     <p className="text-[13.5px] leading-relaxed text-white/80">
                       {incident.description}
                     </p>
-
-                    <div className="mt-1.5">
-                      {confirming ? (
-                        <div className="flex items-center gap-2 text-[12.5px]">
-                          <span className="text-white/55">¿Eliminar este reporte?</span>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(incident.id)}
-                            disabled={busy}
-                            className="rounded-md bg-[#E04B5E] px-2.5 py-1 font-medium text-white transition hover:bg-[#c93f50] disabled:opacity-60"
-                          >
-                            {busy ? 'Eliminando…' : 'Sí, eliminar'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmingId(null)}
-                            disabled={busy}
-                            className="rounded-md border border-white/15 px-2.5 py-1 text-white/70 transition hover:bg-white/8 disabled:opacity-60"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setErrorMessage(null)
-                            setConfirmingId(incident.id)
-                          }}
-                          className="inline-flex items-center gap-1.5 text-[12.5px] text-white/50 transition hover:text-[#FF8A99]"
-                        >
-                          <Trash2 size={14} />
-                          Eliminar
-                        </button>
-                      )}
-                    </div>
                   </div>
                 </li>
-              )
-            })}
-          </ul>
+              ))}
+            </ul>
+
+            {totalPages > 1 && (
+              <Pagination className="mt-8">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      text="Anterior"
+                      aria-disabled={currentPage === 1}
+                      className={cn(
+                        'text-white/70 hover:bg-white/10 hover:text-white',
+                        currentPage === 1
+                          ? 'pointer-events-none opacity-40'
+                          : 'cursor-pointer'
+                      )}
+                      onClick={() => goToPage(currentPage - 1)}
+                    />
+                  </PaginationItem>
+
+                  {getPageItems(currentPage, totalPages).map((item, i) =>
+                    item === 'ellipsis' ? (
+                      <PaginationItem key={`ellipsis-${i}`}>
+                        <PaginationEllipsis className="text-white/50" />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={item}>
+                        <PaginationLink
+                          isActive={item === currentPage}
+                          className={cn(
+                            'cursor-pointer text-white/60 hover:bg-white/10 hover:text-white',
+                            item === currentPage &&
+                              'border-white/40 bg-white/15 text-white hover:bg-white/15 hover:text-white'
+                          )}
+                          onClick={() => goToPage(item)}
+                        >
+                          {item}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      text="Siguiente"
+                      aria-disabled={currentPage === totalPages}
+                      className={cn(
+                        'text-white/70 hover:bg-white/10 hover:text-white',
+                        currentPage === totalPages
+                          ? 'pointer-events-none opacity-40'
+                          : 'cursor-pointer'
+                      )}
+                      onClick={() => goToPage(currentPage + 1)}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </>
         )}
       </div>
     </main>

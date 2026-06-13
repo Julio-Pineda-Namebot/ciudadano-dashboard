@@ -239,13 +239,13 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
         />
 
         {mode === 'report' && !selected && (
-          <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-full border border-white/10 bg-black/70 px-4 py-1.5 text-center text-[10.5px] uppercase tracking-[0.25em] text-white/70 backdrop-blur-sm sm:top-4 sm:text-[11px]">
+          <div className="pointer-events-none absolute left-1/2 top-16 z-10 -translate-x-1/2 rounded-full border border-white/10 bg-black/70 px-4 py-1.5 text-center text-[10.5px] uppercase tracking-[0.25em] text-white/70 backdrop-blur-sm sm:top-4 sm:text-[11px]">
             Toca el mapa para marcar
           </div>
         )}
 
         {mode === 'route' && (!origin || !destination) && (
-          <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-full border border-white/10 bg-black/70 px-4 py-1.5 text-center text-[10.5px] uppercase tracking-[0.25em] text-white/70 backdrop-blur-sm sm:top-4 sm:text-[11px]">
+          <div className="pointer-events-none absolute left-1/2 top-16 z-10 -translate-x-1/2 rounded-full border border-white/10 bg-black/70 px-4 py-1.5 text-center text-[10.5px] uppercase tracking-[0.25em] text-white/70 backdrop-blur-sm sm:top-4 sm:text-[11px]">
             {!origin ? 'Toca el mapa para fijar el origen' : 'Toca el mapa para fijar el destino'}
           </div>
         )}

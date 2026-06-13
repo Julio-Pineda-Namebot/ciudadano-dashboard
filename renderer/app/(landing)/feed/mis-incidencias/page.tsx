@@ -9,5 +9,5 @@ export default async function MyIncidentsPage() {
 
   const incidents = await getMyIncidents()
 
-  return <MyIncidentsPanel initialIncidents={incidents} />
+  return <MyIncidentsPanel incidents={incidents} />
 }

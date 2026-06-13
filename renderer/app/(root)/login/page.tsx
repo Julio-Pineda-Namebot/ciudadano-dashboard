@@ -2,7 +2,7 @@ import { Poppins, JetBrains_Mono } from 'next/font/google'
 import { redirect } from 'next/navigation'
 import { fetchCitizenProfile } from '@/app/auth-citizen'
 import { LoginForm } from "@/app/(root)/login/_components/login-form"
-import { LoginCard } from "@/app/(landing)/_components/login-card"
+import { LoginCard } from "@/app/(root)/login/_components/login-card"
 import "@/app/(landing)/landing.css"
 
 const poppins = Poppins({

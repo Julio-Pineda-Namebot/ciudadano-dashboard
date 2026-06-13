@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { loginCitizen } from '@/app/auth-citizen';
 import type { CitizenLoginState } from '@/app/auth-citizen-types';
 import { ArrowRight, Eye, Lock, MessageSquare } from 'lucide-react';
-import { LogoMark } from './icons';
+import { LogoMark } from '@/app/(landing)/_components/icons';
 
 type LoginCardProps = {
   sessionRevokedMessage?: string;
