@@ -2,8 +2,8 @@ const { app, BrowserWindow, Menu, MenuItem, nativeTheme, session, dialog, system
 const path = require('path');
 const os = require('os');
 
-const { updateElectronApp } = require('update-electron-app');
-updateElectronApp();
+const { setupUpdates } = require('./updater');
+setupUpdates();
 
 nativeTheme.themeSource = 'dark';
 
