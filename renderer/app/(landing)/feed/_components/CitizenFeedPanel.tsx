@@ -19,6 +19,7 @@ import { CitizenFeedMap, type CitizenFeedMapHandle } from './CitizenFeedMap'
 import { CitizenFeedModeTabs } from './CitizenFeedModeTabs'
 import { CitizenFeedReportForm } from './CitizenFeedReportForm'
 import { CitizenFeedRoutePlanner } from './CitizenFeedRoutePlanner'
+import { CitizenFeedSearch } from './CitizenFeedSearch'
 import { CitizenFeedUserMenu } from './CitizenFeedUserMenu'
 
 export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: CitizenFeedPanelProps) {
@@ -137,6 +138,18 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
     if (mode === 'report') setSelected(p)
   }
 
+  // Resultado del buscador: centra el mapa y, según el modo, fija el punto
+  // correspondiente reutilizando los mismos handlers del click en el mapa.
+  const handleSearchPick = (p: RoutePoint) => {
+    mapHandleRef.current?.flyTo(p.lat, p.lon, 16)
+    if (mode === 'report') {
+      setSelected(p)
+    } else if (mode === 'route') {
+      if (!origin) handleSetOrigin(p)
+      else handleSetDestination(p)
+    }
+  }
+
   const selectedRoute = route?.options.find((o) => o.id === route.selectedId)
   const footerLeft =
     mode === 'route'
@@ -237,6 +250,8 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
           onChangeMode={handleChangeMode}
           onRecenter={handleRecenter}
         />
+
+        <CitizenFeedSearch onPick={handleSearchPick} />
 
         {mode === 'report' && !selected && (
           <div className="pointer-events-none absolute left-1/2 top-16 z-10 -translate-x-1/2 rounded-full border border-white/10 bg-black/70 px-4 py-1.5 text-center text-[10.5px] uppercase tracking-[0.25em] text-white/70 backdrop-blur-sm sm:top-4 sm:text-[11px]">
