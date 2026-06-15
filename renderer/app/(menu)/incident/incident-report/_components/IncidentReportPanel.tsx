@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Filter } from '@/components/common/form/filter'
 import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
@@ -9,9 +9,11 @@ import { IncidentReportFormModal } from '@/app/(menu)/incident/incident-report/_
 import { IncidentReportDeleteDialog } from '@/app/(menu)/incident/incident-report/_components/IncidentReportDeleteDialog'
 import { IncidentReportViewModal } from '@/app/(menu)/incident/incident-report/_components/IncidentReportViewModal'
 import {
+  getIncidentReports,
   updateIncidentReport,
   deleteIncidentReport,
 } from '@/app/(menu)/incident/incident-report/actions'
+import { INCIDENTS_CHANGED_EVENT } from '@/app/(menu)/_components/notificationsTypes'
 import { filterSchema } from '@/app/(menu)/incident/incident-report/_types/types'
 import type { IncidentReport, IncidentReportUpdateData, IncidentReportPanelProps, FilterValues } from '@/app/(menu)/incident/incident-report/_types/types'
 
@@ -21,6 +23,16 @@ export function IncidentReportPanel({ initialReports }: IncidentReportPanelProps
   const [editTarget, setEditTarget] = useState<IncidentReport | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<IncidentReport | null>(null)
   const { dateRange, onApply, filteredData } = useDateRangeFilter(reports, 'createdAt')
+
+  // Tiempo real: refresca la grilla cuando llega una incidencia nueva, cambia
+  // un estado o se registra una validación (eventos del SocketProvider admin).
+  useEffect(() => {
+    const onChanged = () => {
+      getIncidentReports().then(setReports)
+    }
+    window.addEventListener(INCIDENTS_CHANGED_EVENT, onChanged)
+    return () => window.removeEventListener(INCIDENTS_CHANGED_EVENT, onChanged)
+  }, [])
 
   function closeForm() {
     setEditTarget(null)

@@ -5,11 +5,21 @@ import { io, type Socket } from 'socket.io-client'
 import { toast } from 'sonner'
 import { revokeSession } from '@/app/auth'
 import { logger } from '@/lib/logger'
-import { ADMIN_NOTIFICATIONS_EVENT } from '@/app/(menu)/_components/notificationsTypes'
+import { useAuth } from '@/app/(menu)/_components/AuthProvider'
+import {
+  ADMIN_NOTIFICATIONS_EVENT,
+  INCIDENTS_CHANGED_EVENT,
+} from '@/app/(menu)/_components/notificationsTypes'
 
 function notifyBellRefresh() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event(ADMIN_NOTIFICATIONS_EVENT))
+  }
+}
+
+function notifyGridRefresh() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(INCIDENTS_CHANGED_EVENT))
   }
 }
 
@@ -65,6 +75,9 @@ function reasonToParam(reason: RevokedReason | string | undefined): string {
 export function SocketProvider({ children }: { children: React.ReactNode }) {
   const socketRef = useRef<Socket | null>(null)
   const revokedRef = useRef(false)
+  const profile = useAuth()
+  const adminIdRef = useRef(profile.id)
+  adminIdRef.current = profile.id
 
   useEffect(() => {
     let cancelled = false
@@ -110,16 +123,39 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
             description: type ? INCIDENT_TYPE_LABEL[type] ?? type : undefined,
           })
           notifyBellRefresh()
+          notifyGridRefresh()
         }
       )
 
       socket.on(
         'incident:status-changed',
-        (payload: { status?: string }) => {
-          const status = payload?.status
-          toast('Estado de incidencia actualizado', {
-            description: status
-              ? INCIDENT_STATUS_LABEL[status] ?? status
+        (payload: { status?: string; actorAdminId?: string | null }) => {
+          // No mostrar toast al admin que originó el cambio (ya vio su propio
+          // mensaje de éxito); el resto sí recibe la notificación en vivo.
+          if (payload?.actorAdminId !== adminIdRef.current) {
+            const status = payload?.status
+            toast.info('Estado de incidencia actualizado', {
+              description: status
+                ? INCIDENT_STATUS_LABEL[status] ?? status
+                : undefined,
+            })
+          }
+          notifyBellRefresh()
+          notifyGridRefresh()
+        }
+      )
+
+      socket.on('incident:vote-changed', () => {
+        // Solo refresca la grilla/validación; no genera toast (sería ruidoso).
+        notifyGridRefresh()
+      })
+
+      socket.on(
+        'alert:dispatched',
+        (payload: { userName?: string }) => {
+          toast.error('🚨 Alerta de pánico', {
+            description: payload?.userName
+              ? `${payload.userName} activó una alerta de emergencia`
               : undefined,
           })
           notifyBellRefresh()

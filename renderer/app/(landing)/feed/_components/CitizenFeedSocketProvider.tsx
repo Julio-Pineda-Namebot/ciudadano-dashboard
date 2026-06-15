@@ -101,6 +101,11 @@ export function CitizenFeedSocketProvider({
         onIncomingRef.current?.()
       })
 
+      socket.on('notification:vote', (payload: { title?: string }) => {
+        toast.info(payload?.title ?? 'Validaron tu reporte')
+        onIncomingRef.current?.()
+      })
+
       socket.on('notification:status', (payload: StatusPayload) => {
         if (payload?.status === 'verificado') {
           toast.success(
