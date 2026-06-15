@@ -10,6 +10,7 @@ import {
   Trash2Icon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -94,7 +95,7 @@ function buildItems(notifications: AdminNotification[]): BellItem[] {
   )
 }
 
-export function AppNotificationsBell() {
+export function AppNotificationsBell({ compact = false }: { compact?: boolean }) {
   const router = useRouter()
   const [notifications, setNotifications] = useState<AdminNotification[]>([])
 
@@ -132,12 +133,27 @@ export function AppNotificationsBell() {
   return (
     <DropdownMenu onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-9 w-9" data-tour="header-bell">
-          <BellIcon className="size-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn('relative', compact ? 'size-7' : 'h-9 w-9')}
+          data-tour="header-bell"
+        >
+          <BellIcon className={compact ? 'size-3.5' : 'size-4'} />
           {unread > 0 && (
-            <span className="absolute right-1.5 top-1.5 flex size-2">
+            <span
+              className={cn(
+                'absolute flex',
+                compact ? 'right-1 top-1 size-1.5' : 'right-1.5 top-1.5 size-2'
+              )}
+            >
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-              <span className="relative inline-flex size-2 rounded-full bg-red-500" />
+              <span
+                className={cn(
+                  'relative inline-flex rounded-full bg-red-500',
+                  compact ? 'size-1.5' : 'size-2'
+                )}
+              />
             </span>
           )}
         </Button>
