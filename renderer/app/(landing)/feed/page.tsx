@@ -7,9 +7,23 @@ import { CitizenFeedClient } from './_components/CitizenFeedClient'
 const DEFAULT_LAT = -14.0681
 const DEFAULT_LON = -75.7286
 
-export default async function FeedPage() {
+interface Props {
+  searchParams: Promise<{ incident?: string }>
+}
+
+export default async function FeedPage({ searchParams }: Props) {
+  const { incident } = await searchParams
+
   const profile = await fetchCitizenProfile()
-  if (!profile) redirect('/login?reason=session_expired')
+  if (!profile) {
+    // Visitante no autenticado (p. ej. abrió un enlace compartido): se le envía
+    // a login sin el mensaje de "sesión expiró"; conserva el incidente para
+    // volver a él tras iniciar sesión.
+    const next = incident
+      ? `/feed?incident=${encodeURIComponent(incident)}`
+      : '/feed'
+    redirect(`/login?next=${encodeURIComponent(next)}`)
+  }
 
   const initialIncidents = await getNearbyIncidents(DEFAULT_LAT, DEFAULT_LON)
 

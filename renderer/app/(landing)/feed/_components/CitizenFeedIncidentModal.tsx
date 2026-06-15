@@ -153,9 +153,15 @@ export function CitizenFeedIncidentModal({
             <span>Cargando…</span>
           </div>
         ) : (
-          <div className="flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-2 md:grid-rows-1 md:overflow-hidden">
+          <div
+            data-lenis-prevent
+            className="flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-2 md:grid-rows-1 md:overflow-hidden"
+          >
             {/* Columna izquierda: detalle */}
-            <div className="min-w-0 px-6 py-4 md:min-h-0 md:overflow-y-auto md:border-r md:border-white/10">
+            <div
+              data-lenis-prevent
+              className="min-w-0 px-6 py-4 md:min-h-0 md:overflow-y-auto md:border-r md:border-white/10"
+            >
               {detail.multimediaUrl && (
                 <div className="mb-4 overflow-hidden rounded-lg border border-white/10 bg-black/40">
                   {isVideo ? (
@@ -260,7 +266,10 @@ export function CitizenFeedIncidentModal({
                 Comentarios ({comments.length})
               </h3>
 
-              <div className="mt-2 flex flex-col gap-2 md:min-h-0 md:flex-1 md:overflow-y-auto">
+              <div
+                data-lenis-prevent
+                className="mt-2 flex flex-col gap-2 md:min-h-0 md:flex-1 md:overflow-y-auto"
+              >
                 {comments.length === 0 && (
                   <p className="text-xs text-white/40">Aún no hay comentarios. Sé el primero.</p>
                 )}
@@ -277,24 +286,27 @@ export function CitizenFeedIncidentModal({
                 ))}
               </div>
 
-              <div className="mt-3 flex shrink-0 flex-col gap-2">
+              <div className="mt-3 flex shrink-0 flex-col gap-2.5 border-t border-white/8 pt-3">
                 <textarea
                   value={commentBody}
                   onChange={(e) => setCommentBody(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleComment()
+                  }}
                   maxLength={191}
                   rows={2}
                   placeholder="Escribe un comentario…"
-                  className="w-full resize-none rounded-lg border border-white/12 bg-white/3 px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-white/25 focus:outline-none"
+                  className="w-full resize-none rounded-xl border border-white/12 bg-white/4 px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 transition focus:border-[#D9A55E]/50 focus:bg-white/6 focus:outline-none focus:ring-2 focus:ring-[#D9A55E]/20"
                 />
-                <Button
+                <button
                   type="button"
                   disabled={commenting || commentBody.trim().length === 0}
                   onClick={handleComment}
-                  className="self-end bg-[#D9A55E] text-black hover:bg-[#D9A55E]/90"
+                  className="inline-flex items-center justify-center gap-2 self-end rounded-xl bg-linear-to-b from-[#E4B978] to-[#D9A55E] px-5 py-2.5 text-sm font-semibold text-[#1a1205] shadow-[0_10px_28px_-12px_rgba(217,165,94,0.7)] transition hover:from-[#EAC288] hover:to-[#DEAC68] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
                 >
                   {commenting ? <Spinner /> : <MessageCircle className="size-4" />}
                   Comentar
-                </Button>
+                </button>
               </div>
             </div>
           </div>

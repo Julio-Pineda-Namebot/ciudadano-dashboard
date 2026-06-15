@@ -1,7 +1,14 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { BellIcon, MapPinIcon, ShieldCheckIcon, Trash2Icon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import {
+  BellIcon,
+  MapPinIcon,
+  ShieldCheckIcon,
+  SirenIcon,
+  Trash2Icon,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -20,7 +27,20 @@ import {
   type AdminNotification,
 } from '@/app/(menu)/_components/notificationsTypes'
 
+const INCIDENT_REPORTED_TYPE = 'admin_incident_reported'
+
+interface BellItem {
+  key: string
+  ids: string[]
+  icon: typeof BellIcon
+  title: string
+  body: string | null
+  createdAt: string
+  href?: string
+}
+
 function iconFor(type: string) {
+  if (type.includes('alert')) return SirenIcon
   if (type.includes('status')) return ShieldCheckIcon
   return MapPinIcon
 }
@@ -36,7 +56,46 @@ function formatTime(iso: string): string {
   })
 }
 
+// Agrupa las "nuevas incidencias" en un solo ítem ("N incidencias nuevas");
+// el resto se muestra individualmente.
+function buildItems(notifications: AdminNotification[]): BellItem[] {
+  const reported = notifications.filter((n) => n.type === INCIDENT_REPORTED_TYPE)
+  const rest = notifications.filter((n) => n.type !== INCIDENT_REPORTED_TYPE)
+
+  const items: BellItem[] = rest.map((n) => ({
+    key: n.id,
+    ids: [n.id],
+    icon: iconFor(n.type),
+    title: n.title,
+    body: n.body,
+    createdAt: n.createdAt,
+    href: undefined,
+  }))
+
+  if (reported.length > 0) {
+    const count = reported.length
+    items.push({
+      key: 'group-incidents',
+      ids: reported.map((n) => n.id),
+      icon: MapPinIcon,
+      title:
+        count === 1
+          ? '1 incidencia nueva reportada'
+          : `${count} incidencias nuevas reportadas`,
+      body: 'Toca para ver los reportes',
+      createdAt: reported[0].createdAt,
+      href: '/incident/incident-report',
+    })
+  }
+
+  // Orden por fecha desc (la más reciente arriba).
+  return items.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
+}
+
 export function AppNotificationsBell() {
+  const router = useRouter()
   const [notifications, setNotifications] = useState<AdminNotification[]>([])
 
   const refresh = useCallback(() => {
@@ -52,6 +111,7 @@ export function AppNotificationsBell() {
   }, [refresh])
 
   const unread = notifications.filter((n) => !n.read).length
+  const items = buildItems(notifications)
 
   const handleOpenChange = async (open: boolean) => {
     if (open && unread > 0) {
@@ -60,9 +120,13 @@ export function AppNotificationsBell() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
-    await deleteAdminNotification(id)
+  const handleDelete = async (ids: string[]) => {
+    setNotifications((prev) => prev.filter((n) => !ids.includes(n.id)))
+    await Promise.all(ids.map((id) => deleteAdminNotification(id)))
+  }
+
+  const handleClick = (item: BellItem) => {
+    if (item.href) router.push(item.href)
   }
 
   return (
@@ -81,37 +145,42 @@ export function AppNotificationsBell() {
       <DropdownMenuContent className="w-80 rounded-lg p-0" side="bottom" align="end" sideOffset={6}>
         <DropdownMenuLabel className="px-4 py-3 font-semibold">Notificaciones</DropdownMenuLabel>
         <DropdownMenuSeparator className="my-0" />
-        {notifications.length === 0 ? (
+        {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
             <BellIcon className="size-8 opacity-30" />
             <span>Sin notificaciones por ahora</span>
           </div>
         ) : (
           <ul className="max-h-96 overflow-y-auto">
-            {notifications.map((n) => {
-              const Icon = iconFor(n.type)
+            {items.map((item) => {
+              const Icon = item.icon
               return (
                 <li
-                  key={n.id}
+                  key={item.key}
                   className="flex items-start gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-muted/50"
                 >
                   <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
                     <Icon className="size-4" />
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{n.title}</p>
-                    {n.body && (
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{n.body}</p>
+                  <button
+                    type="button"
+                    disabled={!item.href}
+                    onClick={() => handleClick(item)}
+                    className="min-w-0 flex-1 text-left disabled:cursor-default"
+                  >
+                    <p className="text-sm font-medium">{item.title}</p>
+                    {item.body && (
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.body}</p>
                     )}
                     <p className="mt-0.5 text-[10px] text-muted-foreground/70">
-                      {formatTime(n.createdAt)}
+                      {formatTime(item.createdAt)}
                     </p>
-                  </div>
+                  </button>
                   <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Eliminar notificación"
-                    onClick={() => handleDelete(n.id)}
+                    onClick={() => handleDelete(item.ids)}
                     className="text-muted-foreground hover:text-destructive"
                   >
                     <Trash2Icon className="size-3.5" />

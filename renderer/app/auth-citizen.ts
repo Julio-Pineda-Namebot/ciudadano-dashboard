@@ -41,7 +41,11 @@ export async function loginCitizen(_prevState: CitizenLoginState, formData: Form
 
   await createSession(token)
   logger.log('Sesión de ciudadano iniciada', { email })
-  redirect('/feed')
+
+  // Vuelve al destino indicado (p. ej. el incidente de un enlace compartido),
+  // solo si es una ruta interna del feed.
+  const next = formData.get('next') as string | null
+  redirect(next && next.startsWith('/feed') ? next : '/feed')
 }
 
 export async function logoutCitizen() {

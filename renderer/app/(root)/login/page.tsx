@@ -18,16 +18,22 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 interface Props {
-  searchParams: Promise<{ reason?: string }>
+  searchParams: Promise<{ reason?: string; next?: string }>
+}
+
+// Solo permite rutas internas del feed para evitar open-redirects.
+function safeNext(next?: string): string {
+  return next && next.startsWith('/feed') ? next : '/feed'
 }
 
 export default async function LoginPage({ searchParams }: Props) {
-  // Si ya hay una sesión válida guardada, entrar directo al feed.
+  const params = await searchParams
+  const next = safeNext(params.next)
+
+  // Si ya hay una sesión válida guardada, entrar directo (al incidente si vino).
   // fetchCitizenProfile limpia la cookie si el token está vencido, evitando bucles.
   const profile = await fetchCitizenProfile()
-  if (profile) redirect('/feed')
-
-  const params = await searchParams
+  if (profile) redirect(next)
   const messages: Record<string, string> = {
     session_revoked: 'Alguien inició sesión en tu cuenta. Fuiste desconectado.',
     session_expired: 'Tu sesión expiró. Vuelve a ingresar.',
@@ -39,7 +45,7 @@ export default async function LoginPage({ searchParams }: Props) {
   if (process.env.NEXT_PUBLIC_APP_MODE === 'landing') {
     return (
       <div className={`landing-root ${poppins.variable} ${jetbrainsMono.variable}`}>
-        <LoginCard sessionRevokedMessage={sessionRevokedMessage} />
+        <LoginCard sessionRevokedMessage={sessionRevokedMessage} next={next} />
       </div>
     )
   }

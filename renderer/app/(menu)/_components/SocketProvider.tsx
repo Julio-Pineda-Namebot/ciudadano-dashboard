@@ -25,12 +25,6 @@ function notifyGridRefresh() {
 
 type RevokedReason = 'FORCED_LOGIN' | 'LOGOUT' | 'EXPIRED' | 'INVALID' | 'NO_TOKEN'
 
-const INCIDENT_TYPE_LABEL: Record<string, string> = {
-  robo: 'Robo',
-  accidente: 'Accidente',
-  vandalismo: 'Vandalismo',
-}
-
 const INCIDENT_STATUS_LABEL: Record<string, string> = {
   pendiente: 'Pendiente',
   verificado: 'Verificado',
@@ -115,17 +109,11 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         handleRevoked(reason)
       })
 
-      socket.on(
-        'incident:reported',
-        (payload: { incident?: { incidentType?: string } }) => {
-          const type = payload?.incident?.incidentType
-          toast.info('Nueva incidencia reportada', {
-            description: type ? INCIDENT_TYPE_LABEL[type] ?? type : undefined,
-          })
-          notifyBellRefresh()
-          notifyGridRefresh()
-        }
-      )
+      socket.on('incident:reported', () => {
+        // Sin toast: las nuevas incidencias se agrupan en la campanita.
+        notifyBellRefresh()
+        notifyGridRefresh()
+      })
 
       socket.on(
         'incident:status-changed',

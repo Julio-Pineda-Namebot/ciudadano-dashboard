@@ -9,9 +9,10 @@ import { LogoMark } from '@/app/(landing)/_components/icons';
 
 type LoginCardProps = {
   sessionRevokedMessage?: string;
+  next?: string;
 };
 
-export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
+export function LoginCard({ sessionRevokedMessage, next }: LoginCardProps) {
   const [state, action, pending] = useActionState<CitizenLoginState, FormData>(loginCitizen, null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -103,6 +104,7 @@ export function LoginCard({ sessionRevokedMessage }: LoginCardProps) {
               {/* Form panel */}
               <div className="relative border-t border-white/8 bg-white/2 p-8 backdrop-blur-sm sm:p-10 lg:border-l lg:border-t-0 lg:p-14">
                 <form action={action} className="mx-auto flex w-full max-w-[420px] flex-col gap-5">
+                  {next && <input type="hidden" name="next" value={next} />}
                   <div>
                     <h3 className="font-display text-[22px] font-semibold tracking-[-0.01em] text-white sm:text-[26px]">
                       Iniciar sesión
