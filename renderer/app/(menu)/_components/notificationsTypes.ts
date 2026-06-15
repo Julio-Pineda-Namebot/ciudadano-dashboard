@@ -4,6 +4,8 @@ export interface AdminNotification {
   title: string
   body: string | null
   incidentId: string | null
+  latitude: number | null
+  longitude: number | null
   read: boolean
   createdAt: string
 }

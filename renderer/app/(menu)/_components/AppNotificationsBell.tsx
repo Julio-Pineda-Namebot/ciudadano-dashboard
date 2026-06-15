@@ -29,6 +29,7 @@ import {
 } from '@/app/(menu)/_components/notificationsTypes'
 
 const INCIDENT_REPORTED_TYPE = 'admin_incident_reported'
+const PANIC_ALERT_TYPE = 'admin_alert'
 
 interface BellItem {
   key: string
@@ -70,7 +71,11 @@ function buildItems(notifications: AdminNotification[]): BellItem[] {
     title: n.title,
     body: n.body,
     createdAt: n.createdAt,
-    href: undefined,
+    // Las alertas de pánico abren el módulo de alertas centrado en la ubicación.
+    href:
+      n.type === PANIC_ALERT_TYPE && n.latitude != null && n.longitude != null
+        ? `/alerts?focus=${n.id}`
+        : undefined,
   }))
 
   if (reported.length > 0) {
@@ -186,7 +191,7 @@ export function AppNotificationsBell({ compact = false }: { compact?: boolean })
                   >
                     <p className="text-sm font-medium">{item.title}</p>
                     {item.body && (
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.body}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground wrap-break-word">{item.body}</p>
                     )}
                     <p className="mt-0.5 text-[10px] text-muted-foreground/70">
                       {formatTime(item.createdAt)}

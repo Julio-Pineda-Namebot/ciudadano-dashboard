@@ -18,7 +18,7 @@ import {
 import {
   TerminalSquareIcon, ShieldCog, Newspaper, CircleHelpIcon,
   MapPin, ClipboardList, BarChart2, LayoutDashboard,
-  Users, Camera, ScrollText, Settings, UserRound,
+  Users, Camera, ScrollText, Settings, UserRound, Siren,
 } from "lucide-react"
 
 const dashboardItem = {
@@ -38,6 +38,13 @@ const incidentsItem = {
     { title: "Mapa de Calor",url: "/incident/heatmap",         icon: <MapPin       className="size-4" />, tourId: "nav-incident-heatmap"   },
     { title: "Ver reportes", url: "/incident/incident-report", icon: <ClipboardList className="size-4" />, tourId: "nav-incident-report"    },
   ],
+}
+
+const alertsItem = {
+  title: "Alertas de pánico",
+  url: "/alerts",
+  icon: <Siren />,
+  tourId: "nav-alertas",
 }
 
 const newsItem = {
@@ -76,8 +83,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     () => typeof window !== 'undefined' && !localStorage.getItem(TOUR_SEEN_KEY)
   )
   const navMain = isSuperAdmin
-    ? [dashboardItem, incidentsItem, newsItem, citizensItem, securityItem]
-    : [dashboardItem, incidentsItem, newsItem, citizensItem]
+    ? [dashboardItem, incidentsItem, alertsItem, newsItem, citizensItem, securityItem]
+    : [dashboardItem, incidentsItem, alertsItem, newsItem, citizensItem]
 
   return (
     <>
