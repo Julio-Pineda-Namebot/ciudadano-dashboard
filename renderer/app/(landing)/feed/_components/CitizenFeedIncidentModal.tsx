@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
-import { Copy, MessageCircle, Share2, ThumbsDown, ThumbsUp, X } from 'lucide-react'
+import { Copy, MessageCircle, Send, Share2, ThumbsDown, ThumbsUp, X } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
@@ -341,27 +341,31 @@ export function CitizenFeedIncidentModal({
                 ))}
               </div>
 
-              <div className="mt-3 flex shrink-0 flex-col gap-2.5 border-t border-white/8 pt-3">
-                <textarea
-                  value={commentBody}
-                  onChange={(e) => setCommentBody(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleComment()
-                  }}
-                  maxLength={191}
-                  rows={2}
-                  placeholder="Escribe un comentario…"
-                  className="w-full resize-none rounded-xl border border-white/12 bg-white/4 px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 transition focus:border-[#D9A55E]/50 focus:bg-white/6 focus:outline-none focus:ring-2 focus:ring-[#D9A55E]/20"
-                />
-                <button
-                  type="button"
-                  disabled={commenting || commentBody.trim().length === 0}
-                  onClick={handleComment}
-                  className="inline-flex items-center justify-center gap-2 self-end rounded-xl bg-linear-to-b from-[#E4B978] to-[#D9A55E] px-5 py-2.5 text-sm font-semibold text-[#1a1205] shadow-[0_10px_28px_-12px_rgba(217,165,94,0.7)] transition hover:from-[#EAC288] hover:to-[#DEAC68] hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
-                >
-                  {commenting ? <Spinner /> : <MessageCircle className="size-4" />}
-                  Comentar
-                </button>
+              <div className="mt-3 shrink-0 border-t border-white/8 pt-3">
+                <div className="flex items-center gap-2 rounded-full border border-white/12 bg-white/4 py-1.5 pl-4 pr-1.5 transition focus-within:border-[#D9A55E]/50 focus-within:bg-white/6 focus-within:ring-2 focus-within:ring-[#D9A55E]/20">
+                  <input
+                    value={commentBody}
+                    onChange={(e) => setCommentBody(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleComment()
+                      }
+                    }}
+                    maxLength={191}
+                    placeholder="Escribe un comentario…"
+                    className="min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    disabled={commenting || commentBody.trim().length === 0}
+                    onClick={handleComment}
+                    aria-label="Comentar"
+                    className="grid size-9 shrink-0 place-items-center rounded-full bg-linear-to-b from-[#E4B978] to-[#D9A55E] text-[#1a1205] shadow-[0_6px_18px_-8px_rgba(217,165,94,0.7)] transition hover:from-[#EAC288] hover:to-[#DEAC68] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {commenting ? <Spinner /> : <Send className="size-4" />}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
