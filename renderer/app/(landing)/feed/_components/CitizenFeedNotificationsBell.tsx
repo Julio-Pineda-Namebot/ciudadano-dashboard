@@ -46,12 +46,12 @@ export function CitizenFeedNotificationsBell({
   const unread = notifications.filter((n) => !n.read).length
 
   // Al abrir, marca todo como leído en el servidor (el puntito desaparece).
+  // El efecto secundario va fuera del updater de setState (que debe ser puro):
+  // llamar onOpen() dentro disparaba un setState del padre durante el render.
   const handleToggle = () => {
-    setOpen((prev) => {
-      const next = !prev
-      if (next && unread > 0) onOpen?.()
-      return next
-    })
+    const next = !open
+    setOpen(next)
+    if (next && unread > 0) onOpen?.()
   }
 
   // Cerrar al hacer clic fuera o presionar Escape.

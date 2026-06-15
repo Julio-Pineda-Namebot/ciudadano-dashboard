@@ -4,11 +4,13 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { Copy, MessageCircle, Share2, ThumbsDown, ThumbsUp, X } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { StatusBadge } from '@/components/common/StatusBadge'
 import { cn } from '@/lib/utils'
-import type { IncidentVote } from '@/lib/incidentStatus'
+import type {
+  IncidentStatus,
+  IncidentVote,
+  VerifiedBy,
+} from '@/lib/incidentStatus'
 import { addComment, getIncidentDetail, voteIncident } from '@/app/(landing)/feed/actions'
 import { TYPE_COLOR, TYPE_LABEL } from '@/app/(landing)/feed/constants'
 import type {
@@ -22,6 +24,37 @@ interface CitizenFeedIncidentModalProps {
 }
 
 const VIDEO_RE = /\.(mp4|mov|webm|m4v)(\?|$)/i
+
+// Pill de estado en tono oscuro, alineado con la paleta de la landing
+// (good #6BAE7A, warn #D9A55E, slate). El StatusBadge global usa fondos
+// claros pensados para la grilla admin y desentona sobre el modal.
+function statusPill(status: IncidentStatus, verifiedBy?: VerifiedBy | null) {
+  if (status === 'verificado') {
+    const label =
+      verifiedBy === 'seguridad'
+        ? 'Verificado por seguridad'
+        : verifiedBy === 'ciudadania'
+          ? 'Verificado por la ciudadanía'
+          : 'Verificado'
+    return {
+      label,
+      dot: '#6BAE7A',
+      classes: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-200',
+    }
+  }
+  if (status === 'resuelto') {
+    return {
+      label: 'Resuelto',
+      dot: '#9CA3B0',
+      classes: 'border-white/15 bg-white/8 text-white/70',
+    }
+  }
+  return {
+    label: 'Pendiente',
+    dot: '#D9A55E',
+    classes: 'border-[#D9A55E]/30 bg-[#D9A55E]/12 text-[#E4B978]',
+  }
+}
 
 export function CitizenFeedIncidentModal({
   incidentId,
@@ -155,12 +188,12 @@ export function CitizenFeedIncidentModal({
         ) : (
           <div
             data-lenis-prevent
-            className="flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-2 md:grid-rows-1 md:overflow-hidden"
+            className="dark-scroll flex-1 min-h-0 overflow-y-auto md:grid md:grid-cols-2 md:grid-rows-1 md:overflow-hidden"
           >
             {/* Columna izquierda: detalle */}
             <div
               data-lenis-prevent
-              className="min-w-0 px-6 py-4 md:min-h-0 md:overflow-y-auto md:border-r md:border-white/10"
+              className="dark-scroll min-w-0 px-6 py-4 md:min-h-0 md:overflow-y-auto md:border-r md:border-white/10"
             >
               {detail.multimediaUrl && (
                 <div className="mb-4 overflow-hidden rounded-lg border border-white/10 bg-black/40">
@@ -187,7 +220,23 @@ export function CitizenFeedIncidentModal({
                   />
                   {TYPE_LABEL[detail.incidentType]}
                 </span>
-                <StatusBadge status={detail.status} verifiedBy={detail.verifiedBy} />
+                {(() => {
+                  const pill = statusPill(detail.status, detail.verifiedBy)
+                  return (
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium',
+                        pill.classes
+                      )}
+                    >
+                      <span
+                        className="size-1.5 rounded-full"
+                        style={{ background: pill.dot }}
+                      />
+                      {pill.label}
+                    </span>
+                  )
+                })()}
               </div>
 
               <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.15em] text-white/40">
@@ -197,40 +246,48 @@ export function CitizenFeedIncidentModal({
               <p className="mt-3 text-sm leading-relaxed wrap-break-word text-white/90">{detail.description}</p>
 
               {/* Validación comunitaria */}
-              <div className="mt-4 rounded-lg border border-white/10 bg-white/3 p-3">
-                <p className="text-xs text-white/60">
-                  👍 {detail.confirmCount}{' '}
-                  {detail.confirmCount === 1 ? 'confirmación' : 'confirmaciones'} · 👎{' '}
-                  {detail.disputeCount}{' '}
-                  {detail.disputeCount === 1 ? 'persona no lo encontró' : 'personas no lo encontraron'}
-                </p>
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/2.5 p-3.5">
+                <div className="flex items-center gap-4 text-xs text-white/55">
+                  <span className="inline-flex items-center gap-1.5">
+                    <ThumbsUp className="size-3.5 text-[#6BAE7A]" />
+                    <span className="font-semibold text-white/80">{detail.confirmCount}</span>
+                    {detail.confirmCount === 1 ? 'confirmación' : 'confirmaciones'}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <ThumbsDown className="size-3.5 text-[#E04B5E]" />
+                    <span className="font-semibold text-white/80">{detail.disputeCount}</span>
+                    {detail.disputeCount === 1 ? 'no lo encontró' : 'no lo encontraron'}
+                  </span>
+                </div>
                 <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
                     disabled={voting}
                     onClick={() => handleVote('confirm')}
                     className={cn(
-                      'flex-1 border-white/15 bg-transparent text-white hover:bg-white/10',
+                      'inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/3 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors',
+                      'hover:border-[#6BAE7A]/40 hover:bg-[#6BAE7A]/10 hover:text-white',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
                       detail.myVote === 'confirm' &&
-                        'border-emerald-500/60 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/20'
+                        'border-[#6BAE7A]/50 bg-[#6BAE7A]/15 text-[#9BD3A8] hover:bg-[#6BAE7A]/20'
                     )}
                   >
                     <ThumbsUp className="size-4" /> Confirmar reporte
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="button"
-                    variant="outline"
                     disabled={voting}
                     onClick={() => handleVote('dispute')}
                     className={cn(
-                      'flex-1 border-white/15 bg-transparent text-white hover:bg-white/10',
+                      'inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/3 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors',
+                      'hover:border-[#E04B5E]/40 hover:bg-[#E04B5E]/10 hover:text-white',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
                       detail.myVote === 'dispute' &&
-                        'border-red-500/60 bg-red-500/15 text-red-300 hover:bg-red-500/20'
+                        'border-[#E04B5E]/50 bg-[#E04B5E]/15 text-[#F0909C] hover:bg-[#E04B5E]/20'
                     )}
                   >
                     <ThumbsDown className="size-4" /> No lo encontré
-                  </Button>
+                  </button>
                 </div>
               </div>
 
@@ -240,22 +297,20 @@ export function CitizenFeedIncidentModal({
                   <Share2 className="size-4" /> Compartir incidencia
                 </div>
                 <div className="mt-2 flex gap-2">
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
                     onClick={handleWhatsApp}
-                    className="flex-1 border-white/15 bg-transparent text-white hover:bg-white/10"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/3 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:border-[#6BAE7A]/40 hover:bg-[#6BAE7A]/10 hover:text-white"
                   >
                     <MessageCircle className="size-4" /> WhatsApp
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="button"
-                    variant="outline"
                     onClick={handleCopy}
-                    className="flex-1 border-white/15 bg-transparent text-white hover:bg-white/10"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/3 px-4 py-2.5 text-sm font-medium text-white/80 transition-colors hover:border-[#D9A55E]/40 hover:bg-[#D9A55E]/10 hover:text-white"
                   >
                     <Copy className="size-4" /> Copiar enlace
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -268,13 +323,13 @@ export function CitizenFeedIncidentModal({
 
               <div
                 data-lenis-prevent
-                className="mt-2 flex flex-col gap-2 md:min-h-0 md:flex-1 md:overflow-y-auto"
+                className="dark-scroll mt-2 flex flex-col gap-2 md:min-h-0 md:flex-1 md:overflow-y-auto md:pr-1"
               >
                 {comments.length === 0 && (
                   <p className="text-xs text-white/40">Aún no hay comentarios. Sé el primero.</p>
                 )}
                 {comments.map((c) => (
-                  <div key={c.id} className="rounded-lg border border-white/10 bg-white/3 p-2.5">
+                  <div key={c.id} className="rounded-lg border border-white/8 bg-white/3 p-2.5 transition-colors hover:border-white/15 hover:bg-white/5">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-semibold text-white/80">{c.authorName}</span>
                       <span className="font-mono text-[10px] text-white/35">
