@@ -1,4 +1,5 @@
 import type { CitizenProfile } from '@/app/auth-citizen-types'
+import type { IncidentStatus, IncidentVote, VerifiedBy } from '@/lib/incidentStatus'
 
 export type IncidentType = 'robo' | 'accidente' | 'vandalismo'
 
@@ -12,6 +13,36 @@ export interface NearbyIncident {
   }
   multimediaUrl?: string
   createdAt: string
+  status?: IncidentStatus
+  verifiedBy?: VerifiedBy | null
+  confirmCount?: number
+  disputeCount?: number
+}
+
+export interface IncidentComment {
+  id: string
+  authorName: string
+  content: string
+  createdAt: string
+}
+
+export interface FeedNotification {
+  id: string
+  type: string
+  title: string
+  body: string | null
+  incidentId: string | null
+  read: boolean
+  createdAt: string
+}
+
+export interface IncidentDetail extends NearbyIncident {
+  status: IncidentStatus
+  verifiedBy: VerifiedBy | null
+  confirmCount: number
+  disputeCount: number
+  myVote: IncidentVote | null
+  comments: IncidentComment[]
 }
 
 export type ReportIncidentState =

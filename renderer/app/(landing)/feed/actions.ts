@@ -1,10 +1,18 @@
 'use server'
 
 import { getSession } from '@/lib/session'
-import { get, postMultipart, del, ApiError } from '@/lib/backendService'
+import { get, post, postMultipart, del, ApiError } from '@/lib/backendService'
 import { logger } from '@/lib/logger'
 import { redirect } from 'next/navigation'
-import type { IncidentType, NearbyIncident, ReportIncidentState } from './_types/types'
+import type { IncidentVote, IncidentStatus, VerifiedBy } from '@/lib/incidentStatus'
+import type {
+  FeedNotification,
+  IncidentComment,
+  IncidentDetail,
+  IncidentType,
+  NearbyIncident,
+  ReportIncidentState,
+} from './_types/types'
 
 interface NearbyApiResponse {
   data: NearbyIncident[]
@@ -12,6 +20,24 @@ interface NearbyApiResponse {
 
 interface ReportApiResponse {
   data: NearbyIncident
+}
+
+interface IncidentDetailApiResponse {
+  data: IncidentDetail
+}
+
+interface VoteApiResponse {
+  data: {
+    confirmCount: number
+    disputeCount: number
+    myVote: IncidentVote | null
+    status: IncidentStatus
+    verifiedBy: VerifiedBy | null
+  }
+}
+
+interface CommentApiResponse {
+  data: IncidentComment
 }
 
 const ALLOWED_TYPES: ReadonlyArray<IncidentType> = ['robo', 'accidente', 'vandalismo']
@@ -73,6 +99,125 @@ export async function deleteMyIncident(id: string): Promise<{ ok: true } | { err
     }
     logger.error('deleteMyIncident falló', err)
     return { error: 'No se pudo eliminar la incidencia, intenta nuevamente' }
+  }
+}
+
+export async function getIncidentDetail(id: string): Promise<IncidentDetail | null> {
+  try {
+    const res = await get<IncidentDetailApiResponse>(
+      `/incidents/${encodeURIComponent(id)}`,
+      { headers: await bearerHeaders() }
+    )
+    return res.data
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) {
+      redirect('/login?reason=session_expired')
+    }
+    logger.error('getIncidentDetail falló', err)
+    return null
+  }
+}
+
+export async function voteIncident(
+  id: string,
+  vote: IncidentVote | null
+): Promise<
+  | {
+      ok: true
+      confirmCount: number
+      disputeCount: number
+      myVote: IncidentVote | null
+      status: IncidentStatus
+      verifiedBy: VerifiedBy | null
+    }
+  | { error: string }
+> {
+  try {
+    if (vote === null) {
+      const res = await del<{ data: { confirmCount: number; disputeCount: number } }>(
+        `/incidents/${encodeURIComponent(id)}/vote`,
+        { headers: await bearerHeaders() }
+      )
+      return {
+        ok: true,
+        confirmCount: res.data.confirmCount,
+        disputeCount: res.data.disputeCount,
+        myVote: null,
+        status: 'pendiente',
+        verifiedBy: null,
+      }
+    }
+    const res = await post<VoteApiResponse>(
+      `/incidents/${encodeURIComponent(id)}/vote`,
+      { vote },
+      { headers: await bearerHeaders() }
+    )
+    return { ok: true, ...res.data }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      if (err.status === 401) redirect('/login?reason=session_expired')
+      if (err.status === 404) return { error: 'La incidencia ya no existe' }
+    }
+    logger.error('voteIncident falló', err)
+    return { error: 'No se pudo registrar tu voto, intenta nuevamente' }
+  }
+}
+
+export async function addComment(
+  id: string,
+  content: string
+): Promise<{ ok: true; comment: IncidentComment } | { error: string }> {
+  const trimmed = content.trim()
+  if (trimmed.length < 1 || trimmed.length > 191) {
+    return { error: 'El comentario debe tener entre 1 y 191 caracteres' }
+  }
+  try {
+    const res = await post<CommentApiResponse>(
+      `/incidents/${encodeURIComponent(id)}/comments`,
+      { content: trimmed },
+      { headers: await bearerHeaders() }
+    )
+    return { ok: true, comment: res.data }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      if (err.status === 401) redirect('/login?reason=session_expired')
+      if (err.status === 404) return { error: 'La incidencia ya no existe' }
+    }
+    logger.error('addComment falló', err)
+    return { error: 'No se pudo publicar tu comentario, intenta nuevamente' }
+  }
+}
+
+export async function getNotifications(): Promise<FeedNotification[]> {
+  try {
+    const res = await get<{ data: FeedNotification[] }>('/notifications', {
+      headers: await bearerHeaders(),
+    })
+    return res.data
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) {
+      redirect('/login?reason=session_expired')
+    }
+    logger.error('getNotifications falló', err)
+    return []
+  }
+}
+
+export async function markNotificationsRead(): Promise<void> {
+  try {
+    await post('/notifications/read-all', {}, { headers: await bearerHeaders() })
+  } catch (err) {
+    logger.error('markNotificationsRead falló', err)
+  }
+}
+
+export async function deleteNotification(id: string): Promise<void> {
+  try {
+    await del(`/notifications/${encodeURIComponent(id)}`, {
+      headers: await bearerHeaders(),
+    })
+  } catch (err) {
+    logger.error('deleteNotification falló', err)
   }
 }
 

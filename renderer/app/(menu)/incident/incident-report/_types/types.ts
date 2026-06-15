@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { IncidentStatus, VerifiedBy } from '@/lib/incidentStatus'
 
 export const INCIDENT_TYPES = [
   { value: 'robo', label: 'Robo' },
@@ -9,6 +10,7 @@ export const INCIDENT_TYPES = [
 export const updateSchema = z.object({
   incidentType: z.string().min(1, 'El tipo de incidencia es obligatorio'),
   description: z.string().trim().min(1, 'La descripción es obligatoria'),
+  status: z.enum(['pendiente', 'verificado', 'resuelto']),
 })
 
 export type IncidentReportFormValues = z.infer<typeof updateSchema>
@@ -25,12 +27,17 @@ export interface IncidentReport {
   description: string
   multimediaUrl: string
   geolocation: Geolocation
+  status: IncidentStatus
+  verifiedBy: VerifiedBy | null
+  confirmCount: number
+  disputeCount: number
   createdAt: string
 }
 
 export interface IncidentReportUpdateData {
   incidentType?: string
   description?: string
+  status?: IncidentStatus
 }
 
 export const filterSchema = z.object({

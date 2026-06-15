@@ -13,6 +13,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import { StatusBadge } from '@/components/common/StatusBadge'
 import { TYPE_COLOR, TYPE_LABEL } from '@/app/(landing)/feed/constants'
 import type { NearbyIncident } from '@/app/(landing)/feed/_types/types'
 
@@ -161,6 +162,13 @@ export function MyIncidentsPanel({ incidents }: MyIncidentsPanelProps) {
                       <span className="font-mono text-[10.5px] text-white/40">
                         {formatDate(incident.createdAt)}
                       </span>
+                      {incident.status && (
+                        <StatusBadge
+                          status={incident.status}
+                          verifiedBy={incident.verifiedBy}
+                          className="ml-auto"
+                        />
+                      )}
                     </div>
                     <p className="text-[13.5px] leading-relaxed text-white/80">
                       {incident.description}

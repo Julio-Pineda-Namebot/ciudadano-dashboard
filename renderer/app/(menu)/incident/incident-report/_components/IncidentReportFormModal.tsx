@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { useModuleTheme, MODULE_BUTTON_CLASS } from '@/components/common/module-theme'
 import FormField from '@/components/common/form/FormField'
+import { STATUS_OPTIONS } from '@/lib/incidentStatus'
 import {
   updateSchema,
   INCIDENT_TYPES,
@@ -36,14 +37,18 @@ export function IncidentReportFormModal({ open, report, onClose, onSubmit }: Inc
     formState: { errors, isSubmitting },
   } = useForm<IncidentReportFormValues>({
     resolver: zodResolver(updateSchema),
-    defaultValues: { incidentType: '', description: '' },
+    defaultValues: { incidentType: '', description: '', status: 'pendiente' },
   })
 
   const description = useWatch({ control, name: 'description' })
 
   useEffect(() => {
     if (open && report) {
-      reset({ incidentType: report.incidentType, description: report.description })
+      reset({
+        incidentType: report.incidentType,
+        description: report.description,
+        status: report.status,
+      })
     }
   }, [open, report, reset])
 
@@ -70,6 +75,21 @@ export function IncidentReportFormModal({ open, report, onClose, onSubmit }: Inc
                 options: INCIDENT_TYPES.map(({ value, label }) => ({ value, label })),
               }}
               schema={updateSchema.shape.incidentType}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              control={control as any}
+              errors={errors}
+            />
+
+            <FormField
+              fieldConfig={{
+                type: 'select',
+                name: 'status',
+                label: 'Estado',
+                placeholder: 'Seleccionar estado...',
+                width: 'w-full',
+                options: STATUS_OPTIONS.map(({ value, label }) => ({ value, label })),
+              }}
+              schema={updateSchema.shape.status}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               control={control as any}
               errors={errors}

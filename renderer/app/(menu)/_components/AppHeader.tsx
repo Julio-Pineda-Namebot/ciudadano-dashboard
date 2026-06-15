@@ -2,17 +2,9 @@
 
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { BellIcon } from 'lucide-react'
 import { useAuth } from '@/app/(menu)/_components/AuthProvider'
 import { NavUser } from '@/app/(menu)/_components/NavUser'
+import { AppNotificationsBell } from '@/app/(menu)/_components/AppNotificationsBell'
 
 function SystemStatusBadge() {
   return (
@@ -45,25 +37,7 @@ export function AppHeader() {
         <div data-tour="header-status">
           <SystemStatusBadge />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative h-9 w-9" data-tour="header-bell">
-              <BellIcon className="size-4" />
-              <span className="absolute right-1.5 top-1.5 flex size-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex size-2 rounded-full bg-red-500" />
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-80 rounded-lg" side="bottom" align="end" sideOffset={6}>
-            <DropdownMenuLabel className="font-semibold">Notificaciones</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <div className="flex flex-col items-center justify-center py-8 text-sm text-muted-foreground gap-2">
-              <BellIcon className="size-8 opacity-30" />
-              <span>Sin notificaciones por ahora</span>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <AppNotificationsBell />
         <NavUser
           user={{
             name: `${profile.firstName} ${profile.lastName}`,

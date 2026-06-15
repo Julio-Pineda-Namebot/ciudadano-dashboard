@@ -2,10 +2,30 @@
 
 import { useEffect, useRef } from 'react'
 import { io, type Socket } from 'socket.io-client'
+import { toast } from 'sonner'
 import { revokeSession } from '@/app/auth'
 import { logger } from '@/lib/logger'
+import { ADMIN_NOTIFICATIONS_EVENT } from '@/app/(menu)/_components/notificationsTypes'
+
+function notifyBellRefresh() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(ADMIN_NOTIFICATIONS_EVENT))
+  }
+}
 
 type RevokedReason = 'FORCED_LOGIN' | 'LOGOUT' | 'EXPIRED' | 'INVALID' | 'NO_TOKEN'
+
+const INCIDENT_TYPE_LABEL: Record<string, string> = {
+  robo: 'Robo',
+  accidente: 'Accidente',
+  vandalismo: 'Vandalismo',
+}
+
+const INCIDENT_STATUS_LABEL: Record<string, string> = {
+  pendiente: 'Pendiente',
+  verificado: 'Verificado',
+  resuelto: 'Resuelto',
+}
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
 
@@ -81,6 +101,30 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         logger.log('[admin] session revoked', reason)
         handleRevoked(reason)
       })
+
+      socket.on(
+        'incident:reported',
+        (payload: { incident?: { incidentType?: string } }) => {
+          const type = payload?.incident?.incidentType
+          toast.info('Nueva incidencia reportada', {
+            description: type ? INCIDENT_TYPE_LABEL[type] ?? type : undefined,
+          })
+          notifyBellRefresh()
+        }
+      )
+
+      socket.on(
+        'incident:status-changed',
+        (payload: { status?: string }) => {
+          const status = payload?.status
+          toast('Estado de incidencia actualizado', {
+            description: status
+              ? INCIDENT_STATUS_LABEL[status] ?? status
+              : undefined,
+          })
+          notifyBellRefresh()
+        }
+      )
 
       socket.on('connect_error', (err) => {
         logger.warn('[admin] socket connect_error', err.message)

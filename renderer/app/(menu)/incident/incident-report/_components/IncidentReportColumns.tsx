@@ -3,6 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { EyeIcon, PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { StatusBadge } from '@/components/common/StatusBadge'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
 import { formatDateTime } from '@/lib/utils'
 import type { IncidentReport, IncidentReportColumnActions } from '@/app/(menu)/incident/incident-report/_types/types'
@@ -53,6 +54,25 @@ export function getIncidentReportColumns({ onEdit, onDelete, onView }: IncidentR
           </span>
         )
       },
+    },
+    {
+      accessorKey: 'status',
+      size: 180,
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+      cell: ({ row }) => (
+        <StatusBadge status={row.original.status} verifiedBy={row.original.verifiedBy} />
+      ),
+    },
+    {
+      id: 'confirmations',
+      size: 110,
+      enableSorting: false,
+      header: 'Validación',
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground">
+          👍 {row.original.confirmCount} · 👎 {row.original.disputeCount}
+        </span>
+      ),
     },
     {
       accessorKey: 'description',

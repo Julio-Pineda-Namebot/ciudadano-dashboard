@@ -4,11 +4,18 @@ import { useActionState, useEffect, useRef, useState, useTransition } from 'reac
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { LogoMark } from '@/app/(landing)/_components/icons'
-import { getNearbyIncidents, reportIncident } from '@/app/(landing)/feed/actions'
+import {
+  deleteNotification,
+  getNearbyIncidents,
+  getNotifications,
+  markNotificationsRead,
+  reportIncident,
+} from '@/app/(landing)/feed/actions'
 import { calculateSafeRoute } from '@/app/(landing)/feed/routeService'
 import type {
   CitizenFeedPanelProps,
   FeedMode,
+  FeedNotification,
   NearbyIncident,
   ReportIncidentState,
   RoutePlan,
@@ -21,6 +28,9 @@ import { CitizenFeedReportForm } from './CitizenFeedReportForm'
 import { CitizenFeedRoutePlanner } from './CitizenFeedRoutePlanner'
 import { CitizenFeedSearch } from './CitizenFeedSearch'
 import { CitizenFeedUserMenu } from './CitizenFeedUserMenu'
+import { CitizenFeedIncidentModal } from './CitizenFeedIncidentModal'
+import { CitizenFeedSocketProvider } from './CitizenFeedSocketProvider'
+import { CitizenFeedNotificationsBell } from './CitizenFeedNotificationsBell'
 
 export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: CitizenFeedPanelProps) {
   const mapHandleRef = useRef<CitizenFeedMapHandle | null>(null)
@@ -35,6 +45,8 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
   const [routeError, setRouteError] = useState<string | null>(null)
   const [calculatingRoute, setCalculatingRoute] = useState(false)
   const [userLocation, setUserLocation] = useState<RoutePoint | null>(null)
+  const [detailId, setDetailId] = useState<string | null>(null)
+  const [notifications, setNotifications] = useState<FeedNotification[]>([])
   const [resetSignal, setResetSignal] = useState(0)
   const [state, action, pending] = useActionState<ReportIncidentState, FormData>(reportIncident, null)
   const [refreshing, startRefresh] = useTransition()
@@ -59,6 +71,51 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
       toast.error(state.error)
     }
   }, [state, defaultCenter.lat, defaultCenter.lon])
+
+  // Deep-link: abre el modal de detalle si la URL trae ?incident=ID.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('incident')
+    if (id) setDetailId(id)
+  }, [])
+
+  // Notificaciones persistentes: carga inicial desde el servidor.
+  useEffect(() => {
+    getNotifications().then(setNotifications)
+  }, [])
+
+  const refreshNotifications = () => {
+    getNotifications().then(setNotifications)
+  }
+
+  const handleNotificationsOpen = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    await markNotificationsRead()
+  }
+
+  const handleDeleteNotification = async (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+    await deleteNotification(id)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailId(null)
+    const url = new URL(window.location.href)
+    if (url.searchParams.has('incident')) {
+      url.searchParams.delete('incident')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }
+
+  // Refresca los marcadores del feed alrededor del centro actual del mapa.
+  const refreshIncidents = () => {
+    const center = mapHandleRef.current?.getCenter()
+    const lat = center?.lat ?? defaultCenter.lat
+    const lon = center?.lon ?? defaultCenter.lon
+    startRefresh(async () => {
+      const next = await getNearbyIncidents(lat, lon)
+      setIncidents(next)
+    })
+  }
 
   const handleSetOrigin = (p: RoutePoint) => {
     setOrigin(p)
@@ -163,6 +220,13 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
       data-lenis-prevent
       className="fixed inset-0 z-30 flex flex-col-reverse bg-[#050505] text-white lg:flex-row"
     >
+      <CitizenFeedSocketProvider
+        userId={profile.id}
+        center={userLocation ?? defaultCenter}
+        onNearbyIncident={refreshIncidents}
+        onIncoming={refreshNotifications}
+      />
+      <CitizenFeedIncidentModal incidentId={detailId} onClose={handleCloseDetail} />
       <div
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
@@ -178,7 +242,15 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
             <LogoMark size={22} />
             <span className="font-display text-[14px] font-semibold tracking-tight">Ciudadano</span>
           </Link>
-          <CitizenFeedUserMenu profile={profile} />
+          <div className="flex items-center gap-2">
+            <CitizenFeedNotificationsBell
+              notifications={notifications}
+              onOpen={handleNotificationsOpen}
+              onDelete={handleDeleteNotification}
+              onOpenIncident={setDetailId}
+            />
+            <CitizenFeedUserMenu profile={profile} />
+          </div>
         </div>
 
         {mode === 'route' ? (
@@ -242,6 +314,7 @@ export function CitizenFeedPanel({ initialIncidents, defaultCenter, profile }: C
           onSelectPoint={handleMapSelectPoint}
           onSetOrigin={handleSetOrigin}
           onSetDestination={handleSetDestination}
+          onOpenDetail={setDetailId}
           userLocation={userLocation}
         />
 

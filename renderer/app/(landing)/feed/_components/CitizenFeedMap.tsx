@@ -37,6 +37,7 @@ interface CitizenFeedMapProps {
   onSelectPoint: (p: RoutePoint) => void
   onSetOrigin: (p: RoutePoint) => void
   onSetDestination: (p: RoutePoint) => void
+  onOpenDetail: (incidentId: string) => void
   userLocation: RoutePoint | null
 }
 
@@ -53,6 +54,7 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
       onSelectPoint,
       onSetOrigin,
       onSetDestination,
+      onOpenDetail,
       userLocation,
     },
     ref
@@ -72,6 +74,7 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
     const onSelectPointRef = useRef(onSelectPoint)
     const onSetOriginRef = useRef(onSetOrigin)
     const onSetDestinationRef = useRef(onSetDestination)
+    const onOpenDetailRef = useRef(onOpenDetail)
 
     useEffect(() => { modeRef.current = mode }, [mode])
     useEffect(() => { originRef.current = origin }, [origin])
@@ -79,6 +82,7 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
     useEffect(() => { onSelectPointRef.current = onSelectPoint }, [onSelectPoint])
     useEffect(() => { onSetOriginRef.current = onSetOrigin }, [onSetOrigin])
     useEffect(() => { onSetDestinationRef.current = onSetDestination }, [onSetDestination])
+    useEffect(() => { onOpenDetailRef.current = onOpenDetail }, [onOpenDetail])
 
     useImperativeHandle(ref, () => ({
       getCenter: () => {
@@ -188,8 +192,17 @@ export const CitizenFeedMap = forwardRef<CitizenFeedMapHandle, CitizenFeedMapPro
             </div>
             <div class="cp-desc">${escapeHtml(inc.description)}</div>
             <div class="cp-date">${escapeHtml(new Date(inc.createdAt).toLocaleString('es-PE'))}</div>
+            <button type="button" class="cp-detail-btn" data-incident-id="${escapeHtml(inc.id)}">Ver detalle</button>
           </div>`
         )
+
+        // Al abrir el popup, cablear el botón "Ver detalle" con el callback React.
+        popup.on('open', () => {
+          const btn = popup
+            .getElement()
+            ?.querySelector<HTMLButtonElement>('.cp-detail-btn')
+          btn?.addEventListener('click', () => onOpenDetailRef.current(inc.id))
+        })
 
         const marker = new mapboxgl.Marker({ element: el })
           .setLngLat([inc.geolocation.longitude, inc.geolocation.latitude])
