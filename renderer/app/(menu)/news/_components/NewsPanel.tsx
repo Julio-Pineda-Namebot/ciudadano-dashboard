@@ -1,14 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { DownloadCloudIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import { Filter } from '@/components/common/form/filter'
 import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
 import { NewsTable } from '@/app/(menu)/news/_components/NewsTable'
 import { NewsFormModal } from '@/app/(menu)/news/_components/NewsFormModal'
 import { NewsDeleteDialog } from '@/app/(menu)/news/_components/NewsDeleteDialog'
-import { getNews, createNews, updateNews, deleteNews } from '@/app/(menu)/news/actions'
+import { getNews, createNews, updateNews, deleteNews, ingestNews } from '@/app/(menu)/news/actions'
 import type { News, NewsFormData, NewsFilterValues } from '@/app/(menu)/news/_types/types'
 
 const filterSchema = z.object({
@@ -21,6 +24,7 @@ export function NewsPanel() {
   const [editTarget, setEditTarget] = useState<News | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<News | null>(null)
   const [formOpen, setFormOpen] = useState(false)
+  const [ingesting, setIngesting] = useState(false)
   const { dateRange, onApply, filteredData } = useDateRangeFilter(news, 'date')
 
   useEffect(() => {
@@ -29,6 +33,24 @@ export function NewsPanel() {
       .catch(() => toast.error('No se pudieron cargar las noticias'))
       .finally(() => setLoading(false))
   }, [])
+
+  async function handleIngest() {
+    setIngesting(true)
+    try {
+      const result = await ingestNews()
+      if (result.created > 0) {
+        const fresh = await getNews()
+        setNews(fresh)
+        toast.success(`Se importaron ${result.created} noticias de Ica`)
+      } else {
+        toast.info('No hay noticias nuevas de Ica por ahora')
+      }
+    } catch {
+      toast.error('No se pudo importar noticias externas')
+    } finally {
+      setIngesting(false)
+    }
+  }
 
   function openCreate() {
     setEditTarget(null)
@@ -94,6 +116,12 @@ export function NewsPanel() {
         onEdit={openEdit}
         onDelete={setDeleteTarget}
         onCreate={openCreate}
+        toolbarActions={
+          <Button variant="outline" onClick={handleIngest} disabled={ingesting}>
+            {ingesting ? <Spinner /> : <DownloadCloudIcon />}
+            Importar de Ica
+          </Button>
+        }
       />
 
       <NewsFormModal

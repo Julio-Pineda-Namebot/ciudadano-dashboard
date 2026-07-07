@@ -1,9 +1,9 @@
 'use server'
 
-import { get, del, ApiError } from '@/lib/backendService'
+import { get, post, del, ApiError } from '@/lib/backendService'
 import { getSession } from '@/lib/session'
 import { logger } from '@/lib/logger'
-import type { News, NewsFormData } from '@/app/(menu)/news/_types/types'
+import type { News, NewsFormData, IngestNewsResult } from '@/app/(menu)/news/_types/types'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
 
@@ -84,4 +84,9 @@ export async function updateNews(id: string, data: Partial<NewsFormData>): Promi
 
 export async function deleteNews(id: string): Promise<void> {
   await del(`/admin/news/${encodeURIComponent(id)}`, { headers: await authHeaders() })
+}
+
+export async function ingestNews(): Promise<IngestNewsResult> {
+  const res = await post<{ data: IngestNewsResult }>('/admin/news/ingest', {}, { headers: await authHeaders() })
+  return res.data
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { ReactNode } from 'react'
 
 const newsBaseSchema = z.object({
   title: z.string().trim().min(1, 'El título es obligatorio'),
@@ -42,8 +43,18 @@ export interface News {
   image: string
   date: string
   tag: string
+  origin?: NewsOrigin
+  sourceUrl?: string | null
   createdAt?: string
   updatedAt?: string
+}
+
+export type NewsOrigin = 'MANUAL' | 'AUTO'
+
+export interface IngestNewsResult {
+  fetched: number
+  created: number
+  skipped: number
 }
 
 export interface NewsFormData {
@@ -90,4 +101,5 @@ export interface NewsTableProps {
   onEdit: (news: News) => void
   onDelete: (news: News) => void
   onCreate?: () => void
+  toolbarActions?: ReactNode
 }

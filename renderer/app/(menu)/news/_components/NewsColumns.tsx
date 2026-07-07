@@ -1,7 +1,7 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { PencilIcon, TrashIcon } from 'lucide-react'
+import { ExternalLinkIcon, PencilIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
 import { formatDate } from '@/lib/utils'
@@ -82,6 +82,37 @@ export function getNewsColumns({ onEdit, onDelete }: NewsColumnsActions): Column
           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${color}`}>
             {tag}
           </span>
+        )
+      },
+    },
+    {
+      id: 'origin',
+      size: 120,
+      accessorFn: (row) => row.origin ?? 'MANUAL',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Origen" />,
+      cell: ({ row }) => {
+        const isAuto = row.original.origin === 'AUTO'
+        return (
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                isAuto ? 'bg-violet-100 text-violet-700' : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              {isAuto ? 'Automática' : 'Manual'}
+            </span>
+            {isAuto && row.original.sourceUrl && (
+              <a
+                href={row.original.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Ver fuente original"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ExternalLinkIcon className="size-3.5" />
+              </a>
+            )}
+          </div>
         )
       },
     },
