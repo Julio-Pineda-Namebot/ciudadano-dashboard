@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { logoutCitizen } from '@/app/auth-citizen'
 import type { CitizenProfile } from '@/app/auth-citizen-types'
-import { LogOut, MapPin, User } from 'lucide-react'
+import { BookOpen, LogOut, MapPin, User } from 'lucide-react'
+
+// Manual de usuario servido como estático desde public/.
+const USER_MANUAL_URL = '/manual-usuario-plataforma-web-ciudadano.pdf'
 
 type CitizenFeedUserMenuProps = {
   profile: CitizenProfile
@@ -79,6 +82,19 @@ export function CitizenFeedUserMenu({ profile }: CitizenFeedUserMenuProps) {
             <MapPin size={16} />
             Mis incidencias
           </Link>
+
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              window.open(USER_MANUAL_URL, '_blank', 'noopener,noreferrer')
+              setOpen(false)
+            }}
+            className="flex w-full items-center gap-3 px-4 py-3 text-left text-[13px] text-white/80 transition hover:bg-white/6 hover:text-white"
+          >
+            <BookOpen size={16} />
+            Ver manual de usuario
+          </button>
 
           <form action={logoutCitizen}>
             <button
