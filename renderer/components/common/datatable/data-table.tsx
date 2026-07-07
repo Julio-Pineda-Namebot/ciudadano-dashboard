@@ -53,6 +53,7 @@ interface DataTableProps<TData, TValue> {
   pageSize?: number
   onCreate?: () => void
   createLabel?: string
+  toolbarActions?: React.ReactNode
   loading?: boolean
   emptyTitle?: string
   emptyDescription?: string
@@ -70,6 +71,7 @@ export function DataTable<TData, TValue>({
   pageSize = 10,
   onCreate,
   createLabel = 'Nuevo',
+  toolbarActions,
   loading = false,
   emptyTitle,
   emptyDescription,
@@ -168,6 +170,7 @@ export function DataTable<TData, TValue>({
           </div>
         )}
         <div className="ml-auto flex items-center gap-2">
+          {toolbarActions}
           <DataTableViewOptions table={table} />
           {onCreate && (
             <Button onClick={onCreate} disabled={loading} className={cn(resolvedButtonClass)}>

@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Filter } from '@/components/common/form/filter'
-import { useDateRangeFilter, type DateRangeValue } from '@/lib/date-range'
 import { GroupsTable } from '@/app/(menu)/security/groups/_components/GroupsTable'
 import { GroupFormModal } from '@/app/(menu)/security/groups/_components/GroupFormModal'
 import { GroupDeleteDialog } from '@/app/(menu)/security/groups/_components/GroupDeleteDialog'
 import { getGroups, createGroup, updateGroup, deleteGroup } from '@/app/(menu)/security/groups/actions'
-import { groupFilterSchema } from '@/app/(menu)/security/groups/_types/types'
-import type { Group, GroupFormData, GroupFilterValues } from '@/app/(menu)/security/groups/_types/types'
+import type { Group, GroupFormData } from '@/app/(menu)/security/groups/_types/types'
 
 export function GroupsPanel() {
   const [groups, setGroups] = useState<Group[]>([])
@@ -17,7 +14,6 @@ export function GroupsPanel() {
   const [editTarget, setEditTarget] = useState<Group | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Group | null>(null)
   const [formOpen, setFormOpen] = useState(false)
-  const { dateRange, onApply, filteredData } = useDateRangeFilter(groups, 'createdAt')
 
   async function refresh() {
     setLoading(true)
@@ -81,21 +77,8 @@ export function GroupsPanel() {
 
   return (
     <div className="p-6 space-y-4">
-      <Filter<GroupFilterValues>
-        schema={groupFilterSchema}
-        defaultValues={{ range: dateRange }}
-        body={['range']}
-        config={{
-          fields: {
-            range: { type: 'date-range-picker', label: 'Rango de fechas' },
-          },
-
-        }}
-        onSubmit={(values) => onApply(values.range as DateRangeValue)}
-      />
-
       <GroupsTable
-        groups={filteredData}
+        groups={groups}
         loading={loading}
         onEdit={openEdit}
         onDelete={setDeleteTarget}

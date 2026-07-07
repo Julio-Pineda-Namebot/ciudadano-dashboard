@@ -9,8 +9,8 @@ async function authHeaders() {
   return { Authorization: `Bearer ${token}` }
 }
 
-export async function getAdmins(): Promise<Admin[]> {
-  const res = await get<{ data: Admin[] }>('/admin/admins', { headers: await authHeaders() })
+export async function getAdmins(status: 'active' | 'inactive' = 'active'): Promise<Admin[]> {
+  const res = await get<{ data: Admin[] }>(`/admin/admins?status=${status}`, { headers: await authHeaders() })
   return res.data
 }
 
@@ -31,4 +31,13 @@ export async function updateAdmin(id: string, data: UpdateAdminFormData): Promis
 
 export async function deleteAdmin(id: string): Promise<void> {
   await del(`/admin/admins/${encodeURIComponent(id)}`, { headers: await authHeaders() })
+}
+
+export async function restoreAdmin(id: string): Promise<Admin> {
+  const res = await post<{ data: Admin }>(
+    `/admin/admins/${encodeURIComponent(id)}/restore`,
+    {},
+    { headers: await authHeaders() },
+  )
+  return res.data
 }

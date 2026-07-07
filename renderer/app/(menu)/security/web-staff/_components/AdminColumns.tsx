@@ -1,39 +1,51 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { PencilIcon, TrashIcon } from 'lucide-react'
+import { PencilIcon, RotateCcwIcon, TrashIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/common/datatable/data-table-column-header'
 import { formatDate } from '@/lib/utils'
 import type { Admin, AdminColumnsActions } from '@/app/(menu)/security/web-staff/_types/types'
 
-export function getAdminColumns({ onEdit, onDelete }: AdminColumnsActions): ColumnDef<Admin>[] {
+export function getAdminColumns({ variant = 'active', onEdit, onDelete, onRestore }: AdminColumnsActions): ColumnDef<Admin>[] {
   return [
     {
       id: 'actions',
       size: 80,
       enableHiding: false,
-      cell: ({ row }) => (
-        <div className="flex justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => onEdit(row.original)}
-            title="Editar"
-          >
-            <PencilIcon />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => onDelete(row.original)}
-            title="Eliminar"
-            className="text-destructive hover:text-destructive"
-          >
-            <TrashIcon />
-          </Button>
-        </div>
-      ),
+      cell: ({ row }) =>
+        variant === 'inactive' ? (
+          <div className="flex justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onRestore?.(row.original)}
+              title="Reactivar"
+            >
+              <RotateCcwIcon />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onEdit?.(row.original)}
+              title="Editar"
+            >
+              <PencilIcon />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onDelete?.(row.original)}
+              title="Eliminar"
+              className="text-destructive hover:text-destructive"
+            >
+              <TrashIcon />
+            </Button>
+          </div>
+        ),
     },
     {
       accessorKey: 'username',

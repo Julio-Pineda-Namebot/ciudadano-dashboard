@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { ReactNode } from 'react'
 
 export interface AdminGroupRef {
   id: string
@@ -12,6 +13,7 @@ export interface Admin {
   lastName: string
   email: string
   group: AdminGroupRef
+  isActive: boolean
   createdAt: string
 }
 
@@ -95,15 +97,28 @@ export interface AdminDeleteDialogProps {
   onConfirm: (id: string) => Promise<void>
 }
 
+export interface AdminRestoreDialogProps {
+  admin: Admin | null
+  onClose: () => void
+  onConfirm: (id: string) => Promise<void>
+}
+
+export type AdminsTableVariant = 'active' | 'inactive'
+
 export interface AdminsTableProps {
   admins: Admin[]
   loading?: boolean
-  onEdit: (admin: Admin) => void
-  onDelete: (admin: Admin) => void
+  variant?: AdminsTableVariant
+  onEdit?: (admin: Admin) => void
+  onDelete?: (admin: Admin) => void
+  onRestore?: (admin: Admin) => void
   onCreate?: () => void
+  toolbarActions?: ReactNode
 }
 
 export interface AdminColumnsActions {
-  onEdit: (admin: Admin) => void
-  onDelete: (admin: Admin) => void
+  variant?: AdminsTableVariant
+  onEdit?: (admin: Admin) => void
+  onDelete?: (admin: Admin) => void
+  onRestore?: (admin: Admin) => void
 }
